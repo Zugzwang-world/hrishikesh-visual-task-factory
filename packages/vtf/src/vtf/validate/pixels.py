@@ -54,8 +54,10 @@ class CameraPasses:
 
     @property
     def k1(self) -> float:
+        """Lens distortion the render actually applied (the manifest's quality; empty = clean).
+        Never the scene file's request: a renderer without the dial leaves the passes unwarped."""
         q = self.out.quality or {}
-        return float(q.get("distortion_k1", self.cam.quality.distortion_k1) or 0.0)
+        return float(q.get("distortion_k1") or 0.0)
 
     @property
     def K(self) -> np.ndarray:  # noqa: N802 - the usual name
