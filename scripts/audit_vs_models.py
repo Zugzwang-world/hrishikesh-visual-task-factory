@@ -76,11 +76,12 @@ def main() -> None:
 
     rows = []
     for t in audited:
-        row = {"task_id": t, "scene_id": scene[t], "conflict": conflict[t], "human": human[t]}
+        base = scene[t].split("_twin_")[0]  # a G6 twin is clustered with its source scene
+        row = {"task_id": t, "cluster": base, "conflict": conflict[t], "human": human[t]}
         for key, m in models.items():
             row[key] = m["answers"].get(t)
         rows.append(row)
-    boot = SceneBoot(sorted({r["scene_id"] for r in rows}))
+    boot = SceneBoot(sorted({r["cluster"] for r in rows}))
 
     out: dict[str, Any] = {
         "audited": len(rows),

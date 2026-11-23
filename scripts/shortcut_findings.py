@@ -24,6 +24,7 @@ Usage: uv run python scripts/shortcut_findings.py --run <out/v1> [--out docs/rep
 import argparse
 import json
 import math
+import os
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -66,6 +67,7 @@ def load_tasks(run: Path, ids: list[str]) -> dict[str, dict[str, Any]]:
         out[tid] = {
             "task": task,
             "scene_id": row.scene_id,
+            "cluster": base_scene(row.scene_id),
             "family": task.family,
             "camera": task.camera_id,
             "conflict": task.shortcut_conflict,
@@ -82,6 +84,11 @@ def load_tasks(run: Path, ids: list[str]) -> dict[str, dict[str, Any]]:
         if v["g4_margin"] is None and v["no_runner_up"]:
             v["g4_margin"] = top
     return out
+
+
+def base_scene(scene_id: str) -> str:
+    """A G6 twin (scene_0012_twin_<hash>) is clustered with the scene it was made from."""
+    return scene_id.split("_twin_")[0]
 
 
 def g4_margin(ev: dict[str, Any]) -> float | None:
@@ -155,6 +162,7 @@ def load_model(run: Path, key: str, tasks: dict[str, dict[str, Any]]) -> list[di
             {
                 "task_id": tid,
                 "scene_id": info["scene_id"],
+                "cluster": info["cluster"],
                 "family": info["family"],
                 "camera": info["camera"],
                 "conflict": info["conflict"],
@@ -191,7 +199,7 @@ class SceneBoot:
         out = np.zeros(len(self.scenes))
         for r in rows:
             if mask(r):
-                out[self.index[r["scene_id"]]] += float(value(r))
+                out[self.index[r["cluster"]]] += float(value(r))
         return out
 
     def ratio(self, num: np.ndarray, den: np.ndarray) -> tuple[float | None, np.ndarray]:
@@ -316,7 +324,7 @@ def matched(boot: SceneBoot, rows: list[dict]) -> dict[str, Any]:
     idx = {s: i for i, s in enumerate(strata)}
     cc, cn, nc, nn = (np.zeros((S, K)) for _ in range(4))
     for r in spatial:
-        i, k = boot.index[r["scene_id"]], idx[(r["family"], r["camera"])]
+        i, k = boot.index[r["cluster"]], idx[(r["family"], r["camera"])]
         if r["conflict"]:
             cn[i, k] += 1
             cc[i, k] += r["correct"]
@@ -425,7 +433,7 @@ def design(rows: list[dict], tasks: dict[str, dict], extra: dict[str, list[str]]
                 X[i] += [float(r[name] == lv) for lv in levels[1:]]
     X = np.array(X)
     y = np.array([float(r["correct"]) for r in keep])
-    groups = [r["scene_id"] for r in keep]
+    groups = [r["cluster"] for r in keep]
     return X, y, groups, cols, keep, {"mean": mu.tolist(), "sd": sd.tolist()}
 
 
@@ -615,6 +623,385 @@ def stat_cell(s: dict) -> str:
     return f"{pct(s['accuracy'])} ({ci_txt(s['ci95'])}; n {s['n']})"
 
 
+def pts(x: float) -> str:
+    return f"{x * 100:.0f}"
+
+
+def rng(c: list[float] | None, signed: bool = False) -> str:
+    if not c:
+        return ""
+    f = "{:+.0f}" if signed else "{:.0f}"
+    return f" (95% CI {f.format(c[0] * 100)} to {f.format(c[1] * 100)})"
+
+
+def survives(m: dict) -> bool:
+    lg, mt = m["logit"], m["matched"]
+    matched_ok = bool(mt["ci95"]) and mt["ci95"][1] < 0
+    logit_ok = (not lg.get("stable")) or (lg["conflict_or_ci95_cluster"][1] < 1)
+    return matched_ok and logit_ok
+
+
+def verdicts(out: dict[str, Any]) -> list[str]:
+    """Plain sentences for the report and the morning summary, computed from the numbers."""
+    lines = []
+    for m in out["models"].values():
+        name = f"{m['label']} at effort {m['effort']}"
+        bc = m["acc"]["by_conflict"]
+        g = m["acc"]["gap"]
+        lines.append(
+            f"{name}: {pts(bc['no_conflict']['accuracy'])}% when the 2D shortcut agrees with the "
+            f"3D truth, {pts(bc['conflict']['accuracy'])}% when it conflicts; gap "
+            f"{pts(g['points'])} points{rng(g['ci95'])}."
+        )
+    caps = [
+        (m["label"] + " " + m["effort"], m["capture_object_choice"]) for m in out["models"].values()
+    ]
+    if caps:
+
+        def ratio_txt(c: dict) -> str:
+            r = c["ratio_ci95"]
+            return f"{c['ratio']}x" + (f", 95% CI {r[0]:.1f} to {r[1]:.1f}" if r else "")
+
+        parts = [
+            f"{n} {pts(c['capture_share'])}% vs {pts(c['chance_share'])}% chance ({ratio_txt(c)})"
+            for n, c in caps
+            if c["capture_share"] is not None
+        ]
+        lines.append(
+            "Object-choice questions (nearest to gripper, relation, occlusion): share of wrong "
+            "answers that name the 2D-shortcut object: " + "; ".join(parts) + "."
+        )
+    ok = [m for m in out["models"].values() if survives(m)]
+    allm = list(out["models"].values())
+    if allm:
+        word = "every model" if len(ok) == len(allm) else f"{len(ok)} of {len(allm)} models"
+        mt = ", ".join(
+            f"{m['label']} {m['effort']} "
+            f"{m['matched']['gap_conflict_minus_no_conflict'] * 100:+.0f}"
+            for m in allm
+        )
+        lines.append(
+            f"Confound check: the gap survives for {word}. Within the same family and camera, "
+            f"conflict tasks score lower by (points): {mt}; the logistic regression holding "
+            "visible fraction, G4 margin, object count, camera quality and family fixed gives "
+            "conflict odds ratios of "
+            + ", ".join(
+                f"{m['label']} {m['effort']} {m['logit'].get('conflict_odds_ratio')}"
+                + (
+                    f" ({m['logit']['conflict_or_ci95_cluster'][0]} to "
+                    f"{m['logit']['conflict_or_ci95_cluster'][1]})"
+                    if m["logit"].get("stable")
+                    else " (unstable)"
+                )
+                for m in allm
+            )
+            + "."
+        )
+    comp = out.get("comparisons", {}).get("claude-opus-5-5-xhigh vs claude-opus-5-5")
+    if comp:
+        lines.append(
+            "More thinking (Opus 5.5 xhigh vs high): the gap changes by "
+            f"{comp['gap_change_points'] * 100:+.0f} points{rng(comp['gap_change_ci95'], True)}; "
+            f"accuracy on conflict tasks by {comp['conflict_accuracy_change'] * 100:+.0f} points"
+            f"{rng(comp['conflict_accuracy_change_ci95'], True)}."
+        )
+    return lines
+
+
+FAMILY_NAMES = {
+    "nearest_to_gripper": "nearest to gripper",
+    "front_to_back": "front to back",
+    "free_space": "free space",
+    "count_attribute": "count by colour",
+    "gripper_view": "gripper view",
+}
+
+
+def fam(f: str) -> str:
+    return FAMILY_NAMES.get(f, f)
+
+
+def markdown(out: dict[str, Any], run: Path, chart_rel: str) -> str:
+    ms = list(out["models"].values())
+    names = [f"{m['label']} {m['effort']}" for m in ms]
+    costs_path = run / "sweep" / "costs.json"
+    costs = json.loads(costs_path.read_text())["models"] if costs_path.is_file() else {}
+    L: list[str] = []
+    L += [
+        "# Findings on frozen dataset v1: do Claude models take the 2D shortcut?",
+        "",
+        f"Generated by `scripts/shortcut_findings.py` from the model sweep of brief 06. Every "
+        f"model answered the same {out['tasks_common']} tasks (the 1,500-task evaluation sample "
+        f"plus the 150 blind-audit tasks) from frozen v1 (300 scenes, 3,181 tasks), with only "
+        "the image and the question, through the Anthropic API: same prompts, same JSON schema, "
+        "same scorer; only the model ID and effort differ. "
+        f"{out['spatial_common']} of the tasks are spatial questions that carry the "
+        "shortcut_conflict flag. Intervals are 95%, from a bootstrap that resamples whole "
+        f"scenes ({out['scenes']} scenes; a G6 twin counts with the scene it was made from; "
+        f"{out['bootstrap']['resamples']} resamples), because tasks from one scene are "
+        "correlated.",
+        "",
+        "## Headline",
+        "",
+        *[f"- {v}" for v in out["verdicts"]],
+        "",
+        f"![Accuracy on conflict vs non-conflict tasks per model]({chart_rel})",
+        "",
+        "## 1. Accuracy",
+        "",
+        "| Model · effort | Overall | Shortcut agrees | Shortcut conflicts | Non-spatial | "
+        "Front | Overhead | Wrist |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+
+    def cell(st: dict | None) -> str:
+        if not st or not st.get("n"):
+            return "–"
+        c = st.get("ci95")
+        r = f" ({c[0] * 100:.0f}–{c[1] * 100:.0f})" if c else ""
+        return f"{st['accuracy'] * 100:.1f}%{r}"
+
+    for n, m in zip(names, ms, strict=True):
+        a = m["acc"]
+        bc, cam = a["by_conflict"], a["by_camera"]
+        L.append(
+            f"| {n} | {cell(a['overall'])} | {cell(bc['no_conflict'])} | {cell(bc['conflict'])} "
+            f"| {cell(bc['n/a'])} | {cell(cam.get('front'))} | {cell(cam.get('overhead'))} "
+            f"| {cell(cam.get('gripper'))} |"
+        )
+    n_counts = ms[0]["acc"]["by_conflict"] if ms else {}
+    if n_counts:
+        L += [
+            "",
+            f"Tasks per model: {n_counts['no_conflict']['n']} where the shortcut agrees, "
+            f"{n_counts['conflict']['n']} where it conflicts, {n_counts['n/a']['n']} non-spatial "
+            "(counts, colours, distances, support, containment, gripper view).",
+        ]
+    fams = sorted({f for m in ms for f in m["acc"]["by_family"]})
+    L += [
+        "",
+        "By family:",
+        "",
+        "| Family | " + " | ".join(names) + " |",
+        "| --- | " + " | ".join("---" for _ in names) + " |",
+    ]
+    for f in fams:
+        L.append(
+            f"| {fam(f)} | " + " | ".join(cell(m["acc"]["by_family"].get(f)) for m in ms) + " |"
+        )
+    sp = sorted({k.split("|")[0] for m in ms for k in m["acc"]["by_family_conflict"]})
+    L += [
+        "",
+        "Spatial families, shortcut agrees / conflicts:",
+        "",
+        "| Family | " + " | ".join(names) + " |",
+        "| --- | " + " | ".join("---" for _ in names) + " |",
+    ]
+    for f in sp:
+        row = []
+        for m in ms:
+            a = m["acc"]["by_family_conflict"].get(f"{f}|no_conflict")
+            b = m["acc"]["by_family_conflict"].get(f"{f}|conflict")
+            row.append(
+                f"{a['accuracy'] * 100:.0f}% / {b['accuracy'] * 100:.0f}% (n {a['n']} / {b['n']})"
+                if a and b and a["n"] and b["n"]
+                else "–"
+            )
+        L.append(f"| {fam(f)} | " + " | ".join(row) + " |")
+
+    L += [
+        "",
+        "## 2. Shortcut capture vs chance",
+        "",
+        "Among conflict tasks a model got wrong with a readable answer, the share whose answer "
+        "is exactly the 2D-shortcut answer, against the chance share (per task, 1 divided by "
+        "the number of wrong answers on offer, averaged). Yes/no and two-object questions offer "
+        "one wrong answer, so every miss there is the shortcut and the ratio is 1 by "
+        "construction; the object-choice families (nearest to gripper, relation, occlusion) "
+        "are the informative test.",
+        "",
+        "| Model · effort | Scope | Conflict tasks | Answered misses | Shortcut picks | "
+        "Share | Chance | Ratio (95% CI) |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+
+    def cap_row(n: str, scope: str, c: dict) -> str:
+        if not c["answered_misses"]:
+            return f"| {n} | {scope} | {c['conflict_tasks']} | 0 | – | – | – | – |"
+        r = c["ratio_ci95"]
+        rr = f"{c['ratio']}" + (f" ({r[0]:.2f}–{r[1]:.2f})" if r else "")
+        return (
+            f"| {n} | {scope} | {c['conflict_tasks']} | {c['answered_misses']} | "
+            f"{c['shortcut_picks']} | {c['capture_share'] * 100:.0f}% | "
+            f"{c['chance_share'] * 100:.0f}% | {rr} |"
+        )
+
+    for n, m in zip(names, ms, strict=True):
+        L.append(cap_row(n, "all spatial", m["capture"]))
+        L.append(cap_row(n, "object choice", m["capture_object_choice"]))
+    L += [
+        "",
+        "By family (all models):",
+        "",
+        "| Model · effort | " + " | ".join(fam(f) for f in sp) + " |",
+        "| --- | " + " | ".join("---" for _ in sp) + " |",
+    ]
+    for n, m in zip(names, ms, strict=True):
+        cells = []
+        for f in sp:
+            c = m["capture_by_family"].get(f)
+            if not c or not c["answered_misses"]:
+                cells.append("–")
+            else:
+                cells.append(
+                    f"{c['shortcut_picks']}/{c['answered_misses']} vs "
+                    f"{c['chance_share'] * 100:.0f}% chance"
+                )
+        L.append(f"| {n} | " + " | ".join(cells) + " |")
+
+    L += [
+        "",
+        "## 3. Confound check",
+        "",
+        "Conflict tasks might simply be harder in other ways (more occluded, closer margins, "
+        "busier scenes, worse cameras, harder families). Two checks:",
+        "",
+        "- **Matched comparison:** conflict minus non-conflict accuracy inside each "
+        "family x camera stratum that has both, averaged with each stratum's conflict-task "
+        "count as weight.",
+        "- **Logistic regression** of correct on conflict, visible fraction, G4 margin (log of "
+        "the margin over the gate threshold), object count, camera quality level (clean, "
+        "mild, harsh, CCTV) and family, on the spatial tasks, with scene-clustered standard "
+        "errors and a 500-fit scene bootstrap as a check. A second fit adds the camera.",
+        "",
+        "| Model · effort | Matched gap, points (95% CI) | Strata | Odds ratio for conflict "
+        "(clustered 95% CI) | Bootstrap 95% CI | With camera too | Stable | Survives |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for n, m in zip(names, ms, strict=True):
+        mt, lg, lc = m["matched"], m["logit"], m["logit_with_camera"]
+        c = mt["ci95"]
+        mg = f"{mt['gap_conflict_minus_no_conflict'] * 100:+.1f}" + (
+            f" ({c[0] * 100:+.0f} to {c[1] * 100:+.0f})" if c else ""
+        )
+        orc = lg.get("conflict_or_ci95_cluster") or [None, None]
+        orb = lg.get("conflict_or_ci95_bootstrap") or [None, None]
+        occ = lc.get("conflict_or_ci95_cluster") or [None, None]
+        stable = "yes" if lg.get("stable") else "no: " + "; ".join(lg.get("unstable_reasons", []))
+        L.append(
+            f"| {n} | {mg} | {mt['strata_used']} | {lg.get('conflict_odds_ratio')} "
+            f"({orc[0]}–{orc[1]}) | {orb[0]}–{orb[1]} | {lc.get('conflict_odds_ratio')} "
+            f"({occ[0]}–{occ[1]}) | {stable} "
+            f"| {'yes' if out['survives'].get(m['key']) else 'no'} |"
+        )
+    pooled = out.get("logit_pooled")
+    if pooled and pooled.get("columns"):
+        L += [
+            "",
+            f"Pooled fit over all models (model indicators added, n {pooled['n']} answers, "
+            f"{pooled['scenes']} scenes): conflict odds ratio {pooled['conflict_odds_ratio']} "
+            f"(clustered 95% CI {pooled['conflict_or_ci95_cluster'][0]} to "
+            f"{pooled['conflict_or_ci95_cluster'][1]}). Coefficients (log-odds; continuous "
+            "covariates standardised):",
+            "",
+            "| Term | Coefficient | Clustered SE |",
+            "| --- | --- | --- |",
+        ]
+        for col, b, se in zip(pooled["columns"], pooled["coef"], pooled["se_cluster"], strict=True):
+            L.append(f"| {col} | {b:+.3f} | {se:.3f} |")
+
+    L += ["", "## 4. Does thinking help?", ""]
+    comps = out.get("comparisons", {})
+    if comps:
+        L += [
+            "Differences use the same scene resamples for both models, so they are paired. "
+            "Gap = accuracy where the shortcut agrees minus where it conflicts.",
+            "",
+            "| Comparison | Gap change, points | Conflict accuracy change | Overall change |",
+            "| --- | --- | --- | --- |",
+        ]
+        for k, c in comps.items():
+            a, b = k.split(" vs ")
+            lab = {m["key"]: f"{m['label']} {m['effort']}" for m in ms}
+
+            def ch(v: float, ci_: list | None) -> str:
+                return f"{v * 100:+.1f}" + (
+                    f" ({ci_[0] * 100:+.0f} to {ci_[1] * 100:+.0f})" if ci_ else ""
+                )
+
+            L.append(
+                f"| {lab.get(a, a)} vs {lab.get(b, b)} | "
+                f"{ch(c['gap_change_points'], c['gap_change_ci95'])} | "
+                f"{ch(c['conflict_accuracy_change'], c['conflict_accuracy_change_ci95'])} | "
+                f"{ch(c['overall_change'], c['overall_change_ci95'])} |"
+            )
+    L += [
+        "",
+        "Mean thinking tokens per answer (output tokens the API reports as thinking):",
+        "",
+        "| Model · effort | Shortcut agrees | Shortcut conflicts | Non-spatial |",
+        "| --- | --- | --- | --- |",
+    ]
+    for n, m in zip(names, ms, strict=True):
+        t = m["mean_thinking_tokens"]
+
+        def tk(x: dict) -> str:
+            return "–" if not x or x["mean"] is None else f"{x['mean']:.0f} (n {x['n']})"
+
+        L.append(f"| {n} | {tk(t['no_conflict'])} | {tk(t['conflict'])} | {tk(t['n/a'])} |")
+
+    L += [
+        "",
+        "## 5. Human comparison",
+        "",
+        "Pending the founder's blind audit of the 150 audit tasks (all models answered them). "
+        "When the export is in, `uv run python scripts/audit_vs_models.py --run out/v1 "
+        "--answers <export.json>` scores it with the same scorer and writes "
+        "human_vs_models.md beside this file.",
+        "",
+        "## Cost",
+        "",
+        "| Model · effort | Answers | Input tokens | Output tokens | of which thinking | "
+        "Cost (USD) |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for n, m in zip(names, ms, strict=True):
+        c = costs.get(m["key"])
+        if c:
+            t = c["tokens"]
+            L.append(
+                f"| {n} | {c['replies']} | {t.get('input', 0):,} | {t.get('output', 0):,} | "
+                f"{t.get('thinking', 0):,} | {c['cost_usd']:.2f} |"
+            )
+    L += [
+        "",
+        "Batched answers bill at half the list price; Sonnet's first 1,500 answers were standard "
+        "calls from 23 Nov.",
+        "",
+        "## Method notes",
+        "",
+        "- Settings on every call: thinking adaptive, effort set explicitly, max_tokens 16,000 "
+        "(64,000 and a 1,200 s timeout at xhigh), structured JSON output, no sampling "
+        "parameters; anthropic SDK 2.12.0, API version 2026-10-21. Each result records the "
+        "model ID, API and SDK version, effort, max_tokens, input, output and thinking tokens, "
+        "and whether it came from a standard call or the Message Batches API (same request "
+        "body).",
+        "- A miss counts as a shortcut pick when the eval scorer accepts the answer against the "
+        f"task's shortcut_answer. {len(out.get('shortcut_matched_by_noun', []))} relation "
+        "tasks name a shortcut object that is not nameable in that view; those are matched by "
+        "noun.",
+        "- Unparseable answers count as wrong in accuracy and are left out of the capture "
+        "share (they name nothing).",
+        "- Relation tasks with a single candidate have no runner-up and no finite G4 margin; "
+        "the regression gives them the largest margin observed.",
+        "- The regression is fit by IRLS in numpy; it is called unstable if it fails to "
+        "converge, a coefficient exceeds 15 in absolute value, or over 5% of bootstrap fits "
+        "fail, in which case only the matched comparison is reported.",
+        "",
+    ]
+    return "\n".join(L)
+
+
 def gallery(models: dict[str, list[dict]], tasks: dict[str, dict], n: int = 12) -> list[dict]:
     """Conflict tasks where the most models picked the shortcut; one per scene, spread over
     families and cameras."""
@@ -659,7 +1046,7 @@ def main() -> None:
     task_set = json.loads((run / "sweep" / "task_set.json").read_text())
     ids = task_set["task_ids"]
     tasks = load_tasks(run, ids)
-    scenes = sorted({t["scene_id"] for t in tasks.values()})
+    scenes = sorted({t["cluster"] for t in tasks.values()})
     boot = SceneBoot(scenes)
 
     rows_by: dict[str, list[dict]] = {}
@@ -760,11 +1147,20 @@ def main() -> None:
             pooled_rows, tasks, SEED + 999, extra={"model": [m["key"] for m in summaries]}
         )
     out["shortcut_matched_by_noun"] = sorted(APPROX)
+    out["spatial_common"] = sum(1 for t in common if tasks[t]["conflict"] is not None)
+    out["verdicts"] = verdicts(out)
+    out["survives"] = {m["key"]: survives(m) for m in summaries}
     out["gallery"] = gallery({k: v for k, v in rows_by.items()}, tasks)
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "findings.json").write_text(json.dumps(strip(out), indent=2) + "\n")
+    chart_png = Path(args.media) / "shortcut_conflict_accuracy.png"
+    try:
+        chart_rel = str(Path(os.path.relpath(chart_png.resolve(), out_dir.resolve())))
+    except ValueError:
+        chart_rel = str(chart_png)
+    (out_dir / "findings.md").write_text(markdown(strip(out), run, chart_rel))
     n_spatial = sum(1 for t in common if tasks[t]["conflict"] is not None)
     chart(summaries, Path(args.media) / "shortcut_conflict_accuracy.png", n_spatial)
     print(json.dumps(strip({k: v for k, v in out.items() if k != "models"}), indent=1)[:3000])

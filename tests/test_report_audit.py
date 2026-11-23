@@ -532,3 +532,39 @@ def test_dataset_report_on_bare_validated_run(run: Path) -> None:
     text = page.read_text()
     assert_well_formed(text)
     assert "No model has been evaluated" in text and "Not run yet" in text
+
+
+def test_findings_section_reads_findings_json(tmp_path: Path) -> None:
+    from vtf.validate.report import findings_section
+
+    assert findings_section(tmp_path / "findings.json") is None
+    st = {"n": 10, "correct": 5, "accuracy": 0.5, "ci95": [0.3, 0.7]}
+    model = {
+        "label": "Opus 5.5",
+        "effort": "xhigh",
+        "acc": {
+            "overall": st,
+            "by_conflict": {"conflict": st, "no_conflict": {**st, "accuracy": 0.8}, "n/a": st},
+            "gap": {"points": 0.3, "ci95": [0.1, 0.5]},
+        },
+        "matched": {"gap_conflict_minus_no_conflict": -0.3, "ci95": [-0.5, -0.1]},
+        "logit": {
+            "conflict_odds_ratio": 0.3,
+            "conflict_or_ci95_cluster": [0.2, 0.5],
+            "stable": True,
+        },
+        "capture": {"capture_share": 0.6, "chance_share": 0.5, "ratio": 1.2, "ratio_ci95": None},
+        "capture_object_choice": {
+            "capture_share": 0.6,
+            "chance_share": 0.2,
+            "ratio": 3.0,
+            "ratio_ci95": [2.0, 4.0],
+        },
+    }
+    path = tmp_path / "findings.json"
+    path.write_text(
+        json.dumps({"models": {"k": model}, "verdicts": ["v"], "tasks_common": 10, "scenes": 3})
+    )
+    section = findings_section(path)
+    assert section is not None and section["verdicts"] == ["v"]
+    assert "Opus 5.5 · xhigh" in str(section["chart"]) and section["table"][0]["odds_ratio"] == 0.3
