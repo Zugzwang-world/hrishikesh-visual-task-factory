@@ -21,9 +21,13 @@ class FakeAdapter(Adapter):
 
     def _reply(self, payload: Any) -> AdapterResponse:
         return AdapterResponse(
-            raw_text=json.dumps(payload), latency_s=0.0, input_tokens=0, output_tokens=0,
-            stop_reason="end_turn", meta={"output_mode": "fake"},
-        )  # fmt: skip
+            raw_text=json.dumps(payload),
+            latency_s=0.0,
+            input_tokens=0,
+            output_tokens=0,
+            stop_reason="end_turn",
+            meta={"output_mode": "fake"},
+        )
 
 
 class FakeOracle(FakeAdapter):

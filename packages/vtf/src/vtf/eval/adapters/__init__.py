@@ -12,8 +12,13 @@ __all__ = ["Adapter", "AdapterResponse", "FatalAdapterError", "make_adapter"]
 
 # Settings from models.yaml that each provider's adapter accepts.
 _ANTHROPIC_SETTINGS = {
-    "max_tokens", "thinking", "effort", "structured_output", "timeout_s", "max_retries",
-}  # fmt: skip
+    "max_tokens",
+    "thinking",
+    "effort",
+    "structured_output",
+    "timeout_s",
+    "max_retries",
+}
 
 
 def make_adapter(spec: "ModelSpec") -> Adapter:

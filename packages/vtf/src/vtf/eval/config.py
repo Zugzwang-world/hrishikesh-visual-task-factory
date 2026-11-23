@@ -60,8 +60,14 @@ def resolve_model(model: str, config_path: Path | str | None = None) -> ModelSpe
     concurrency = int(defaults.pop("concurrency", 4))
 
     if model in FAKES:
-        return ModelSpec(key=model, provider="fake", model_id=model, verified=True,
-                         price_usd_per_mtok=Price(input=0, output=0), concurrency=1)  # fmt: skip
+        return ModelSpec(
+            key=model,
+            provider="fake",
+            model_id=model,
+            verified=True,
+            price_usd_per_mtok=Price(input=0, output=0),
+            concurrency=1,
+        )
 
     entries = config.get("models") or []
     entry = next((e for e in entries if e.get("key") == model), None)
