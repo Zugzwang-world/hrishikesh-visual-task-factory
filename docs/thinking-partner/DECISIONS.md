@@ -2,6 +2,40 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 23 Nov 2026: Stage 3 lane decisions (brief 05)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Sampler v1 is separate | `sampler: v1` in a recipe selects it; first_scene.yaml still runs v0 byte for byte | Stage-2 runs and their G7 hashes stay valid. |
+| v1 table | 1.2 x 0.8 m (stage-2 style recipes keep 1.0 x 0.7 m); table-level objects use at most 40% of the area | 25 real-size objects fit; high clutter draws smaller items instead of failing layouts. |
+| Unique names by construction | No two objects share category and colour except one planned duplicate group and small/large size pairs; zone colours are kept off every object | Every object a question may name stays nameable. |
+| Stacks and containers | Stacks two high; passive containers sit exactly on the table; contents filtered by fit | Plausible rests and short settles. |
+| Upright assets | Nine assets modelled upright point at pre-rotated rest-pose glTF files (assets/rest_pose.py), used by both Blender and vtf.core.assets | Core meshes and renders stay identical; no double tilt in the sampler. |
+| Wrist camera | Beside the palm, looking straight down the approach axis, 70 to 90 degree field of view | Objects under the gripper fill the view; gripper_view questions are fair by construction. |
+| Mesh ray caster | Embree per object inside its projected box, exact float64 hits; 0.1 to 0.5 s per camera | Fast enough to check every scene against the render. |
+| Camera dial | Post-render in vtf.camera, seeded; k1 distortion followed by the smallest zoom that leaves no black border; index, depth and masks warped by nearest neighbour from the same map as the image; noise sigma rises as 3 x (1/gain - 1) | Every pass stays aligned with the image the model sees; the manifest K stays pinhole and vtf.camera holds the exact map and inverse. |
+| G2 and distortion | G2 back-projects through the dial's exact inverse, and only when the manifest says the dial ran | A renderer without the dial leaves the passes unwarped. |
+| Batched rendering | Several scenes per Blender process, a 5-minute per-scene watchdog that kills and restarts Blender, refill after a kill; a scene is skipped only when its manifest matches the scene file and the dial | Start-up saved; one stuck scene never stalls a batch; no stale renders. |
+| Amodal masks | Objects whose projected box misses a camera get an empty mask without rendering; the rest render only inside their box (bit-identical to full frame) | About half the mask time; masks were not the bottleneck but the saving is free. |
+| scene.glb | Display only: plain materials, 256 px textures, triangle budget halved until under 1 MB, dropped above 3 MB; a failed export never fails a render | Small enough for the Task Explorer and the disk budget. |
+| Lean renders | Scale runs keep no beauty_raw.png; task images are hard links; depth is compressed | Disk is the binding constraint. |
+| Free-disk floor (founder, 23 Nov evening) | The scale driver checks free space before every batch and stops at the last finished batch if the next one would leave less than 20 GB; exit 0, resumable | The founder's rule for this Mac. |
+| Incremental validation | Per-scene results under scenes/<id>/validate/, keyed by the scene, manifest, settled scene and code versions; collect rebuilds the run files | Batches validate as they finish; a partial run is always usable. |
+| G4 inside programs | Programs apply the spec's metric and pixel margins (front rig stricter) and G4 re-checks them from the result | Near-ties never become tasks; the gate keeps the evidence. |
+| G6 policy | A stratified sample by family x rig (at least one per stratum, seeded by task id); only a valid twin whose answer did not change rejects the original; a broken twin is recorded twin_invalid | A bad twin edit is not evidence against the question. |
+| Twin rules beyond the spec | Fallback edits when the spec's move is impossible (for example move the nearer object behind for front_to_back, hide another object for occlusion) | More families get a valid twin. |
+| free_space rule | Yes needs gap >= the item's largest extent + 2 cm; no needs gap <= its smallest width - 1.5 cm; a corridor as wide as the item between a and b's closest points | The spec's single width was ambiguous for long items. |
+| relation candidates | Objects stacked on, inside or under the anchor are excluded | Otherwise a bowl's contents answer "left of the bowl". |
+| Scorer resolution | An answer's colour, size and category words must pick out exactly the truth object; a missing word never excludes; a bare number is centimetres; prompts version 0.2.0 | Fair to models without loosening exact answers. |
+| G5 rebalance | Seeded rejection sampling: bool 45 to 55%, any single answer value at most 35% (relaxed to 1/k + 5% when a family has few values); twin-linked tasks dropped last; run `vtf balance` after the last collect | Answer priors cannot be exploited; twin pairs survive. |
+| Blind baseline | Question only, no image, best-guess prompt, results under `<model>__blind` with their own cache key | A refusal must not inflate vision necessity; blind and image runs never mix. |
+| Eval sampling | Stratified with equal shares per stratum; seeded bootstrap intervals | Similar interval widths per family and rig. |
+| Audit page | One static page, JPEG images, answers in localStorage with export; object questions offer tap buttons with every scene object plus free text | Works offline on a phone; fewer naming mismatches. |
+| Dataset report | Hand-written inline SVG charts, no external fetch | Opens from file:// for a judge. |
+| Task Explorer | Static Next.js export with three.js, deployed to the Vercel production domain vtf-task-explorer.vercel.app; data files generated and uploaded, not committed | Public without a server; the repo stays light. |
+| Twin mat | A3 single sheet or four A4 tiles; 40 x 28 cm grid, ArUco DICT_4X4_50 ids 0 to 3 in the corners, 31 x 19 cm placement area; one fixed front phone spot and an overhead spot | Most home printers do A4; the stand stays put for a whole photo session. |
+| Shopping list | 15 kinds, 23 pieces, one supermarket trip; trays, plates, the basket, jugs and long items left out (wider than the placement area) | Everything on the list fits the mat. |
+
 ## 23 Nov 2026: Stage 3 overnight run (brief 05), contracts and lanes
 
 | Decision | Choice | Why |
