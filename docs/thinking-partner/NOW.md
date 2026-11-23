@@ -1,6 +1,6 @@
 # NOW
 
-**Updated:** 23 Nov 2026, 23:55 IST
+**Updated:** 24 Nov 2026, 00:05 IST
 **Stage:** **Stage 3, Core factory: built, integrated and run (brief 05).** The scale run stopped at the founder's 20 GB disk floor after 300 of 500 scenes; eval, baselines, report and audit set are done on those.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
@@ -11,6 +11,13 @@
 - Gate pass rates over 3,653 gated candidates: G1 100%, G2 95.4%, G3 99.5%, G4 99.9%, G7 100%. G6: 872 tasks sampled, 484 valid twins, all 484 changed their answer (299 had no twin rule, 89 twins were invalid, mostly the twin's own settle).
 - G5: the prior-only baseline (most common answer per family) scores 25%; Claude Sonnet 5.5 with no image scores 15% (27 of 180), so the image is needed.
 - Dataset report: docs/reports/v1/index.html (gate rates, rejection reasons, coverage, answer distributions, shortcut_conflict share, model splits). Rejections are mostly occlusion that is too weak, no candidate, hidden evidence and near-ties.
+
+## Attempt to finish the last 200 scenes (23:58, founder's request): stopped at the floor
+
+- Resumed at batch 13 with 23.0 GB free (same frozen code). Within three minutes swap grew from 14 to 17 GB and free space fell to 19.9 GB, under the 20 GB floor; our batch writes only about 0.26 GB. Stopped the run and its post-run chain at once, per the rule. 4 scenes of batch 13 rendered, none validated; they resume later at no cost.
+- The resume's collect steps had rebuilt the manifest; balance was re-run and gives the same 3,181 tasks, all 1,500 eval tasks included, so the eval and the report stand.
+- **To finish:** restart the Mac (swap is 17 GB and is the cause; a restart clears it), then run the resume command below and the gated chain `zsh out/v1/logs/after_scale_run_2.sh` (it re-runs balance, the blind baseline, the eval with cached replies free, the report and the audit set, and the Explorer export only with 20 GB free).
+- 3 of the 300 scenes (0130, 0174, 0229) failed validation on an empty-projection crash (an object wholly behind the wrist camera) and contribute no tasks; fix noted in OPEN.md item 14.
 
 ## Headline finding (Claude Sonnet 5.5, 1,500 stratified tasks, $6.80)
 

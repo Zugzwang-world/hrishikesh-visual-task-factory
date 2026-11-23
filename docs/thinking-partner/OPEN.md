@@ -16,6 +16,8 @@ Open questions, each with a recommendation. Close an item by moving its answer t
 | 10 | G6 twin rules are weak for front_to_back, nearest, occlusion and gripper_view (often no valid move). | Untwinned tasks record G6 as no_twin_rule, not a failure; improve the rules in stage 4 if the judges' demo needs twins in those families. | Open |
 | 12 | Three G6 twins failed with "ProgramReject got multiple values for argument 'reason'" (a twin rule passes reason= as a detail keyword). | Rename the detail key in vtf.programs.twins; the twins were recorded twin_invalid and did not affect their originals. | Open, small fix |
 | 13 | The scale run stopped at 300 of 500 scenes (disk floor). | Free about 3 GB (Docker Desktop's VM disk is 41 GB), then resume with the command in NOW.md; rerun balance, eval and report. 3,181 tasks already meet the brief's target of about 3,000. | Founder |
+| 14 | Scenes 0130, 0174 and 0229 fail validation: "zero-size array to reduction operation maximum" (likely an empty projection in vtf.programs.view, line 119, for an object wholly behind the wrist camera; the c3e8ae2 hotfix covered the other sites). | Guard the empty case like c3e8ae2, re-validate the three scenes, then balance, eval (cached replies are free) and the report. About 36 more tasks. | Open, small fix |
+| 15 | Swap, not our output, decides free disk on this Mac: 14 to 21 GB of swap moves free space by several GB within minutes. | Restart the Mac before the next long run; keep the 20 GB floor. | Founder |
 | 11 | RejectedRow has no task_id field; G5 rebalance rows carry it in detail.task_id. | Add an optional task_id in contract v0.3. | Open, low priority |
 
 
