@@ -8,6 +8,10 @@ own module and (at most) its own command function here:
     validate  -> vtf.validate.pipeline.validate_run       (coordinator, P07)
     verify    -> vtf.validate.verify.verify_run           (coordinator, P07)
     eval      -> vtf.eval.runner.eval_run                 (eval lane)
+    balance   -> vtf.validate.balance.balance_run         (report and audit lane, G5)
+    baseline  -> vtf.validate.gates.g5_vision_necessity.blind_baseline
+    audit     -> vtf.package.audit.make_audit / score_audit   (P16)
+    dataset-report -> vtf.validate.report.dataset_report  (P17)
 """
 
 import importlib
@@ -79,11 +83,105 @@ def eval_(
     model: str = typer.Option("claude-sonnet-5-5", help="Model id."),
     limit: int = typer.Option(None, help="Evaluate at most this many tasks."),
     models: Path = typer.Option(None, help="Models config YAML (stage 4)."),
+    sample: int = typer.Option(
+        None, help="Seeded stratified sample of this many tasks (equal share per stratum)."
+    ),
+    stratify: str = typer.Option(
+        "family,rig", help="Strata for --sample: family, rig, camera_id, shortcut_conflict."
+    ),
+    seed: int = typer.Option(0, help="Seed for --sample."),
+    blind: bool = typer.Option(
+        False, help="Question only, no image (G5 baseline); results go to eval/<model>__blind/."
+    ),
 ) -> None:
     """Run a model on the tasks, score its answers and print accuracy per family."""
     _lane("eval", "vtf.eval.runner", "eval_run")(
-        run_dir=path, model=model, limit=limit, models_config=models
+        run_dir=path,
+        model=model,
+        limit=limit,
+        models_config=models,
+        sample=sample,
+        stratify=tuple(s.strip() for s in stratify.split(",") if s.strip()),
+        seed=seed,
+        blind=blind,
     )
+
+
+@app.command()
+def balance(
+    path: Path = typer.Argument(..., help="Validated run folder (after vtf validate)."),
+    seed: int = typer.Option(0, help="Seed for the rejection sampling."),
+) -> None:
+    """G5: rebalance answer distributions per family; write the prior-only baseline."""
+    _lane("balance", "vtf.validate.balance", "balance_run")(run_dir=path, seed=seed)
+
+
+@app.command()
+def baseline(
+    path: Path = typer.Argument(..., help="Balanced run folder (after vtf balance)."),
+    model: str = typer.Option("claude-sonnet-5-5", help="Model asked without the image."),
+    per_family: int = typer.Option(15, help="Tasks per family, stratified by rig."),
+    seed: int = typer.Option(0, help="Sampling seed."),
+    models: Path = typer.Option(None, help="Models config YAML."),
+) -> None:
+    """G5: question-only baseline (no image) per family, compared with the prior."""
+    _lane("baseline", "vtf.validate.gates.g5_vision_necessity", "blind_baseline")(
+        run_dir=path, model=model, per_family=per_family, seed=seed, models_config=models
+    )
+
+
+audit_app = typer.Typer(help="P16 blind audit: a labelling page for the founder, and its scorer.")
+app.add_typer(audit_app, name="audit")
+
+
+@audit_app.command("make")
+def audit_make(
+    path: Path = typer.Argument(..., help="Validated run folder."),
+    n: int = typer.Option(150, help="Tasks in the audit (stratified family x rig x conflict)."),
+    seed: int = typer.Option(0, help="Sampling seed."),
+    out: Path = typer.Option(None, help="Output folder (default <run>/audit)."),
+    png: bool = typer.Option(False, help="Copy PNG images as they are (default: JPEG q90)."),
+) -> None:
+    """Write <run>/audit/index.html: one task at a time, answers kept in the browser."""
+    _lane("audit make", "vtf.package.audit", "make_audit")(
+        run_dir=path, n=n, seed=seed, out_dir=out, image_format="png" if png else "jpg"
+    )
+
+
+@audit_app.command("score")
+def audit_score(
+    path: Path = typer.Argument(..., help="The run the audit was drawn from."),
+    answers: Path = typer.Argument(..., help="Answers JSON exported from the audit page."),
+    audit_dir: Path = typer.Option(None, help="Audit folder (default <run>/audit)."),
+) -> None:
+    """Score the founder's answers with the eval scorer: accuracy per family and the misses."""
+    _lane("audit score", "vtf.package.audit", "score_audit")(
+        run_dir=path, answers_path=answers, audit_dir=audit_dir
+    )
+
+
+@audit_app.command("make-s2")
+def audit_make_s2(
+    run: Path = typer.Option(Path("out/s2"), help="The stage-2 run (read only)."),
+    out: Path = typer.Option(Path("out/audit_s2"), help="Output folder."),
+) -> None:
+    """Audit page for every stage-2 nearest-to-gripper task (out/s2 -> out/audit_s2)."""
+    _lane("audit make-s2", "vtf.package.audit", "make_audit")(
+        run_dir=run,
+        n=None,
+        out_dir=out,
+        families=["nearest_to_gripper"],
+        title="Blind audit: stage 2, nearest to gripper",
+    )
+
+
+@app.command(name="dataset-report")
+def dataset_report(
+    path: Path = typer.Argument(..., help="Validated (and ideally balanced, evaluated) run."),
+    out: Path = typer.Option(None, help="Output folder (default <run>/report)."),
+) -> None:
+    """P17: write <run>/report/index.html, the static dataset report for judges."""
+    _lane("dataset-report", "vtf.validate.report", "dataset_report")(run_dir=path, out_dir=out)
 
 
 @app.command()
