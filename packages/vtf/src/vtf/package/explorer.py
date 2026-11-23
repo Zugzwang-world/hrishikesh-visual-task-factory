@@ -811,6 +811,16 @@ def _gallery_entry(item: dict, scene: dict, summary: dict) -> dict | None:
 # ---------------------------------------------------------------- the whole export
 
 
+def _n_scenes(run: Path, lay: layout.RunLayout) -> int:
+    """Scenes in the run: from the freeze record when there is one (a frozen run can hold
+    generated scenes that are not part of it), else every scene folder."""
+    frozen = _read_json(run / "FROZEN.json") or {}
+    status = frozen.get("scene_status")
+    if isinstance(status, dict) and status:
+        return int(sum(status.values()))
+    return len(lay.scene_ids())
+
+
 def _dir_bytes(path: Path) -> int:
     return sum(p.stat().st_size for p in Path(path).rglob("*") if p.is_file())
 
@@ -924,7 +934,7 @@ def export_explorer(
             "run_seed": run_info.get("run_seed"),
             "generator_version": run_info.get("generator_version"),
             "spec_version": first.get("spec_version"),
-            "n_scenes": len(lay.scene_ids()),
+            "n_scenes": _n_scenes(run, lay),
             "n_tasks": sum(len(v) for v in tasks_by_scene.values()),
         },
         "families": list(FAMILIES),
