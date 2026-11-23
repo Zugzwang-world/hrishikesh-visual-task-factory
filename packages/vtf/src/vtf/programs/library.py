@@ -42,7 +42,7 @@ from vtf.programs.view import (
     scale_reference,
 )
 
-PROGRAMS_VERSION = "0.2.0"
+PROGRAMS_VERSION = "0.2.1"
 
 TABLE_CONTACT_TOL_M = RESTING_TOL_M
 # G4 margins (spec/families.md)
@@ -629,6 +629,12 @@ def occluded_by(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
         raise ProgramReject("not_occluded", occluder=occ.id,
                             best_share=_r(rows[0]["share"], 4) if rows else 0.0)  # fmt: skip
     win = rows[0]
+    # The object the occluder rests on or sits inside is "hidden" by it only in a degenerate
+    # sense (a lemon in a bowl hides the bowl's floor); such questions are rejected (brief 05
+    # check run: models read them as containment, not occlusion).
+    holders = {ctx.sg.support(occ.id).support_id, ctx.sg.container_of(occ.id)}
+    if win["object_id"] in holders:
+        raise ProgramReject("occluder_rests_on_answer", occluder=occ.id, object_id=win["object_id"])
     if win["visible"] < OCCLUSION_MIN_VISIBLE:
         raise ProgramReject("too_hidden", occluder=occ.id, object_id=win["object_id"],
                             visible=_r(win["visible"], 4))  # fmt: skip

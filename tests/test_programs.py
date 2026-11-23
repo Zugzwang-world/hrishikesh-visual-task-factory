@@ -626,7 +626,7 @@ def test_in_zone_matches_brute_force(points, centre, radius) -> None:
 
 def test_run_program_contract() -> None:
     scene = read_scene(FIXTURE)
-    assert PROGRAMS_VERSION == "0.2.0"
+    assert PROGRAMS_VERSION == "0.2.1"
     assert set(PROGRAMS) == set(PROGRAM_FAMILY)
     assert all(PROGRAMS[p].family in FAMILIES for p in PROGRAMS)
     unsettled = scene.model_copy(update={"meta": scene.meta.model_copy(update={"settled": False})})

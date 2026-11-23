@@ -93,7 +93,7 @@ The 12 families in `vtf.core.program.FAMILIES`, with the exact rule each program
 
 ### occlusion
 
-- **Truth.** By exact ray casting of the scene file in the task camera: the object X with the largest share of its amodal silhouette covered by the occluder (first hit is the occluder). X must be at least 10% covered by the occluder and at least 30% visible overall.
+- **Truth.** By exact ray casting of the scene file in the task camera: the object X with the largest share of its amodal silhouette covered by the occluder (first hit is the occluder). X must be at least 10% covered by the occluder and at least 30% visible overall. Rejected when X is the object the occluder rests on or sits inside (v0.2.1: a lemon in a bowl "hides" the bowl only in a degenerate sense).
 - **G2.** From the rendered amodal masks and index: the share of X's amodal pixels where the index shows the occluder. Same winner.
 - **G4.** Runner-up share below 3% (absolute) or at most half the winner's share.
 - **2D heuristic.** The object whose image point is nearest the occluder's image point.
