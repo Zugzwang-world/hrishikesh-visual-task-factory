@@ -87,7 +87,9 @@ def test_manifest_and_camera_match_core(renders, which) -> None:
     for cam in manifest.cameras:
         spec = settled.camera(cam.camera_id)
         assert tuple(cam.resolution) == tuple(spec.resolution)
-        np.testing.assert_allclose(cam.K, intrinsics(spec), atol=1e-5)
+        # Blender stores lens and sensor width as float32: K agrees to about 1e-7 relative, which
+        # is up to ~2e-5 px on a sampled focal length (the example's 28 mm is exact).
+        np.testing.assert_allclose(cam.K, intrinsics(spec), rtol=1e-6, atol=1e-5)
         np.testing.assert_allclose(cam.world_to_camera, world_to_camera(spec), atol=1e-5)
         assert sorted(cam.amodal, key=int) == [str(o.pass_index) for o in settled.objects]
 
