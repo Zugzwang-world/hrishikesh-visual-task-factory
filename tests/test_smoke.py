@@ -9,7 +9,7 @@ import vtf
 from vtf.cli import app
 
 COMMANDS = ["generate", "render", "validate", "eval", "report", "verify", "export"]
-STUBS = ["report", "export"]
+STUBS = ["export"]
 
 
 def test_version() -> None:
