@@ -37,6 +37,17 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 
 ## New research
 
+### 23 Nov 2026: Nearest-to-gripper re-run with fair evidence (stage 3, Claude Sonnet 5.5)
+
+- **Setup.** 40 stage-2 style scenes (5 to 10 coloured primitives) with the key light, the low gripper (fingertip 3 to 12 cm above the tallest nearby object), and three cameras: front, overhead and wrist. Run `out/nearest_v1`, recipe `recipes/s2_nearest_v1.yaml`, seed 1. 69 tasks passed every gate (G1 to G4 and G7 at 100%).
+- **Result.** 47 of 69 correct (68%, 95% interval 58 to 80%), against 5 of 12 (42%) in stage 2.
+  - shortcut_conflict false: 47 of 62 (76%).
+  - shortcut_conflict true (the object closest to the gripper in the image is not the closest in 3D): 0 of 7, and in all 7 the model named exactly the 2D-shortcut object.
+  - By camera: overhead 24 of 31 (77%), front 16 of 23 (70%), wrist 7 of 15 (47%).
+- **Reading.** Fair evidence (contact shadows, a low gripper) lifts accuracy, but when image-plane proximity and 3D proximity disagree, the model follows the image every time. Small n (7); the 500-scene run gives the larger split.
+- **Same pattern elsewhere, 20-scene check (out/v1check, 290 tasks, all 12 families):** Sonnet 66% overall; front_to_back, free_space and relation conflict tasks are where wrong answers equal the shortcut answer. Weakest families: occlusion 33%, nearest to gripper 41%, containment 47%; strongest: front-to-back 85%, support 81%, count 80%.
+- **Validity fixes found by this check, before the scale run:** occlusion questions whose answer was the bowl holding the occluder are now rejected; reach-zone questions need the whole zone in frame; the scorer resolves names among the objects visible in the task's image.
+
 ### 23 Nov 2026: First model result (stage 2, Claude Sonnet 5.5)
 
 - 83 gated tasks from 20 front-camera scenes: count 37/37, front-to-back 34/34, nearest to the gripper 5/12 (42%); 92% overall; no parse failures; $0.25 in all.

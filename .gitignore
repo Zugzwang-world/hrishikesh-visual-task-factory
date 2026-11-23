@@ -42,3 +42,4 @@ renders/
 
 # Downloaded assets (Poly Haven cache)
 assets/cache
+.playwright-mcp/
