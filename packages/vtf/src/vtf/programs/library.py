@@ -553,10 +553,10 @@ def relation(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
     name = ctx.require_name(win["object_id"], "answer")
     # 2D heuristic: nearest image point on the asked side of the anchor's image point
     pa = ctx.image_point(anchor.id)
-    side = [(float(np.linalg.norm(ctx.image_point(o.id) - pa)), o.id) for o in ctx.sg.objects
-            if o.id != anchor.id and ((ctx.image_point(o.id)[0] - pa[0]) * (1 if direction ==
-                                                                          "right" else -1)) > 0]
-    side.sort()
+    sign = 1.0 if direction == "right" else -1.0
+    pool = [r["object_id"] for r in scored]  # objects overlapping the anchor are never answers
+    side = sorted((float(np.linalg.norm(ctx.image_point(oid) - pa)), oid) for oid in pool
+                  if (ctx.image_point(oid)[0] - pa[0]) * sign > 0)  # fmt: skip
     h_id = side[0][1] if side else None
     trace = [
         {"step": "frame", "camera_id": ctx.camera.id, "image_right_xy": _vec(right),
@@ -566,7 +566,8 @@ def relation(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
                    if "distance_m" in r else {})} for r in rows),
         {"step": "decision", "answer": win["object_id"],
          "runner_up": cands[1]["object_id"] if len(cands) > 1 else None},
-        {"step": "shortcut", "rule": "nearest image point on the asked side", "object_id": h_id},
+        {"step": "shortcut", "rule": "nearest image point on the asked side (candidates only)",
+         "object_id": h_id},
     ]  # fmt: skip
     diff = ctx.difficulty(evidence, target=win["object_id"], n_candidates=len(cands),
                           answer_angle_deg=_r(win["angle_deg"], 2))  # fmt: skip
@@ -768,6 +769,9 @@ def room_between(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
     if len({item.id, a.id, b.id}) != 3:
         raise ValueError("room_between: item, a and b must be three different objects")
     ref = _require_scale(ctx)
+    off = [o.id for o in (a, b) if ctx.sg.support(o.id).support_id != "table"]
+    if off:
+        raise ProgramReject("not_on_table", object_ids=off)
     ga, gb, gi = ctx.sg.geom[a.id], ctx.sg.geom[b.id], ctx.sg.geom[item.id]
     gap = polygon_distance(ga.hull, gb.hull)
     w_max, w_min = diameter(gi.hull), min_width(gi.hull)
@@ -913,7 +917,12 @@ def run_program(name: str, params: dict, scene: SceneSpec, camera_id: str) -> Pr
     family = FAMILIES[PROGRAMS[name].family]
     if camera.rig not in family.rigs:
         raise ProgramReject("wrong_rig", program=name, rig=camera.rig, rigs=list(family.rigs))
-    result = PROGRAMS[name].fn(Ctx(scene, camera), dict(params))
+    ctx = Ctx(scene, camera)
+    result = PROGRAMS[name].fn(ctx, dict(params))
     if family.spatial and result.shortcut_conflict is None:
         raise AssertionError(f"{name}: spatial families must set shortcut_conflict")
+    if result.evidence_object_ids:  # occlusion level of the evidence in this camera
+        result.difficulty["evidence_min_visible"] = _r(
+            min(ctx.view.fraction(i) for i in result.evidence_object_ids), 4
+        )
     return result

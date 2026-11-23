@@ -63,6 +63,23 @@ class View:
         }
 
 
+def _intersector(mesh: trimesh.Trimesh):
+    try:
+        from trimesh.ray.ray_pyembree import RayMeshIntersector
+    except ImportError:  # pragma: no cover - embreex is a core dependency
+        from trimesh.ray.ray_triangle import RayMeshIntersector
+    return RayMeshIntersector(mesh)
+
+
+def hidden_evidence(view: View, evidence: list[str], family: str, params: dict) -> list[dict]:
+    """Evidence objects that fail the G3 thresholds in this view (counted objects of count
+    families use rule A's lower thresholds; a named container uses the evidence thresholds)."""
+    counted = family in ("count", "count_attribute")
+    container = params.get("container")
+    return [view.visibility_row(i) for i in evidence
+            if not view.visible(i, counted=counted and i != container)]  # fmt: skip
+
+
 def _mesh_raycast(scene: SceneSpec, camera_id: str):
     """index, amodal for scenes with asset meshes (fallback until vtf.core.raycast has meshes)."""
     cam = scene.camera(camera_id)
@@ -104,9 +121,8 @@ def _mesh_raycast(scene: SceneSpec, camera_id: str):
             u1, v1 = min(u1, width), min(v1, height)
             if u1 > u0 and v1 > v0:
                 sub = dirs[v0:v1, u0:u1].reshape(-1, 3)
-                ray = trimesh.ray.ray_triangle.RayMeshIntersector(g.mesh)
-                locs, idx_ray, _ = ray.intersects_location(
-                    np.repeat(origin[None], len(sub), axis=0), sub, multiple_hits=True
+                locs, idx_ray, _ = _intersector(g.mesh).intersects_location(
+                    np.repeat(origin[None], len(sub), axis=0), sub, multiple_hits=False
                 )
                 ts = np.full(len(sub), np.inf)
                 if len(locs):

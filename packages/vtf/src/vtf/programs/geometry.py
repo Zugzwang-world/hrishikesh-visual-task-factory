@@ -90,22 +90,48 @@ def _axes(poly: np.ndarray) -> list[np.ndarray]:
 
 def penetration_depth(pa: np.ndarray, pb: np.ndarray) -> float:
     """Minimum translation that separates two convex polygons (0 when they do not overlap)."""
-    depth = math.inf
-    for axis in _axes(pa) + _axes(pb):
-        a, b = pa @ axis, pb @ axis
-        overlap = min(a.max(), b.max()) - max(a.min(), b.min())
-        if overlap <= 0:
-            return 0.0
-        depth = min(depth, float(overlap))
-    return 0.0 if depth is math.inf else depth
+    axes = _axes(pa) + _axes(pb)
+    if not axes:
+        return 0.0
+    ax = np.array(axes)
+    a, b = pa @ ax.T, pb @ ax.T
+    overlap = np.minimum(a.max(0), b.max(0)) - np.maximum(a.min(0), b.min(0))
+    return float(overlap.min()) if (overlap > 0).all() else 0.0
+
+
+def _points_to_edges(points: np.ndarray, poly: np.ndarray) -> np.ndarray:
+    """(N,) distance from each point to the nearest edge of a polygon (vectorised)."""
+    a = poly
+    b = np.roll(poly, -1, axis=0)
+    ab = b - a  # (M, 2)
+    ap = points[:, None, :] - a[None, :, :]  # (N, M, 2)
+    denom = np.maximum((ab * ab).sum(-1), 1e-300)
+    t = np.clip((ap * ab[None]).sum(-1) / denom, 0.0, 1.0)
+    diff = ap - t[..., None] * ab[None]
+    return np.sqrt((diff * diff).sum(-1)).min(axis=1)
+
+
+def polygons_overlap(pa: np.ndarray, pb: np.ndarray) -> bool:
+    """Separating-axis test for two convex polygons (touching counts as not overlapping)."""
+    axes = []
+    for poly in (pa, pb):
+        e = np.roll(poly, -1, axis=0) - poly
+        n = np.stack([-e[:, 1], e[:, 0]], axis=1)
+        norm = np.linalg.norm(n, axis=1)
+        axes.append(n[norm > 0] / norm[norm > 0, None])
+    ax = np.vstack(axes)
+    a, b = pa @ ax.T, pb @ ax.T
+    overlap = np.minimum(a.max(0), b.max(0)) - np.maximum(a.min(0), b.min(0))
+    return bool((overlap > 0).all())
 
 
 def polygon_distance(pa: np.ndarray, pb: np.ndarray) -> float:
     """Minimum distance between two convex polygons (0 when they overlap)."""
-    if penetration_depth(pa, pb) > 0:
+    if len(pa) < 3 or len(pb) < 3:
+        raise ValueError("polygon_distance needs two polygons with at least 3 vertices")
+    if polygons_overlap(pa, pb):
         return 0.0
-    d = min(point_segment_distance(p, a, b) for p in pa for a, b in _edges(pb))
-    return min(d, min(point_segment_distance(p, a, b) for p in pb for a, b in _edges(pa)))
+    return float(min(_points_to_edges(pa, pb).min(), _points_to_edges(pb, pa).min()))
 
 
 def closest_points(pa: np.ndarray, pb: np.ndarray) -> tuple[np.ndarray, np.ndarray, float]:
@@ -320,10 +346,14 @@ class SceneGeom:
             if other.id == object_id:
                 continue
             og = self.geom[other.id]
-            if not point_in_polygon((x, y), og.hull) or og.lowest_z > z:
+            # a support reaches lower than what it carries (a croissant on a plate does not
+            # carry the plate, though its underside lies below the plate's centre)
+            if not point_in_polygon((x, y), og.hull) or og.lowest_z >= g.lowest_z - 1e-4:
                 continue
             sz = og.surface_below(x, y, z)
-            if sz is not None:
+            # only surfaces at or below the object's bottom can carry it (an apple inside a
+            # bowl is above the bowl's centre, not under it)
+            if sz is not None and round(sz - g.lowest_z, 9) <= RESTING_TOL_M:
                 cands.append({"support_id": other.id, "surface_z": sz})
         for c in cands:
             c["gap_m"] = g.lowest_z - c["surface_z"]
