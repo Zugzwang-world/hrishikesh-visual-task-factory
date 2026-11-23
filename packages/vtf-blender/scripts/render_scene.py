@@ -179,4 +179,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # One greppable line for the bridge; the traceback follows, and Blender exits non-zero
+        # when started with --python-exit-code 1.
+        print(f"VTF_RENDER_ERROR {type(exc).__name__}: {exc}", flush=True)
+        raise

@@ -21,6 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 RENDER_SCRIPT = REPO_ROOT / "packages" / "vtf-blender" / "scripts" / "render_scene.py"
 MAC_BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender"
 LOG_FILE = "render.log"
+ERROR_MARKER = "VTF_RENDER_ERROR"
 REPORT_VERSION = "0.1.0"
 
 
@@ -78,7 +79,11 @@ def blender_command(blender: str, scene_file: Path, out_dir: Path, device: str) 
 
 
 def _last_error(log_text: str) -> str:
+    """The render script's VTF_RENDER_ERROR line, else the last line that mentions an error."""
     lines = [ln.strip() for ln in log_text.splitlines() if ln.strip()]
+    for line in reversed(lines):
+        if line.startswith(ERROR_MARKER):
+            return line.removeprefix(ERROR_MARKER).strip()[:500]
     for line in reversed(lines):
         if "Error" in line or "error" in line or "Exception" in line:
             return line[:500]
