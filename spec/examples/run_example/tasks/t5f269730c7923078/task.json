@@ -1,26 +1,29 @@
 {
   "task_version": "0.1.0",
-  "task_id": "t80189f7efbb144ce",
+  "task_id": "t5f269730c7923078",
   "scene_id": "scene_0000",
-  "scene_hash": "df89b336fa88fadaae7578418c86a6f784038e7499d66094dc31c01fdc0105e2",
+  "scene_hash": "4ea36a75a3d6a61b3c84e78e6955aeb5f9078c748c63f5d767fc479924a94ed1",
   "camera_id": "front",
   "image": "image.png",
-  "question": "How many red objects are there?",
+  "question": "How many objects are on the table?",
   "family": "count",
-  "template_id": "count_color.p1",
+  "template_id": "count_all.p1",
   "program": {
-    "name": "count_color",
-    "params": {
-      "color": "red"
-    }
+    "name": "count_all",
+    "params": {}
   },
-  "answer": 2,
+  "answer": 7,
   "answer_type": "int",
-  "answer_text": "2",
+  "answer_text": "7",
   "tolerance": null,
   "evidence_object_ids": [
     "obj_00",
-    "obj_04"
+    "obj_01",
+    "obj_02",
+    "obj_03",
+    "obj_04",
+    "obj_05",
+    "obj_06"
   ],
   "gates": {
     "G1": {

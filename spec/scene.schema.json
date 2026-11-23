@@ -235,10 +235,10 @@
     },
     "Physics": {
       "additionalProperties": false,
-      "description": "Rigid-body settle parameters. Part of the truth, because they decide the settled poses.",
+      "description": "Rigid-body settle parameters. Part of the truth, because they decide the settled poses.\n\nDefaults follow the expert's measurements on Blender 5.3 (DECISIONS.md, 23 Nov 2026): 10\nsubsteps let cylinders fall through the table; 40 substeps and 20 iterations settle every\ntested scene by frame 57. Primitive collision shapes, Bullet deactivation on, split impulse\non; the gripper and the table never move (the table is passive, the gripper is not simulated).",
       "properties": {
         "settle_frames": {
-          "default": 60,
+          "default": 90,
           "exclusiveMinimum": 0,
           "title": "Settle Frames",
           "type": "integer"
@@ -250,7 +250,7 @@
           "type": "integer"
         },
         "substeps_per_frame": {
-          "default": 10,
+          "default": 40,
           "exclusiveMinimum": 0,
           "title": "Substeps Per Frame",
           "type": "integer"
@@ -262,7 +262,7 @@
           "type": "integer"
         },
         "friction": {
-          "default": 0.8,
+          "default": 0.6,
           "minimum": 0,
           "title": "Friction",
           "type": "number"
@@ -274,14 +274,14 @@
           "type": "number"
         },
         "linear_damping": {
-          "default": 0.1,
+          "default": 0.04,
           "maximum": 1,
           "minimum": 0,
           "title": "Linear Damping",
           "type": "number"
         },
         "angular_damping": {
-          "default": 0.6,
+          "default": 0.1,
           "maximum": 1,
           "minimum": 0,
           "title": "Angular Damping",
@@ -298,6 +298,16 @@
           "exclusiveMinimum": 0,
           "title": "Density Kg M3",
           "type": "number"
+        },
+        "use_deactivation": {
+          "default": true,
+          "title": "Use Deactivation",
+          "type": "boolean"
+        },
+        "use_split_impulse": {
+          "default": true,
+          "title": "Use Split Impulse",
+          "type": "boolean"
         }
       },
       "title": "Physics",

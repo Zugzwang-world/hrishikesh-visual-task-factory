@@ -149,18 +149,26 @@ class RenderSettings(_Model):
 
 
 class Physics(_Model):
-    """Rigid-body settle parameters. Part of the truth, because they decide the settled poses."""
+    """Rigid-body settle parameters. Part of the truth, because they decide the settled poses.
 
-    settle_frames: int = Field(default=60, gt=0)
+    Defaults follow the expert's measurements on Blender 5.3 (DECISIONS.md, 23 Nov 2026): 10
+    substeps let cylinders fall through the table; 40 substeps and 20 iterations settle every
+    tested scene by frame 57. Primitive collision shapes, Bullet deactivation on, split impulse
+    on; the gripper and the table never move (the table is passive, the gripper is not simulated).
+    """
+
+    settle_frames: int = Field(default=90, gt=0)
     fps: int = Field(default=24, gt=0)
-    substeps_per_frame: int = Field(default=10, gt=0)
+    substeps_per_frame: int = Field(default=40, gt=0)
     solver_iterations: int = Field(default=20, gt=0)
-    friction: float = Field(default=0.8, ge=0)
+    friction: float = Field(default=0.6, ge=0)
     restitution: float = Field(default=0.0, ge=0)
-    linear_damping: float = Field(default=0.1, ge=0, le=1)
-    angular_damping: float = Field(default=0.6, ge=0, le=1)
+    linear_damping: float = Field(default=0.04, ge=0, le=1)
+    angular_damping: float = Field(default=0.1, ge=0, le=1)
     collision_margin: float = Field(default=0.0005, ge=0)
     density_kg_m3: float = Field(default=600.0, gt=0)
+    use_deactivation: bool = True
+    use_split_impulse: bool = True
 
 
 class SceneSpec(_Model):

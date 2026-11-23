@@ -257,6 +257,22 @@
           },
           "title": "Off Table",
           "type": "array"
+        },
+        "moving_at_end": {
+          "description": "Objects still moving between the last two frames.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Moving At End",
+          "type": "array"
+        },
+        "support_gap_m": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "object id -> lowest point minus the table top, metres (about 0 at rest).",
+          "title": "Support Gap M",
+          "type": "object"
         }
       },
       "required": [
@@ -307,12 +323,22 @@
       "type": "string"
     },
     "device": {
-      "description": "Device actually used.",
+      "description": "Device actually used for beauty.",
       "enum": [
         "GPU",
         "CPU"
       ],
       "title": "Device",
+      "type": "string"
+    },
+    "data_passes_device": {
+      "default": "CPU",
+      "description": "Device for index, depth and amodal passes. CPU makes them exact on re-render.",
+      "enum": [
+        "GPU",
+        "CPU"
+      ],
+      "title": "Data Passes Device",
       "type": "string"
     },
     "device_name": {

@@ -2,11 +2,12 @@
   "manifest_version": "0.1.0",
   "scene_id": "scene_0000",
   "scene_file": "scenes/scene_0000/scene.json",
-  "scene_sha256": "382508fd2f21a4e4f66c66961b9ca3043466f4e34c3ea6706f8c2490e61dfefd",
+  "scene_sha256": "d983c335aa4c22d52f769a9e92015fe037b7a3efce7c051a8c9274c1448500d4",
   "settled_scene_file": "scene.settled.json",
   "renderer": "fixture",
   "blender_version": "none (vtf.core.raycast)",
   "device": "CPU",
+  "data_passes_device": "CPU",
   "device_name": "",
   "samples": 1,
   "seed": 0,
@@ -92,7 +93,9 @@
       "obj_06": 0.01
     },
     "max_displacement_m": 0.01,
-    "off_table": []
+    "off_table": [],
+    "moving_at_end": [],
+    "support_gap_m": {}
   },
   "timings": {
     "build": 0.0,

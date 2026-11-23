@@ -6,6 +6,7 @@ The renderer (packages/vtf-blender, inside Blender) writes, per scene, into one 
     scene.settled.json        the SceneSpec with settled poses and meta.settled = true
     <camera_id>/beauty.png    8-bit RGB
     <camera_id>/index.png     16-bit single channel; pixel value = pass_index, 0 = background
+                              (from a 1-sample CPU render, so it is exact on re-render)
     <camera_id>/depth.npy     float32 (H, W); planar camera-frame depth in metres, 0.0 = no hit
     <camera_id>/amodal/<pass_index>.png   8-bit single channel; 255 where the object, rendered
                                           alone, covers the pixel; 0 elsewhere
@@ -64,6 +65,13 @@ class SettleReport(_Model):
     off_table: list[str] = Field(
         default_factory=list, description="Objects whose settled centre left the table top."
     )
+    moving_at_end: list[str] = Field(
+        default_factory=list, description="Objects still moving between the last two frames."
+    )
+    support_gap_m: dict[str, float] = Field(
+        default_factory=dict,
+        description="object id -> lowest point minus the table top, metres (about 0 at rest).",
+    )
 
 
 class RenderManifest(_Model):
@@ -74,7 +82,11 @@ class RenderManifest(_Model):
     settled_scene_file: str = Field(default="scene.settled.json")
     renderer: str = Field(default="blender", description="blender, or fixture for test data.")
     blender_version: str
-    device: Literal["GPU", "CPU"] = Field(description="Device actually used.")
+    device: Literal["GPU", "CPU"] = Field(description="Device actually used for beauty.")
+    data_passes_device: Literal["GPU", "CPU"] = Field(
+        default="CPU",
+        description="Device for index, depth and amodal passes. CPU makes them exact on re-render.",
+    )
     device_name: str = ""
     samples: int
     seed: int

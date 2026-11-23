@@ -1,29 +1,27 @@
 {
   "task_version": "0.1.0",
-  "task_id": "tf0994859696a1ca3",
+  "task_id": "t2e1456f6273a3fc5",
   "scene_id": "scene_0000",
-  "scene_hash": "df89b336fa88fadaae7578418c86a6f784038e7499d66094dc31c01fdc0105e2",
+  "scene_hash": "4ea36a75a3d6a61b3c84e78e6955aeb5f9078c748c63f5d767fc479924a94ed1",
   "camera_id": "front",
   "image": "image.png",
-  "question": "How many objects are on the table?",
-  "family": "count",
-  "template_id": "count_all.p1",
+  "question": "Which is closer to the camera, the yellow cone or the blue cylinder?",
+  "family": "front_to_back",
+  "template_id": "front_to_back.p1",
   "program": {
-    "name": "count_all",
-    "params": {}
+    "name": "front_to_back",
+    "params": {
+      "a": "obj_03",
+      "b": "obj_01"
+    }
   },
-  "answer": 7,
-  "answer_type": "int",
-  "answer_text": "7",
+  "answer": "yellow cone",
+  "answer_type": "object",
+  "answer_text": "yellow cone",
   "tolerance": null,
   "evidence_object_ids": [
-    "obj_00",
-    "obj_01",
-    "obj_02",
     "obj_03",
-    "obj_04",
-    "obj_05",
-    "obj_06"
+    "obj_01"
   ],
   "gates": {
     "G1": {
