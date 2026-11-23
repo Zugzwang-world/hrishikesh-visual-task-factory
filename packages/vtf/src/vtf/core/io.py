@@ -22,7 +22,7 @@ def model_json(model: BaseModel) -> str:
 def write_model(path: Path, model: BaseModel) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(model_json(model), encoding="utf-8")
+    path.write_text(model_json(model), encoding="utf-8", newline="\n")
     return path
 
 

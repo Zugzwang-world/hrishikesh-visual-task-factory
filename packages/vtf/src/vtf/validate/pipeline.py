@@ -59,7 +59,7 @@ def question_seed(settled: SceneSpec, camera_id: str) -> int:
 
 def regenerate_scene_bytes(run_info: RunInfo | None, run_dir: Path, scene_id: str) -> bytes | None:
     """Re-sample a scene from its recipe and seed; None when the recipe is not available."""
-    if run_info is None or scene_id not in run_info.scenes:
+    if run_info is None or scene_id not in run_info.scenes or not Path(run_info.recipe).is_file():
         return None
     try:
         from vtf.scene.generate import regenerate_scene_json
