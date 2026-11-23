@@ -34,6 +34,7 @@ SUPPORT_RING_PX = 5
 SUPPORT_XY_REACH_M = 0.03
 SUPPORT_ABOVE_LOW_M = 0.01
 SUPPORT_MIN_PIXELS = 10
+SUPPORT_WINDOW_M = 0.02
 CONTAINER_SHRINK_M = 0.005
 CONTAINER_FLOOR_TOL_M = 0.01
 CONTAINER_RIM_TOL_M = 0.02
@@ -298,7 +299,12 @@ def r_support(route, params):
             groups[int(p)] = (float(np.median(z)), int(z.size))
     if not groups:
         raise Undecided("no_support_pixels", lowest_z=_r(low))
-    best = max(groups, key=lambda p: (groups[p][0], groups[p][1]))
+    # The supporting surface is the highest one under the object (an overhead view sees a ball's
+    # equator, not its contact point); among surfaces within 2 cm of it, the most pixels win
+    # (spec: the most common pass index within 2 cm), so a neighbour in a bowl loses to the bowl.
+    top = max(z for z, _ in groups.values())
+    near_top = [p for p, (z, _) in groups.items() if z >= top - SUPPORT_WINDOW_M]
+    best = max(near_top, key=lambda p: (groups[p][1], groups[p][0], -p))
     return route.oid(best), {"lowest_visible_z": _r(low),
                              "support_groups": {route.oid(p): {"median_z": _r(z), "pixels": n}
                                                 for p, (z, n) in groups.items()}}  # fmt: skip
