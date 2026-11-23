@@ -14,6 +14,8 @@ import numpy as np
 import pytest
 from skimage.metrics import structural_similarity
 
+from vtf.camera import preset, warp_index, warp_nearest
+from vtf.core.geometry import Pose, look_at_camera_quat, quat_to_matrix, round_vec
 from vtf.core.io import (
     read_depth,
     read_index_png,
@@ -21,11 +23,12 @@ from vtf.core.io import (
     read_mask_png,
     read_rgb_png,
     read_scene,
+    write_model,
 )
 from vtf.core.layout import RunLayout
 from vtf.core.projection import intrinsics, world_to_camera
 from vtf.core.raycast import raycast
-from vtf.core.scene import GRIPPER_PASS_INDEX, TABLE_PASS_INDEX
+from vtf.core.scene import GRIPPER_PASS_INDEX, TABLE_PASS_INDEX, CameraSpec
 from vtf.render.bridge import find_blender, render_run, render_scene, render_scenes
 
 REPO = Path(__file__).resolve().parents[1]
@@ -275,3 +278,116 @@ def test_missing_blender_fails_every_scene(tmp_path) -> None:
     )
     assert not results[0].ok and "not found" in results[0].error
     assert not (tmp_path / "out" / "render_manifest.json").exists()
+
+
+def _three_camera_scene(path: Path, levels: dict[str, str], samples: int = 16) -> Path:
+    """The example scene with overhead and gripper cameras added and a dial level per camera."""
+    spec = read_scene(EXAMPLE)
+    top = spec.table.height
+    eye = (0.02, -0.04, top + 1.1)
+    overhead = CameraSpec(
+        id="overhead",
+        rig="overhead",
+        pose=Pose(
+            position=round_vec(eye),
+            rotation=round_vec(look_at_camera_quat(eye, (0.02, 0.0, top), (0, 1, 0))),
+        ),
+        focal_mm=26.0,
+        resolution=(240, 180),
+    )
+    tip = spec.gripper.tip
+    rot = quat_to_matrix(tip.rotation)
+    pos = np.asarray(tip.position) + rot @ np.array([0.0, 0.05, spec.gripper.finger_length + 0.03])
+    target = np.asarray(tip.position) + rot @ np.array([0.0, 0.0, -0.3])
+    gripper = CameraSpec(
+        id="gripper",
+        rig="gripper",
+        pose=Pose(
+            position=round_vec(pos),
+            rotation=round_vec(look_at_camera_quat(pos, target, rot @ np.array([0.0, 1.0, 0.0]))),
+        ),
+        focal_mm=16.0,
+        resolution=(200, 150),
+    )
+    cams = [
+        cam.model_copy(update={"quality": preset(levels.get(cam.id, "clean"), seed=i + 1)})
+        for i, cam in enumerate([spec.cameras[0], overhead, gripper])
+    ]
+    render = spec.render.model_copy(update={"samples": samples})
+    write_model(path, spec.model_copy(update={"cameras": cams, "render": render}))
+    return path
+
+
+@pytest.fixture(scope="module")
+def multicam(tmp_path_factory) -> dict:
+    """Two three-camera scenes in one batched Blender call: one with mild, harsh and cctv dials,
+    one clean."""
+    root = tmp_path_factory.mktemp("multicam")
+    dial = _three_camera_scene(
+        root / "dial" / "scene.json", {"front": "mild", "overhead": "harsh", "gripper": "cctv"}
+    )
+    clean = _three_camera_scene(root / "clean" / "scene.json", {})
+    outs = [root / "dial" / "render", root / "clean" / "render"]
+    results = render_scenes([dial, clean], outs, batch_size=5)
+    for r in results:
+        assert r.ok, f"{r.error}; see {r.log}"
+    return {"results": results, "dial": outs[0], "clean": outs[1]}
+
+
+@needs_blender
+def test_multicam_one_blender_process(multicam) -> None:
+    first, second = multicam["results"]
+    assert first.startup_seconds > 0 and second.startup_seconds == 0  # one process, two scenes
+    for which in ("dial", "clean"):
+        manifest, settled = _load(multicam[which])
+        assert [c.camera_id for c in manifest.cameras] == ["front", "overhead", "gripper"]
+        for cam in manifest.cameras:
+            spec = settled.camera(cam.camera_id)
+            assert cam.rig == spec.rig and tuple(cam.resolution) == tuple(spec.resolution)
+            np.testing.assert_allclose(cam.K, intrinsics(spec), rtol=1e-6, atol=1e-5)
+            np.testing.assert_allclose(cam.world_to_camera, world_to_camera(spec), atol=1e-5)
+            expected = {} if which == "clean" else spec.quality.model_dump(mode="json")
+            assert cam.quality == expected
+            assert (cam.beauty_raw is None) == (which == "clean")
+
+
+@needs_blender
+@pytest.mark.parametrize("which", ["dial", "clean"])
+def test_multicam_passes_align_under_distortion(multicam, which) -> None:
+    """Index, depth and amodal masks match the analytic ray cast warped with the same dial."""
+    out = multicam[which]
+    manifest, settled = _load(out)
+    for cam in manifest.cameras:
+        q = settled.camera(cam.camera_id).quality
+        k = np.asarray(cam.K)
+        index = read_index_png(out / cam.index)
+        depth = read_depth(out / cam.depth)
+        truth = raycast(settled, cam.camera_id)
+        t_index = warp_index(truth.index, q, k)
+        t_depth = warp_nearest(truth.depth, q, k, 0.0)
+        ious = {}
+        for obj in settled.objects:
+            a, b = index == obj.pass_index, t_index == obj.pass_index
+            if (a | b).sum() >= 30:
+                ious[obj.id] = (a & b).sum() / (a | b).sum()
+            visible = index == obj.pass_index
+            amodal = read_mask_png(out / cam.amodal[str(obj.pass_index)])
+            assert not (visible & ~amodal).any(), (cam.camera_id, obj.id)
+        assert ious, cam.camera_id  # every camera sees some object
+        print(which, cam.camera_id, {k: round(float(v), 4) for k, v in ious.items()})
+        assert min(ious.values()) >= 0.95, (cam.camera_id, ious)
+        agree = (index == t_index) & (index > 0)
+        assert np.median(np.abs(depth[agree] - t_depth[agree])) < 1e-4
+        assert np.all(depth[index > 0] > 0)
+
+
+@needs_blender
+def test_gltf_export(multicam) -> None:
+    import trimesh
+
+    manifest, settled = _load(multicam["dial"])
+    assert manifest.gltf == "scene.glb"
+    path = multicam["dial"] / manifest.gltf
+    assert 0 < path.stat().st_size < 3_000_000
+    names = set(trimesh.load(path).geometry)
+    assert {o.id for o in settled.objects} <= names and "table" in names
