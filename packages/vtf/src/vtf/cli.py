@@ -87,9 +87,20 @@ def eval_(
 
 
 @app.command()
-def report(path: Path = typer.Argument(None, help="Evaluated task directory.")) -> None:
-    """Build the findings report and model risk cards."""
-    _stub("report")
+def report(
+    path: Path = typer.Argument(..., help="Evaluated run folder."),
+    model: str = typer.Option("claude-sonnet-5-5", help="Model whose answers to show."),
+    out: Path = typer.Option(
+        None, help="Contact sheet PNG (default <run>/report/contact_sheet.png)."
+    ),
+    max_tasks: int = typer.Option(24, help="Tasks on the sheet."),
+) -> None:
+    """Contact sheet of tasks with true and model answers (findings report: stage 4)."""
+    from vtf.package.contact_sheet import make_contact_sheet
+
+    make_contact_sheet(
+        path, model, out or Path(path) / "report" / "contact_sheet.png", max_tasks=max_tasks
+    )
 
 
 @app.command()
