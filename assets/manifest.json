@@ -1,0 +1,1408 @@
+{
+ "manifest_version": "0.1.0",
+ "cache_dir": "assets/cache",
+ "assets": [
+  {
+   "id": "food_apple_01",
+   "source": "polyhaven",
+   "category": "apple",
+   "plural": "apples",
+   "color_name": "red",
+   "rgb": [
+    0.268,
+    0.046,
+    0.005
+   ],
+   "file": "food_apple_01/food_apple_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0976,
+    0.0959,
+    0.0854
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": "red_fruit",
+   "triangles": 7012,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/food_apple_01",
+   "notes": ""
+  },
+  {
+   "id": "food_pomegranate_01",
+   "source": "polyhaven",
+   "category": "pomegranate",
+   "plural": "pomegranates",
+   "color_name": "red",
+   "rgb": [
+    0.269,
+    0.035,
+    0.022
+   ],
+   "file": "food_pomegranate_01/food_pomegranate_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.1143,
+    0.1154,
+    0.115
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": "red_fruit",
+   "triangles": 8142,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/food_pomegranate_01",
+   "notes": ""
+  },
+  {
+   "id": "lemon",
+   "source": "polyhaven",
+   "category": "lemon",
+   "plural": "lemons",
+   "color_name": "yellow",
+   "rgb": [
+    0.421,
+    0.253,
+    0.011
+   ],
+   "file": "lemon/lemon_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0687,
+    0.0683,
+    0.0954
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": "citrus",
+   "triangles": 4012,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/lemon",
+   "notes": ""
+  },
+  {
+   "id": "food_lime_01",
+   "source": "polyhaven",
+   "category": "lime",
+   "plural": "limes",
+   "color_name": "green",
+   "rgb": [
+    0.176,
+    0.205,
+    0.03
+   ],
+   "file": "food_lime_01/food_lime_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0601,
+    0.0613,
+    0.0754
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": "citrus",
+   "triangles": 8100,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/food_lime_01",
+   "notes": ""
+  },
+  {
+   "id": "food_avocado_01",
+   "source": "polyhaven",
+   "category": "avocado",
+   "plural": "avocados",
+   "color_name": "green",
+   "rgb": [
+    0.011,
+    0.007,
+    0.007
+   ],
+   "file": "food_avocado_01/food_avocado_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0952,
+    0.0946,
+    0.1432
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 7743,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/food_avocado_01",
+   "notes": ""
+  },
+  {
+   "id": "food_kiwi_01",
+   "source": "polyhaven",
+   "category": "kiwi",
+   "plural": "kiwis",
+   "color_name": "brown",
+   "rgb": [
+    0.226,
+    0.109,
+    0.041
+   ],
+   "file": "food_kiwi_01/food_kiwi_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0695,
+    0.0686,
+    0.0901
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 7748,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/food_kiwi_01",
+   "notes": ""
+  },
+  {
+   "id": "yellow_onion",
+   "source": "polyhaven",
+   "category": "onion",
+   "plural": "onions",
+   "color_name": "brown",
+   "rgb": [
+    0.225,
+    0.058,
+    0.015
+   ],
+   "file": "yellow_onion/yellow_onion_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0725,
+    0.0686,
+    0.0864
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 5444,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/yellow_onion",
+   "notes": ""
+  },
+  {
+   "id": "croissant",
+   "source": "polyhaven",
+   "category": "croissant",
+   "plural": "croissants",
+   "color_name": "brown",
+   "rgb": [
+    0.437,
+    0.169,
+    0.042
+   ],
+   "file": "croissant/croissant_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.2,
+    0.0755,
+    0.062
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 1990,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/croissant",
+   "notes": ""
+  },
+  {
+   "id": "food_lychee_01",
+   "source": "polyhaven",
+   "category": "lychee",
+   "plural": "lychees",
+   "color_name": "red",
+   "rgb": [
+    0.347,
+    0.082,
+    0.081
+   ],
+   "file": "food_lychee_01/food_lychee_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0409,
+    0.042,
+    0.0506
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 6783,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/food_lychee_01",
+   "notes": ""
+  },
+  {
+   "id": "bleach_bottle",
+   "source": "polyhaven",
+   "category": "bottle",
+   "plural": "bottles",
+   "color_name": "white",
+   "rgb": [
+    0.093,
+    0.048,
+    0.103
+   ],
+   "file": "bleach_bottle/bleach_bottle_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0884,
+    0.0612,
+    0.2937
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "bottle",
+   "triangles": 4052,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/bleach_bottle",
+   "notes": ""
+  },
+  {
+   "id": "multi_cleaner_bottle",
+   "source": "polyhaven",
+   "category": "bottle",
+   "plural": "bottles",
+   "color_name": "grey",
+   "rgb": [
+    0.273,
+    0.287,
+    0.278
+   ],
+   "file": "multi_cleaner_bottle/multi_cleaner_bottle_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0885,
+    0.0898,
+    0.2286
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "bottle",
+   "triangles": 6792,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/multi_cleaner_bottle",
+   "notes": "spray bottle"
+  },
+  {
+   "id": "leather_cleaner_can",
+   "source": "polyhaven",
+   "category": "can",
+   "plural": "cans",
+   "color_name": "black",
+   "rgb": [
+    0.096,
+    0.097,
+    0.117
+   ],
+   "file": "leather_cleaner_can/leather_cleaner_can_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0704,
+    0.0704,
+    0.1697
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "can",
+   "triangles": 2296,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/leather_cleaner_can",
+   "notes": "aerosol can"
+  },
+  {
+   "id": "lubricant_spray",
+   "source": "polyhaven",
+   "category": "can",
+   "plural": "cans",
+   "color_name": "grey",
+   "rgb": [
+    0.423,
+    0.327,
+    0.437
+   ],
+   "file": "lubricant_spray/lubricant_spray_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.067,
+    0.0646,
+    0.1649
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "can",
+   "triangles": 5476,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/lubricant_spray",
+   "notes": "aerosol can"
+  },
+  {
+   "id": "cleaner_tin_01",
+   "source": "polyhaven",
+   "category": "tin",
+   "plural": "tins",
+   "color_name": "red",
+   "rgb": [
+    0.409,
+    0.147,
+    0.14
+   ],
+   "file": "cleaner_tin_01/cleaner_tin_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0876,
+    0.0875,
+    0.1304
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": true,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 3560,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/cleaner_tin_01",
+   "notes": "flat lid"
+  },
+  {
+   "id": "can_rusted",
+   "source": "polyhaven",
+   "category": "can",
+   "plural": "cans",
+   "color_name": "brown",
+   "rgb": [
+    0.273,
+    0.201,
+    0.139
+   ],
+   "file": "can_rusted/can_rusted_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.1245,
+    0.1247,
+    0.1514
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": true,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "can",
+   "triangles": 3520,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/can_rusted",
+   "notes": "closed lid; flat top"
+  },
+  {
+   "id": "brass_vase_03",
+   "source": "polyhaven",
+   "category": "vase",
+   "plural": "vases",
+   "color_name": "yellow",
+   "rgb": [
+    0.482,
+    0.256,
+    0.126
+   ],
+   "file": "brass_vase_03/brass_vase_03_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0825,
+    0.0825,
+    0.2004
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 2616,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/brass_vase_03",
+   "notes": "brass"
+  },
+  {
+   "id": "jug_01",
+   "source": "polyhaven",
+   "category": "jug",
+   "plural": "jugs",
+   "color_name": "white",
+   "rgb": [
+    0.912,
+    0.911,
+    0.787
+   ],
+   "file": "jug_01/jug_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.2753,
+    0.1675,
+    0.2113
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "jug",
+   "triangles": 5770,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/jug_01",
+   "notes": "ceramic"
+  },
+  {
+   "id": "metal_jug",
+   "source": "polyhaven",
+   "category": "jug",
+   "plural": "jugs",
+   "color_name": "grey",
+   "rgb": [
+    0.337,
+    0.364,
+    0.315
+   ],
+   "file": "metal_jug/metal_jug_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.1968,
+    0.1955,
+    0.2875
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "jug",
+   "triangles": 6040,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/metal_jug",
+   "notes": "metal"
+  },
+  {
+   "id": "CheeseBox_01",
+   "source": "polyhaven",
+   "category": "box",
+   "plural": "boxes",
+   "color_name": "brown",
+   "rgb": [
+    0.29,
+    0.152,
+    0.075
+   ],
+   "file": "CheeseBox_01/CheeseBox_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.2404,
+    0.1066,
+    0.066
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": true,
+   "stackable": true,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 884,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/CheeseBox_01",
+   "notes": "wooden box with lid"
+  },
+  {
+   "id": "screwdriver",
+   "source": "polyhaven",
+   "category": "screwdriver",
+   "plural": "screwdrivers",
+   "color_name": "red",
+   "rgb": [
+    0.59,
+    0.163,
+    0.133
+   ],
+   "file": "screwdriver/screwdriver_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0271,
+    0.0267,
+    0.209
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": "screwdriver",
+   "triangles": 3412,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/screwdriver",
+   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+  },
+  {
+   "id": "flathead_screwdriver",
+   "source": "polyhaven",
+   "category": "screwdriver",
+   "plural": "screwdrivers",
+   "color_name": "brown",
+   "rgb": [
+    0.171,
+    0.104,
+    0.084
+   ],
+   "file": "flathead_screwdriver/flathead_screwdriver_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.03,
+    0.03,
+    0.2613
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": "screwdriver",
+   "triangles": 2300,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/flathead_screwdriver",
+   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+  },
+  {
+   "id": "cross_pein_hammer",
+   "source": "polyhaven",
+   "category": "hammer",
+   "plural": "hammers",
+   "color_name": "brown",
+   "rgb": [
+    0.17,
+    0.104,
+    0.062
+   ],
+   "file": "cross_pein_hammer/cross_pein_hammer_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0991,
+    0.0243,
+    0.3002
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 2124,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/cross_pein_hammer",
+   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+  },
+  {
+   "id": "wooden_hammer_01",
+   "source": "polyhaven",
+   "category": "mallet",
+   "plural": "mallets",
+   "color_name": "brown",
+   "rgb": [
+    0.147,
+    0.088,
+    0.055
+   ],
+   "file": "wooden_hammer_01/wooden_hammer_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.1118,
+    0.0234,
+    0.2792
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 3617,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/wooden_hammer_01",
+   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+  },
+  {
+   "id": "combination_wrench",
+   "source": "polyhaven",
+   "category": "wrench",
+   "plural": "wrenches",
+   "color_name": "grey",
+   "rgb": [
+    0.157,
+    0.165,
+    0.178
+   ],
+   "file": "combination_wrench/combination_wrench_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0566,
+    0.337,
+    0.0215
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": false,
+   "lookalike_group": "wrench",
+   "triangles": 1986,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/combination_wrench",
+   "notes": ""
+  },
+  {
+   "id": "adjustable_wrench",
+   "source": "polyhaven",
+   "category": "wrench",
+   "plural": "wrenches",
+   "color_name": "grey",
+   "rgb": [
+    0.136,
+    0.118,
+    0.106
+   ],
+   "file": "adjustable_wrench/adjustable_wrench_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0683,
+    0.0306,
+    0.2541
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": "wrench",
+   "triangles": 5390,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/adjustable_wrench",
+   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+  },
+  {
+   "id": "tongue_groove_pliers",
+   "source": "polyhaven",
+   "category": "pliers",
+   "plural": "pliers",
+   "color_name": "black",
+   "rgb": [
+    0.045,
+    0.047,
+    0.05
+   ],
+   "file": "tongue_groove_pliers/tongue_groove_pliers_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0625,
+    0.2444,
+    0.0139
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": false,
+   "lookalike_group": "pliers",
+   "triangles": 2694,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/tongue_groove_pliers",
+   "notes": ""
+  },
+  {
+   "id": "pliers",
+   "source": "polyhaven",
+   "category": "pliers",
+   "plural": "pliers",
+   "color_name": "orange",
+   "rgb": [
+    0.63,
+    0.257,
+    0.1
+   ],
+   "file": "pliers/pliers_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0553,
+    0.018,
+    0.1798
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": "pliers",
+   "triangles": 4540,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/pliers",
+   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+  },
+  {
+   "id": "vintage_stapler",
+   "source": "polyhaven",
+   "category": "stapler",
+   "plural": "staplers",
+   "color_name": "green",
+   "rgb": [
+    0.165,
+    0.293,
+    0.279
+   ],
+   "file": "vintage_stapler/vintage_stapler_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.2085,
+    0.0474,
+    0.0953
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 4370,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/vintage_stapler",
+   "notes": ""
+  },
+  {
+   "id": "wooden_spoon",
+   "source": "polyhaven",
+   "category": "spoon",
+   "plural": "spoons",
+   "color_name": "brown",
+   "rgb": [
+    0.134,
+    0.09,
+    0.053
+   ],
+   "file": "wooden_spoon/wooden_spoon_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0867,
+    0.2776,
+    0.0251
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 6576,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/wooden_spoon",
+   "notes": ""
+  },
+  {
+   "id": "medical_tape",
+   "source": "polyhaven",
+   "category": "tape",
+   "plural": "tapes",
+   "color_name": "white",
+   "rgb": [
+    0.65,
+    0.65,
+    0.618
+   ],
+   "file": "medical_tape/medical_tape_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0453,
+    0.0452,
+    0.025
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 1408,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/medical_tape",
+   "notes": "roll of tape"
+  },
+  {
+   "id": "baseball_01",
+   "source": "polyhaven",
+   "category": "baseball",
+   "plural": "baseballs",
+   "color_name": "white",
+   "rgb": [
+    0.498,
+    0.477,
+    0.465
+   ],
+   "file": "baseball_01/baseball_01_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0735,
+    0.0752,
+    0.0753
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 10848,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/baseball_01",
+   "notes": ""
+  },
+  {
+   "id": "rubber_duck_toy",
+   "source": "polyhaven",
+   "category": "duck",
+   "plural": "ducks",
+   "color_name": "yellow",
+   "rgb": [
+    0.834,
+    0.241,
+    0.002
+   ],
+   "file": "rubber_duck_toy/rubber_duck_toy_1k.gltf",
+   "shape": null,
+   "scale": 0.4,
+   "size_m": [
+    0.0854,
+    0.12,
+    0.1142
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 4288,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/rubber_duck_toy",
+   "notes": "toy rubber duck"
+  },
+  {
+   "id": "carved_wooden_elephant",
+   "source": "polyhaven",
+   "category": "elephant",
+   "plural": "elephants",
+   "color_name": "brown",
+   "rgb": [
+    0.192,
+    0.079,
+    0.027
+   ],
+   "file": "carved_wooden_elephant/carved_wooden_elephant_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.1092,
+    0.0576,
+    0.0962
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": 2752,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/carved_wooden_elephant",
+   "notes": "carved figurine"
+  },
+  {
+   "id": "moon_rock_05",
+   "source": "polyhaven",
+   "category": "rock",
+   "plural": "rocks",
+   "color_name": "grey",
+   "rgb": [
+    0.235,
+    0.213,
+    0.173
+   ],
+   "file": "moon_rock_05/moon_rock_05_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.0717,
+    0.0811,
+    0.0734
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": "rock",
+   "triangles": 9850,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/moon_rock_05",
+   "notes": ""
+  },
+  {
+   "id": "moon_rock_03",
+   "source": "polyhaven",
+   "category": "rock",
+   "plural": "rocks",
+   "color_name": "grey",
+   "rgb": [
+    0.241,
+    0.217,
+    0.177
+   ],
+   "file": "moon_rock_03/moon_rock_03_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.112,
+    0.0861,
+    0.0582
+   ],
+   "collision": "convex_hull",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": "rock",
+   "triangles": 5598,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/moon_rock_03",
+   "notes": ""
+  },
+  {
+   "id": "wooden_bowl_02",
+   "source": "polyhaven",
+   "category": "bowl",
+   "plural": "bowls",
+   "color_name": "brown",
+   "rgb": [
+    0.429,
+    0.141,
+    0.027
+   ],
+   "file": "wooden_bowl_02/wooden_bowl_02_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.1307,
+    0.1245,
+    0.0731
+   ],
+   "collision": "mesh",
+   "passive": true,
+   "container": {
+    "shape": "circle",
+    "inner_radius_m": 0.057,
+    "inner_size_xy": null,
+    "floor_z_m": 0.0137,
+    "rim_z_m": 0.0731,
+    "capacity": 2
+   },
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "bowl",
+   "triangles": 4666,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/wooden_bowl_02",
+   "notes": ""
+  },
+  {
+   "id": "wooden_bowl_01",
+   "source": "polyhaven",
+   "category": "bowl",
+   "plural": "bowls",
+   "color_name": "brown",
+   "rgb": [
+    0.178,
+    0.088,
+    0.042
+   ],
+   "file": "wooden_bowl_01/wooden_bowl_01_1k.gltf",
+   "shape": null,
+   "scale": 0.7,
+   "size_m": [
+    0.2192,
+    0.2164,
+    0.0656
+   ],
+   "collision": "mesh",
+   "passive": true,
+   "container": {
+    "shape": "circle",
+    "inner_radius_m": 0.08,
+    "inner_size_xy": null,
+    "floor_z_m": 0.0128,
+    "rim_z_m": 0.0656,
+    "capacity": 3
+   },
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": "bowl",
+   "triangles": 14122,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/wooden_bowl_01",
+   "notes": ""
+  },
+  {
+   "id": "wicker_basket_01",
+   "source": "polyhaven",
+   "category": "basket",
+   "plural": "baskets",
+   "color_name": "brown",
+   "rgb": [
+    0.089,
+    0.052,
+    0.024
+   ],
+   "file": "wicker_basket_01/wicker_basket_01_1k.gltf",
+   "shape": null,
+   "scale": 0.7,
+   "size_m": [
+    0.2683,
+    0.2065,
+    0.0822
+   ],
+   "collision": "mesh",
+   "passive": true,
+   "container": {
+    "shape": "rect",
+    "inner_radius_m": null,
+    "inner_size_xy": [
+     0.244,
+     0.188
+    ],
+    "floor_z_m": 0.0076,
+    "rim_z_m": 0.0822,
+    "capacity": 4
+   },
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 22276,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/wicker_basket_01",
+   "notes": ""
+  },
+  {
+   "id": "carved_wooden_plate",
+   "source": "polyhaven",
+   "category": "plate",
+   "plural": "plates",
+   "color_name": "brown",
+   "rgb": [
+    0.295,
+    0.212,
+    0.155
+   ],
+   "file": "carved_wooden_plate/carved_wooden_plate_1k.gltf",
+   "shape": null,
+   "scale": 1.0,
+   "size_m": [
+    0.2718,
+    0.2688,
+    0.0381
+   ],
+   "collision": "mesh",
+   "passive": true,
+   "container": {
+    "shape": "circle",
+    "inner_radius_m": 0.091,
+    "inner_size_xy": null,
+    "floor_z_m": 0.0042,
+    "rim_z_m": 0.0381,
+    "capacity": 3
+   },
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 2112,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/carved_wooden_plate",
+   "notes": ""
+  },
+  {
+   "id": "brass_pot_02",
+   "source": "polyhaven",
+   "category": "tray",
+   "plural": "trays",
+   "color_name": "yellow",
+   "rgb": [
+    0.521,
+    0.279,
+    0.134
+   ],
+   "file": "brass_pot_02/brass_pot_02_1k.gltf",
+   "shape": null,
+   "scale": 0.7,
+   "size_m": [
+    0.2567,
+    0.2116,
+    0.076
+   ],
+   "collision": "mesh",
+   "passive": true,
+   "container": {
+    "shape": "circle",
+    "inner_radius_m": 0.1,
+    "inner_size_xy": null,
+    "floor_z_m": 0.0031,
+    "rim_z_m": 0.014,
+    "capacity": 3
+   },
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": 3344,
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/brass_pot_02",
+   "notes": "round brass tray with handles"
+  },
+  {
+   "id": "proc_box_5cm",
+   "source": "procedural",
+   "category": "cube",
+   "plural": "cubes",
+   "color_name": null,
+   "rgb": [
+    0.8,
+    0.8,
+    0.8
+   ],
+   "file": null,
+   "shape": "box",
+   "scale": 1.0,
+   "size_m": [
+    0.05,
+    0.05,
+    0.05
+   ],
+   "collision": "primitive",
+   "passive": false,
+   "container": null,
+   "can_support": true,
+   "stackable": true,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": null,
+   "license": "CC0",
+   "url": null,
+   "notes": "exact 5 cm scale reference"
+  },
+  {
+   "id": "proc_box_10x10x4cm",
+   "source": "procedural",
+   "category": "block",
+   "plural": "blocks",
+   "color_name": null,
+   "rgb": [
+    0.8,
+    0.8,
+    0.8
+   ],
+   "file": null,
+   "shape": "box",
+   "scale": 1.0,
+   "size_m": [
+    0.1,
+    0.1,
+    0.04
+   ],
+   "collision": "primitive",
+   "passive": false,
+   "container": null,
+   "can_support": true,
+   "stackable": true,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": null,
+   "license": "CC0",
+   "url": null,
+   "notes": "exact 10 by 10 by 4 cm scale reference; a flat base for stacks"
+  },
+  {
+   "id": "proc_cylinder_6x10cm",
+   "source": "procedural",
+   "category": "cylinder",
+   "plural": "cylinders",
+   "color_name": null,
+   "rgb": [
+    0.8,
+    0.8,
+    0.8
+   ],
+   "file": null,
+   "shape": "cylinder",
+   "scale": 1.0,
+   "size_m": [
+    0.06,
+    0.06,
+    0.1
+   ],
+   "collision": "primitive",
+   "passive": false,
+   "container": null,
+   "can_support": true,
+   "stackable": true,
+   "can_go_in_container": false,
+   "lookalike_group": null,
+   "triangles": null,
+   "license": "CC0",
+   "url": null,
+   "notes": "exact 6 cm by 10 cm scale reference"
+  },
+  {
+   "id": "proc_sphere_5cm",
+   "source": "procedural",
+   "category": "ball",
+   "plural": "balls",
+   "color_name": null,
+   "rgb": [
+    0.8,
+    0.8,
+    0.8
+   ],
+   "file": null,
+   "shape": "sphere",
+   "scale": 1.0,
+   "size_m": [
+    0.05,
+    0.05,
+    0.05
+   ],
+   "collision": "primitive",
+   "passive": false,
+   "container": null,
+   "can_support": false,
+   "stackable": false,
+   "can_go_in_container": true,
+   "lookalike_group": null,
+   "triangles": null,
+   "license": "CC0",
+   "url": null,
+   "notes": "exact 5 cm scale reference"
+  }
+ ]
+}
