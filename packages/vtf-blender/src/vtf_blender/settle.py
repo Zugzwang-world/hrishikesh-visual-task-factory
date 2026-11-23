@@ -78,6 +78,8 @@ def body_kind(obj: dict, entry: dict | None) -> tuple[str, str, bool]:
         return COLLISION_SHAPE[obj["shape"]], obj["shape"], False
     if entry["source"] == "procedural":
         shape = entry.get("shape") or "box"
+        if shape == "sphere":  # a flat-based hull proxy, so the ball does not roll away
+            return "CONVEX_HULL", shape, False
         return COLLISION_SHAPE[shape], shape, False
     collision = entry.get("collision", "convex_hull")
     if collision == "primitive":
@@ -234,7 +236,7 @@ def settle(built: BuiltScene, spec: dict) -> tuple[dict[str, tuple[list, list]],
     for obj, ob in built.objects:
         shape, rule, _ = kinds[obj["id"]]
         proxy_mesh = None
-        if rule == "hull" and shape == "CONVEX_HULL":
+        if shape == "CONVEX_HULL":
             proxy_mesh = hull_proxy_mesh(ob.data)
         elif shape == "MESH":
             proxy_mesh = collider_mesh(ob.data)
