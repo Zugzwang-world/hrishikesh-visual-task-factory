@@ -1,11 +1,13 @@
 {
   "meta": {
-    "spec_version": "0.1.0",
+    "spec_version": "0.2.0",
     "scene_id": "scene_0000",
     "generator_version": "fixture/hand-made 0.1.0",
     "seed": 0,
     "recipe_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-    "settled": true
+    "settled": true,
+    "difficulty": {},
+    "twin_of": null
   },
   "table": {
     "size_xy": [
@@ -15,6 +17,7 @@
     "height": 0.75,
     "thickness": 0.03,
     "material_id": "wood_simple",
+    "grid_cell_m": null,
     "pass_index": 1000
   },
   "objects": [
@@ -24,6 +27,7 @@
       "shape": "box",
       "category": "box",
       "color_name": "red",
+      "size_word": null,
       "rgb": [
         0.5776,
         0.013,
@@ -50,7 +54,11 @@
           0.173648
         ]
       },
-      "pass_index": 1
+      "pass_index": 1,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     },
     {
       "id": "obj_01",
@@ -58,6 +66,7 @@
       "shape": "cylinder",
       "category": "cylinder",
       "color_name": "blue",
+      "size_word": null,
       "rgb": [
         0.013,
         0.0802,
@@ -84,7 +93,11 @@
           0.0
         ]
       },
-      "pass_index": 2
+      "pass_index": 2,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     },
     {
       "id": "obj_02",
@@ -92,6 +105,7 @@
       "shape": "sphere",
       "category": "sphere",
       "color_name": "green",
+      "size_word": null,
       "rgb": [
         0.0212,
         0.3515,
@@ -118,7 +132,11 @@
           0.0
         ]
       },
-      "pass_index": 3
+      "pass_index": 3,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     },
     {
       "id": "obj_03",
@@ -126,6 +144,7 @@
       "shape": "cone",
       "category": "cone",
       "color_name": "yellow",
+      "size_word": null,
       "rgb": [
         0.8308,
         0.6105,
@@ -152,7 +171,11 @@
           0.0
         ]
       },
-      "pass_index": 4
+      "pass_index": 4,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     },
     {
       "id": "obj_04",
@@ -160,6 +183,7 @@
       "shape": "cylinder",
       "category": "cylinder",
       "color_name": "red",
+      "size_word": null,
       "rgb": [
         0.5776,
         0.013,
@@ -186,7 +210,11 @@
           0.0
         ]
       },
-      "pass_index": 5
+      "pass_index": 5,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     },
     {
       "id": "obj_05",
@@ -194,6 +222,7 @@
       "shape": "cylinder",
       "category": "cylinder",
       "color_name": "white",
+      "size_word": null,
       "rgb": [
         0.8308,
         0.8308,
@@ -220,7 +249,11 @@
           0.0
         ]
       },
-      "pass_index": 6
+      "pass_index": 6,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     },
     {
       "id": "obj_06",
@@ -228,6 +261,7 @@
       "shape": "sphere",
       "category": "sphere",
       "color_name": "orange",
+      "size_word": null,
       "rgb": [
         0.8714,
         0.1878,
@@ -254,7 +288,11 @@
           0.0
         ]
       },
-      "pass_index": 7
+      "pass_index": 7,
+      "placement": {
+        "kind": "table",
+        "parent_id": null
+      }
     }
   ],
   "gripper": {
@@ -400,13 +438,26 @@
         240
       ],
       "clip_start": 0.01,
-      "clip_end": 20.0
+      "clip_end": 20.0,
+      "quality": {
+        "level": "clean",
+        "noise_sigma": 0.0,
+        "blur_px": 0.0,
+        "motion_blur_px": 0.0,
+        "distortion_k1": 0.0,
+        "gain": 1.0,
+        "jpeg_quality": null,
+        "cctv": false,
+        "seed": 0
+      }
     }
   ],
   "lighting": {
     "hdri_id": "studio_small_09",
     "strength": 1.0,
-    "rotation_deg": 0.0
+    "rotation_deg": 0.0,
+    "key_light": null,
+    "condition": "normal"
   },
   "render": {
     "engine": "CYCLES",
@@ -428,5 +479,10 @@
     "density_kg_m3": 600.0,
     "use_deactivation": true,
     "use_split_impulse": true
+  },
+  "questions": {
+    "families": null,
+    "max_per_camera": 5,
+    "weights": {}
   }
 }

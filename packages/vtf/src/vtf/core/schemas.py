@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from vtf.core.assets import ASSET_MANIFEST_VERSION, AssetManifest
 from vtf.core.render_manifest import MANIFEST_VERSION, RenderManifest
 from vtf.core.scene import SPEC_VERSION, SceneSpec
 from vtf.core.task import TASK_VERSION, TaskPackage
@@ -17,6 +18,7 @@ SCHEMAS: dict[str, tuple[type[BaseModel], str]] = {
     "scene.schema.json": (SceneSpec, SPEC_VERSION),
     "render_manifest.schema.json": (RenderManifest, MANIFEST_VERSION),
     "task_package.schema.json": (TaskPackage, TASK_VERSION),
+    "asset_manifest.schema.json": (AssetManifest, ASSET_MANIFEST_VERSION),
 }
 
 REPO_ROOT = Path(__file__).resolve().parents[5]

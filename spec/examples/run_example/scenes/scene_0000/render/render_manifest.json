@@ -1,8 +1,8 @@
 {
-  "manifest_version": "0.1.0",
+  "manifest_version": "0.2.0",
   "scene_id": "scene_0000",
   "scene_file": "scenes/scene_0000/scene.json",
-  "scene_sha256": "d983c335aa4c22d52f769a9e92015fe037b7a3efce7c051a8c9274c1448500d4",
+  "scene_sha256": "a62a25f91cd55e74caf169f9ef4eae1a303f0c76fd4ac5fa43b9a5257dc91d47",
   "settled_scene_file": "scene.settled.json",
   "renderer": "fixture",
   "blender_version": "none (vtf.core.raycast)",
@@ -15,13 +15,16 @@
   "cameras": [
     {
       "camera_id": "front",
+      "rig": "front",
       "resolution": [
         320,
         240
       ],
       "beauty": "front/beauty.png",
+      "beauty_raw": null,
+      "quality": {},
       "index": "front/index.png",
-      "depth": "front/depth.npy",
+      "depth": "front/depth.npz",
       "depth_kind": "planar_z",
       "amodal": {
         "1": "front/amodal/1.png",
@@ -79,6 +82,7 @@
       "amodal_seconds": 0.0
     }
   ],
+  "gltf": null,
   "settle": {
     "frames": 0,
     "substeps_per_frame": 0,

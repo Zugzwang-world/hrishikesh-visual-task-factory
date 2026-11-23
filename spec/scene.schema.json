@@ -1,7 +1,86 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.2.0.",
   "$defs": {
+    "CameraQuality": {
+      "additionalProperties": false,
+      "description": "Post-render camera-quality dial (vtf.camera), seeded. Applied after Blender: noise and blur\ntouch only the beauty image; lens distortion warps beauty, index, depth and masks alike.",
+      "properties": {
+        "level": {
+          "default": "clean",
+          "enum": [
+            "clean",
+            "mild",
+            "harsh",
+            "cctv"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "noise_sigma": {
+          "default": 0.0,
+          "description": "Gaussian noise, 8-bit levels.",
+          "minimum": 0,
+          "title": "Noise Sigma",
+          "type": "number"
+        },
+        "blur_px": {
+          "default": 0.0,
+          "description": "Gaussian blur sigma, pixels.",
+          "minimum": 0,
+          "title": "Blur Px",
+          "type": "number"
+        },
+        "motion_blur_px": {
+          "default": 0.0,
+          "description": "Linear motion blur length.",
+          "minimum": 0,
+          "title": "Motion Blur Px",
+          "type": "number"
+        },
+        "distortion_k1": {
+          "default": 0.0,
+          "description": "Radial distortion k1 on normalised coordinates (barrel < 0).",
+          "title": "Distortion K1",
+          "type": "number"
+        },
+        "gain": {
+          "default": 1.0,
+          "description": "Exposure multiplier; low light < 1.",
+          "exclusiveMinimum": 0,
+          "title": "Gain",
+          "type": "number"
+        },
+        "jpeg_quality": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Jpeg Quality"
+        },
+        "cctv": {
+          "default": false,
+          "description": "Desaturated, contrast-crushed CCTV look.",
+          "title": "Cctv",
+          "type": "boolean"
+        },
+        "seed": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "title": "CameraQuality",
+      "type": "object"
+    },
     "CameraSpec": {
       "additionalProperties": false,
       "properties": {
@@ -12,7 +91,12 @@
         },
         "rig": {
           "default": "front",
-          "description": "front, overhead or gripper.",
+          "description": "front, overhead or gripper. A gripper camera's pose is derived from the gripper tip by the sampler and stored here in world coordinates.",
+          "enum": [
+            "front",
+            "overhead",
+            "gripper"
+          ],
           "title": "Rig",
           "type": "string"
         },
@@ -58,6 +142,9 @@
           "exclusiveMinimum": 0,
           "title": "Clip End",
           "type": "number"
+        },
+        "quality": {
+          "$ref": "#/$defs/CameraQuality"
         }
       },
       "required": [
@@ -206,6 +293,90 @@
       "title": "GripperPart",
       "type": "object"
     },
+    "KeyLight": {
+      "additionalProperties": false,
+      "description": "A key light for crisp contact shadows (decision 1, brief 05); the HDRI stays as fill.",
+      "properties": {
+        "kind": {
+          "default": "sun",
+          "enum": [
+            "sun",
+            "area",
+            "spot"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "elevation_deg": {
+          "description": "Angle above the horizon, degrees.",
+          "maximum": 90,
+          "minimum": 0,
+          "title": "Elevation Deg",
+          "type": "number"
+        },
+        "azimuth_deg": {
+          "description": "Direction the light comes from, about world z.",
+          "title": "Azimuth Deg",
+          "type": "number"
+        },
+        "strength": {
+          "description": "Sun: W/m^2. Area and spot: W.",
+          "exclusiveMinimum": 0,
+          "title": "Strength",
+          "type": "number"
+        },
+        "angle_deg": {
+          "default": 2.0,
+          "description": "Sun angular diameter; small gives crisp shadows.",
+          "minimum": 0,
+          "title": "Angle Deg",
+          "type": "number"
+        },
+        "size_m": {
+          "default": 0.3,
+          "description": "Area light size (area only).",
+          "exclusiveMinimum": 0,
+          "title": "Size M",
+          "type": "number"
+        },
+        "distance_m": {
+          "default": 2.0,
+          "description": "Area and spot distance to centre.",
+          "exclusiveMinimum": 0,
+          "title": "Distance M",
+          "type": "number"
+        },
+        "rgb": {
+          "default": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Rgb",
+          "type": "array"
+        }
+      },
+      "required": [
+        "elevation_deg",
+        "azimuth_deg",
+        "strength"
+      ],
+      "title": "KeyLight",
+      "type": "object"
+    },
     "Lighting": {
       "additionalProperties": false,
       "properties": {
@@ -225,6 +396,23 @@
           "description": "HDRI rotation about world Z, degrees.",
           "title": "Rotation Deg",
           "type": "number"
+        },
+        "key_light": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyLight"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "condition": {
+          "default": "normal",
+          "description": "Difficulty label: normal, dim, harsh or coloured.",
+          "title": "Condition",
+          "type": "string"
         }
       },
       "required": [
@@ -314,6 +502,37 @@
       "title": "Physics",
       "type": "object"
     },
+    "Placement": {
+      "additionalProperties": false,
+      "description": "How the sampler placed an object. The settled truth of support and containment is computed\nby programs from geometry; this records the sampler's intent (for the settle check).",
+      "properties": {
+        "kind": {
+          "default": "table",
+          "enum": [
+            "table",
+            "on",
+            "in"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The object it was stacked on or placed in (kind on or in).",
+          "title": "Parent Id"
+        }
+      },
+      "title": "Placement",
+      "type": "object"
+    },
     "Pose": {
       "additionalProperties": false,
       "description": "A rigid pose in the world frame.",
@@ -370,6 +589,44 @@
       "title": "Pose",
       "type": "object"
     },
+    "QuestionMix": {
+      "additionalProperties": false,
+      "description": "Which question families the compiler may ask on this scene (from the recipe).",
+      "properties": {
+        "families": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "None means every family.",
+          "title": "Families"
+        },
+        "max_per_camera": {
+          "default": 5,
+          "exclusiveMinimum": 0,
+          "title": "Max Per Camera",
+          "type": "integer"
+        },
+        "weights": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Optional family -> relative weight for proposals.",
+          "title": "Weights",
+          "type": "object"
+        }
+      },
+      "title": "QuestionMix",
+      "type": "object"
+    },
     "RenderSettings": {
       "additionalProperties": false,
       "properties": {
@@ -415,7 +672,7 @@
       "additionalProperties": false,
       "properties": {
         "spec_version": {
-          "default": "0.1.0",
+          "default": "0.2.0",
           "description": "Version of this scene format.",
           "title": "Spec Version",
           "type": "string"
@@ -446,6 +703,40 @@
           "description": "False as sampled; True once the renderer's settle wrote poses back.",
           "title": "Settled",
           "type": "boolean"
+        },
+        "difficulty": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "description": "Scene-level difficulty controls the sampler drew (clutter, look-alikes, stacks, lighting condition, ...). Copied into every task's difficulty vector.",
+          "title": "Difficulty",
+          "type": "object"
+        },
+        "twin_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For a counterfactual twin (G6): the scene_id of the original scene.",
+          "title": "Twin Of"
         }
       },
       "required": [
@@ -497,6 +788,23 @@
           ],
           "description": "Colour word used in questions, e.g. red.",
           "title": "Color Name"
+        },
+        "size_word": {
+          "anyOf": [
+            {
+              "enum": [
+                "small",
+                "large"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Size word for look-alikes of one category (e.g. small mug, large mug).",
+          "title": "Size Word"
         },
         "rgb": {
           "description": "Linear-light base colour, 0..1, as given to Principled BSDF.",
@@ -564,6 +872,9 @@
           "minimum": 1,
           "title": "Pass Index",
           "type": "integer"
+        },
+        "placement": {
+          "$ref": "#/$defs/Placement"
         }
       },
       "required": [
@@ -612,9 +923,23 @@
         },
         "material_id": {
           "default": "wood_simple",
-          "description": "Renderer material name.",
+          "description": "Renderer material name: wood_simple or cm_grid.",
           "title": "Material Id",
           "type": "string"
+        },
+        "grid_cell_m": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When set, the table top shows a printed grid with this cell size (metres), lines on multiples of the cell from the table centre. A visible scale for cm questions.",
+          "title": "Grid Cell M"
         },
         "pass_index": {
           "default": 1000,
@@ -631,10 +956,16 @@
     },
     "Zone": {
       "additionalProperties": false,
-      "description": "A marked region on the table top (empty in v0; reach zones arrive in stage 3).",
+      "description": "A marked region on the table top, painted as a coloured outline (reach zones, stage 3).\n\nMembership is decided on the table plane: an object is inside when its footprint (the\nprojection of its mesh onto the table) lies inside the zone; the programs define the exact\nrule and the margin. The outline is drawn inside the zone boundary, `line_width_m` wide.",
       "properties": {
         "id": {
           "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "reach",
+          "default": "reach",
+          "title": "Kind",
           "type": "string"
         },
         "shape": {
@@ -680,6 +1011,12 @@
           ],
           "default": null,
           "title": "Size Xy"
+        },
+        "yaw_deg": {
+          "default": 0.0,
+          "description": "Rect rotation about world z, degrees.",
+          "title": "Yaw Deg",
+          "type": "number"
         },
         "radius": {
           "anyOf": [
@@ -729,6 +1066,12 @@
           ],
           "default": null,
           "title": "Rgb"
+        },
+        "line_width_m": {
+          "default": 0.012,
+          "exclusiveMinimum": 0,
+          "title": "Line Width M",
+          "type": "number"
         }
       },
       "required": [
@@ -780,6 +1123,9 @@
     },
     "physics": {
       "$ref": "#/$defs/Physics"
+    },
+    "questions": {
+      "$ref": "#/$defs/QuestionMix"
     }
   },
   "required": [

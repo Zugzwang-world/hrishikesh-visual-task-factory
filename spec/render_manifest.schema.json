@@ -1,12 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.2.0.",
   "$defs": {
     "CameraOutputs": {
       "additionalProperties": false,
       "properties": {
         "camera_id": {
           "title": "Camera Id",
+          "type": "string"
+        },
+        "rig": {
+          "default": "front",
+          "description": "front, overhead or gripper.",
+          "title": "Rig",
           "type": "string"
         },
         "resolution": {
@@ -29,13 +35,32 @@
           "title": "Beauty",
           "type": "string"
         },
+        "beauty_raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Beauty before the camera-quality dial, if the dial ran.",
+          "title": "Beauty Raw"
+        },
+        "quality": {
+          "additionalProperties": true,
+          "description": "CameraQuality actually applied (empty: clean).",
+          "title": "Quality",
+          "type": "object"
+        },
         "index": {
           "description": "Relative path to the 16-bit index.png.",
           "title": "Index",
           "type": "string"
         },
         "depth": {
-          "description": "Relative path to depth.npy (float32, metres; floor and legs keep depth).",
+          "description": "Relative path to depth.npz or depth.npy (float32, metres; floor and legs keep depth).",
           "title": "Depth",
           "type": "string"
         },
@@ -289,7 +314,7 @@
   "additionalProperties": false,
   "properties": {
     "manifest_version": {
-      "default": "0.1.0",
+      "default": "0.2.0",
       "title": "Manifest Version",
       "type": "string"
     },
@@ -364,6 +389,19 @@
       },
       "title": "Cameras",
       "type": "array"
+    },
+    "gltf": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Relative path to scene.glb, if exported.",
+      "title": "Gltf"
     },
     "settle": {
       "$ref": "#/$defs/SettleReport"

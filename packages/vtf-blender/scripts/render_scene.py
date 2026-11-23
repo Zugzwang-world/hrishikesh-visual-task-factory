@@ -9,7 +9,7 @@ Writes into <dir> (see vtf.core.render_manifest):
     scene.settled.json                    the input scene with settled poses, meta.settled = true
     <camera_id>/beauty.png                8-bit RGB, Cycles on --device
     <camera_id>/index.png                 16-bit, pixel = pass_index (1-sample CPU render)
-    <camera_id>/depth.npy                 float32 planar depth in metres, 0.0 = no hit
+    <camera_id>/depth.npz                 float32 planar depth in metres (key "depth"), 0.0 = no hit
     <camera_id>/amodal/<pass_index>.png   0/255, each object rendered alone
     render_manifest.json                  written last: its presence means success
 
@@ -45,7 +45,7 @@ from vtf_blender.settle import settle  # noqa: E402
 
 MANIFEST = "render_manifest.json"
 SETTLED = "scene.settled.json"
-MANIFEST_VERSION = "0.1.0"
+MANIFEST_VERSION = "0.2.0"
 
 
 def parse_args() -> argparse.Namespace:
@@ -96,7 +96,8 @@ def render_camera(built, spec, cam: dict, device: str, out: Path, tmp: Path) -> 
     try:
         index, depth = data.index_and_depth(cam_id)
         write_png(cam_dir / "index.png", index, "uint16")
-        np.save(cam_dir / "depth.npy", depth)
+        with open(cam_dir / "depth.npz", "wb") as f:
+            np.savez_compressed(f, depth=np.ascontiguousarray(depth, dtype=np.float32))
         data_s = time.perf_counter() - start
         start = time.perf_counter()
         amodal = {}
@@ -110,10 +111,11 @@ def render_camera(built, spec, cam: dict, device: str, out: Path, tmp: Path) -> 
 
     outputs = {
         "camera_id": cam_id,
+        "rig": cam.get("rig", "front"),
         "resolution": [int(v) for v in cam["resolution"]],
         "beauty": f"{cam_id}/beauty.png",
         "index": f"{cam_id}/index.png",
-        "depth": f"{cam_id}/depth.npy",
+        "depth": f"{cam_id}/depth.npz",
         "depth_kind": "planar_z",
         "amodal": amodal,
         "K": [[r9(v) for v in row] for row in k],

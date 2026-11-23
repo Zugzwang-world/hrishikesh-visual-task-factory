@@ -14,6 +14,10 @@ Conventions (see also `vtf.core.geometry`):
   with 1001. Index 0 is background (floor, world).
 - A camera's `pose.rotation` is the Blender camera rotation: it looks down its local -Z axis,
   local +Y is image up and +X is image right. Sensor fit is horizontal.
+- Asset objects (`source = "asset"`, stage 3): `shape` is the asset id in assets/manifest.yaml
+  (vtf.core.assets). The asset mesh is imported Z-up (glTF +Y up becomes +Z up), scaled by the
+  manifest scale times `scale`, and centred on its bounding-box centre, so the same pose and
+  dimensions conventions hold as for primitives. `vtf.core.assets.object_mesh` builds that mesh.
 """
 
 from typing import Literal
@@ -22,9 +26,11 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from vtf.core.geometry import Pose, Vec2, Vec3, quat_multiply, transform_points
 
-SPEC_VERSION = "0.1.0"
+SPEC_VERSION = "0.2.0"
 
 PRIMITIVE_SHAPES = ("box", "cylinder", "sphere", "cone")
+CAMERA_RIGS = ("front", "overhead", "gripper")
+SIZE_WORDS = ("small", "large")
 TABLE_PASS_INDEX = 1000
 GRIPPER_PASS_INDEX = 1001
 MAX_OBJECT_PASS_INDEX = 999
@@ -46,14 +52,41 @@ class SceneMeta(_Model):
         default=False,
         description="False as sampled; True once the renderer's settle wrote poses back.",
     )
+    difficulty: dict[str, int | float | str | bool] = Field(
+        default_factory=dict,
+        description="Scene-level difficulty controls the sampler drew (clutter, look-alikes, "
+        "stacks, lighting condition, ...). Copied into every task's difficulty vector.",
+    )
+    twin_of: str | None = Field(
+        default=None,
+        description="For a counterfactual twin (G6): the scene_id of the original scene.",
+    )
 
 
 class Table(_Model):
     size_xy: Vec2 = Field(description="Top size in metres along world x and y.")
     height: float = Field(gt=0, description="World z of the table's top surface, metres.")
     thickness: float = Field(default=0.03, gt=0, description="Top slab thickness, metres.")
-    material_id: str = Field(default="wood_simple", description="Renderer material name.")
+    material_id: str = Field(
+        default="wood_simple", description="Renderer material name: wood_simple or cm_grid."
+    )
+    grid_cell_m: float | None = Field(
+        default=None,
+        gt=0,
+        description="When set, the table top shows a printed grid with this cell size (metres), "
+        "lines on multiples of the cell from the table centre. A visible scale for cm questions.",
+    )
     pass_index: int = Field(default=TABLE_PASS_INDEX)
+
+
+class Placement(_Model):
+    """How the sampler placed an object. The settled truth of support and containment is computed
+    by programs from geometry; this records the sampler's intent (for the settle check)."""
+
+    kind: Literal["table", "on", "in"] = "table"
+    parent_id: str | None = Field(
+        default=None, description="The object it was stacked on or placed in (kind on or in)."
+    )
 
 
 class SceneObject(_Model):
@@ -68,6 +101,10 @@ class SceneObject(_Model):
         description="Noun used in questions and answers; equals shape for primitives."
     )
     color_name: str | None = Field(description="Colour word used in questions, e.g. red.")
+    size_word: Literal["small", "large"] | None = Field(
+        default=None,
+        description="Size word for look-alikes of one category (e.g. small mug, large mug).",
+    )
     rgb: Vec3 = Field(description="Linear-light base colour, 0..1, as given to Principled BSDF.")
     roughness: float = Field(default=0.45, ge=0, le=1)
     metallic: float = Field(default=0.0, ge=0, le=1)
@@ -75,11 +112,12 @@ class SceneObject(_Model):
     scale: float = Field(default=1.0, gt=0, description="Uniform scale applied to an asset.")
     pose: Pose
     pass_index: int = Field(ge=1, le=MAX_OBJECT_PASS_INDEX, description="Object-index pass value.")
+    placement: Placement = Field(default_factory=Placement)
 
     @property
     def name(self) -> str:
-        """Unambiguous name within a scene, e.g. 'red box'."""
-        return f"{self.color_name} {self.category}" if self.color_name else self.category
+        """Full descriptive name, e.g. 'large red mug' (size and colour words when set)."""
+        return " ".join(w for w in (self.size_word, self.color_name, self.category) if w)
 
 
 class GripperPart(_Model):
@@ -110,32 +148,91 @@ class Gripper(_Model):
 
 
 class Zone(_Model):
-    """A marked region on the table top (empty in v0; reach zones arrive in stage 3)."""
+    """A marked region on the table top, painted as a coloured outline (reach zones, stage 3).
+
+    Membership is decided on the table plane: an object is inside when its footprint (the
+    projection of its mesh onto the table) lies inside the zone; the programs define the exact
+    rule and the margin. The outline is drawn inside the zone boundary, `line_width_m` wide.
+    """
 
     id: str
+    kind: Literal["reach"] = "reach"
     shape: Literal["rect", "circle"]
     center_xy: Vec2
     size_xy: Vec2 | None = None
+    yaw_deg: float = Field(default=0.0, description="Rect rotation about world z, degrees.")
     radius: float | None = None
     color_name: str | None = None
     rgb: Vec3 | None = None
+    line_width_m: float = Field(default=0.012, gt=0)
+
+
+class CameraQuality(_Model):
+    """Post-render camera-quality dial (vtf.camera), seeded. Applied after Blender: noise and blur
+    touch only the beauty image; lens distortion warps beauty, index, depth and masks alike."""
+
+    level: Literal["clean", "mild", "harsh", "cctv"] = "clean"
+    noise_sigma: float = Field(default=0.0, ge=0, description="Gaussian noise, 8-bit levels.")
+    blur_px: float = Field(default=0.0, ge=0, description="Gaussian blur sigma, pixels.")
+    motion_blur_px: float = Field(default=0.0, ge=0, description="Linear motion blur length.")
+    distortion_k1: float = Field(
+        default=0.0, description="Radial distortion k1 on normalised coordinates (barrel < 0)."
+    )
+    gain: float = Field(default=1.0, gt=0, description="Exposure multiplier; low light < 1.")
+    jpeg_quality: int | None = Field(default=None, ge=1, le=100)
+    cctv: bool = Field(default=False, description="Desaturated, contrast-crushed CCTV look.")
+    seed: int = Field(default=0, ge=0)
 
 
 class CameraSpec(_Model):
     id: str = Field(description="Camera id, e.g. front.")
-    rig: str = Field(default="front", description="front, overhead or gripper.")
+    rig: Literal["front", "overhead", "gripper"] = Field(
+        default="front",
+        description="front, overhead or gripper. A gripper camera's pose is derived from the "
+        "gripper tip by the sampler and stored here in world coordinates.",
+    )
     pose: Pose = Field(description="Blender camera pose: looks down local -Z, local +Y is up.")
     focal_mm: float = Field(gt=0)
     sensor_width_mm: float = Field(default=36.0, gt=0, description="Sensor fit is horizontal.")
     resolution: tuple[int, int] = Field(description="Width, height in pixels.")
     clip_start: float = Field(default=0.01, gt=0)
     clip_end: float = Field(default=20.0, gt=0)
+    quality: CameraQuality = Field(default_factory=CameraQuality)
+
+
+class KeyLight(_Model):
+    """A key light for crisp contact shadows (decision 1, brief 05); the HDRI stays as fill."""
+
+    kind: Literal["sun", "area", "spot"] = "sun"
+    elevation_deg: float = Field(ge=0, le=90, description="Angle above the horizon, degrees.")
+    azimuth_deg: float = Field(description="Direction the light comes from, about world z.")
+    strength: float = Field(gt=0, description="Sun: W/m^2. Area and spot: W.")
+    angle_deg: float = Field(
+        default=2.0, ge=0, description="Sun angular diameter; small gives crisp shadows."
+    )
+    size_m: float = Field(default=0.3, gt=0, description="Area light size (area only).")
+    distance_m: float = Field(default=2.0, gt=0, description="Area and spot distance to centre.")
+    rgb: Vec3 = (1.0, 1.0, 1.0)
 
 
 class Lighting(_Model):
     hdri_id: str = Field(description="Poly Haven HDRI id, cached under assets/cache/<id>/.")
     strength: float = Field(default=1.0, gt=0)
     rotation_deg: float = Field(default=0.0, description="HDRI rotation about world Z, degrees.")
+    key_light: KeyLight | None = None
+    condition: str = Field(
+        default="normal", description="Difficulty label: normal, dim, harsh or coloured."
+    )
+
+
+class QuestionMix(_Model):
+    """Which question families the compiler may ask on this scene (from the recipe)."""
+
+    families: list[str] | None = Field(default=None, description="None means every family.")
+    max_per_camera: int = Field(default=5, gt=0)
+    weights: dict[str, float] = Field(
+        default_factory=dict, description="Optional family -> relative weight for proposals."
+    )
 
 
 class RenderSettings(_Model):
@@ -183,6 +280,7 @@ class SceneSpec(_Model):
     lighting: Lighting
     render: RenderSettings = Field(default_factory=RenderSettings)
     physics: Physics = Field(default_factory=Physics)
+    questions: QuestionMix = Field(default_factory=QuestionMix)
 
     @model_validator(mode="after")
     def _unique_ids(self) -> "SceneSpec":
@@ -195,6 +293,13 @@ class SceneSpec(_Model):
         cams = [c.id for c in self.cameras]
         if len(cams) != len(set(cams)):
             raise ValueError("camera ids must be unique")
+        known = set(ids)
+        for o in self.objects:
+            p = o.placement
+            if (p.kind == "table") != (p.parent_id is None):
+                raise ValueError(f"{o.id}: placement {p.kind} needs parent_id only for on/in")
+            if p.parent_id is not None and p.parent_id not in known | {"table"}:
+                raise ValueError(f"{o.id}: unknown placement parent {p.parent_id}")
         return self
 
     def object(self, object_id: str) -> SceneObject:

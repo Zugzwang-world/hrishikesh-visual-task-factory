@@ -1,11 +1,13 @@
 {
-  "task_version": "0.1.0",
-  "task_id": "tf744d88aab5caf3d",
+  "task_version": "0.2.0",
+  "task_id": "t4206e32d90899226",
   "scene_id": "scene_0000",
-  "scene_hash": "4ea36a75a3d6a61b3c84e78e6955aeb5f9078c748c63f5d767fc479924a94ed1",
+  "scene_hash": "7635af0cf8bb4d6007ed48b41db10e933c260c8f7e820df9d7b971dac4ad10a5",
   "camera_id": "front",
+  "rig": "front",
   "image": "image.png",
   "question": "How many red objects are there?",
+  "question_alt": null,
   "family": "count",
   "template_id": "count_color.p1",
   "program": {
@@ -18,10 +20,13 @@
   "answer_type": "int",
   "answer_text": "2",
   "tolerance": null,
+  "shortcut_conflict": null,
+  "shortcut_answer": null,
   "evidence_object_ids": [
     "obj_00",
     "obj_04"
   ],
+  "scene_objects": [],
   "gates": {
     "G1": {
       "pass": true,
@@ -43,14 +48,15 @@
     }
   },
   "twin_of": null,
+  "twin_id": null,
   "difficulty": {
     "n_objects": 7
   },
   "seed": 0,
   "versions": {
     "vtf": "0.0.1",
-    "spec": "0.1.0",
-    "task": "0.1.0",
+    "spec": "0.2.0",
+    "task": "0.2.0",
     "generator": "fixture/hand-made 0.1.0",
     "programs": "fixture",
     "renderer": "fixture"

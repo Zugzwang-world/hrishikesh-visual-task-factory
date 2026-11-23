@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.2.0.",
   "$defs": {
     "GateResult": {
       "additionalProperties": false,
@@ -20,6 +20,56 @@
         "pass"
       ],
       "title": "GateResult",
+      "type": "object"
+    },
+    "ObjectRef": {
+      "additionalProperties": false,
+      "description": "One scene object as the scorer sees it: the words that can name it.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "description": "Full name: [size] [colour] category.",
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "color_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color Name"
+        },
+        "size_word": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Word"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category"
+      ],
+      "title": "ObjectRef",
       "type": "object"
     },
     "ProgramRef": {
@@ -56,7 +106,7 @@
           "type": "string"
         },
         "task": {
-          "default": "0.1.0",
+          "default": "0.2.0",
           "title": "Task",
           "type": "string"
         },
@@ -90,7 +140,7 @@
   "additionalProperties": false,
   "properties": {
     "task_version": {
-      "default": "0.1.0",
+      "default": "0.2.0",
       "title": "Task Version",
       "type": "string"
     },
@@ -112,6 +162,12 @@
       "title": "Camera Id",
       "type": "string"
     },
+    "rig": {
+      "default": "front",
+      "description": "front, overhead or gripper.",
+      "title": "Rig",
+      "type": "string"
+    },
     "image": {
       "default": "image.png",
       "description": "Path relative to the task folder.",
@@ -121,6 +177,19 @@
     "question": {
       "title": "Question",
       "type": "string"
+    },
+    "question_alt": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The other phrasing (prompt-sensitivity subset).",
+      "title": "Question Alt"
     },
     "family": {
       "title": "Family",
@@ -142,6 +211,9 @@
           "type": "boolean"
         },
         {
+          "type": "number"
+        },
+        {
           "type": "string"
         },
         {
@@ -158,7 +230,8 @@
         "int",
         "object",
         "set",
-        "bool"
+        "bool",
+        "number"
       ],
       "title": "Answer Type",
       "type": "string"
@@ -180,11 +253,59 @@
       "description": "None means exact match.",
       "title": "Tolerance"
     },
+    "shortcut_conflict": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Spatial families: True when a 2D-proximity heuristic gives a different answer from the 3D truth. Also in `difficulty`. None for non-spatial families.",
+      "title": "Shortcut Conflict"
+    },
+    "shortcut_answer": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Shortcut Answer"
+    },
     "evidence_object_ids": {
       "items": {
         "type": "string"
       },
       "title": "Evidence Object Ids",
+      "type": "array"
+    },
+    "scene_objects": {
+      "description": "Every object in the scene with its naming words, so the scorer can resolve a free-text answer to exactly one object (never shown to the model).",
+      "items": {
+        "$ref": "#/$defs/ObjectRef"
+      },
+      "title": "Scene Objects",
       "type": "array"
     },
     "gates": {
@@ -205,8 +326,21 @@
         }
       ],
       "default": null,
-      "description": "Task id of the twin (null in v0).",
+      "description": "On a twin task: the task id of the original.",
       "title": "Twin Of"
+    },
+    "twin_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "On an original with a G6 twin: the twin's task id.",
+      "title": "Twin Id"
     },
     "difficulty": {
       "additionalProperties": {

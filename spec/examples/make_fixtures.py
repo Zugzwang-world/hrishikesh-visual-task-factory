@@ -20,6 +20,7 @@ from vtf.core import layout
 from vtf.core.geometry import Pose, look_at_camera_quat, quat_from_axis_angle
 from vtf.core.hashing import sha256_file, sha256_json, short_id
 from vtf.core.io import (
+    write_depth,
     write_index_png,
     write_jsonl,
     write_mask_png,
@@ -162,7 +163,7 @@ def main() -> None:
     cdir = rdir / cam.id
     write_rgb_png(cdir / layout.BEAUTY, shade(settled, rc.depth, rc.colour))
     write_index_png(cdir / layout.INDEX, rc.index)
-    np.save(cdir / layout.DEPTH, rc.depth)
+    write_depth(cdir / layout.DEPTH, rc.depth)
     amodal = {}
     for pass_index, mask in sorted(rc.amodal.items()):
         rel = f"{cam.id}/{layout.AMODAL_DIR}/{pass_index}.png"

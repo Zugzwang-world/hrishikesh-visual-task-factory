@@ -15,6 +15,13 @@
   eval/<model>/results.jsonl            EvalRecord per task          (vtf eval)
   eval/<model>/summary.json             accuracy per family          (vtf eval)
   verify/                               re-renders and verify report (vtf verify)
+  twins/<twin_scene_id>/scene.json      G6 counterfactual twin scenes, same layout as scenes/
+  twins/<twin_scene_id>/render/         (rendered like any scene; meta.twin_of names the original)
+  logs/                                 long-run logs (scale run, eval)
+  report/                               dataset report (P17), contact sheets
+  baselines/                            G5 prior-only and question-only baseline results
+  audit/                                blind audit sample and answers (P16)
+  explorer/                             Task Explorer export (web)
 """
 
 from pathlib import Path
@@ -27,7 +34,8 @@ RENDER_MANIFEST = "render_manifest.json"
 SETTLED_SCENE = "scene.settled.json"
 BEAUTY = "beauty.png"
 INDEX = "index.png"
-DEPTH = "depth.npy"
+DEPTH = "depth.npz"
+DEPTH_V01 = "depth.npy"
 AMODAL_DIR = "amodal"
 RENDER_REPORT = "render_report.json"
 TASKS_DIR = "tasks"
@@ -40,6 +48,13 @@ EVAL_DIR = "eval"
 EVAL_RESULTS = "results.jsonl"
 EVAL_SUMMARY = "summary.json"
 VERIFY_DIR = "verify"
+TWINS_DIR = "twins"
+LOGS_DIR = "logs"
+REPORT_DIR = "report"
+BASELINES_DIR = "baselines"
+AUDIT_DIR = "audit"
+EXPLORER_DIR = "explorer"
+GLTF = "scene.glb"
 
 
 def scene_id_for(index: int) -> str:
@@ -109,3 +124,37 @@ class RunLayout:
     @property
     def verify_dir(self) -> Path:
         return self.root / VERIFY_DIR
+
+    @property
+    def twins_dir(self) -> Path:
+        return self.root / TWINS_DIR
+
+    def twin_layout(self) -> "RunLayout":
+        """Twin scenes use the same layout as scenes/, rooted at <run>/twins/ (scenes_dir)."""
+        return _TwinLayout(self.root)
+
+    @property
+    def logs_dir(self) -> Path:
+        return self.root / LOGS_DIR
+
+    @property
+    def report_dir(self) -> Path:
+        return self.root / REPORT_DIR
+
+    @property
+    def baselines_dir(self) -> Path:
+        return self.root / BASELINES_DIR
+
+    @property
+    def audit_dir(self) -> Path:
+        return self.root / AUDIT_DIR
+
+    @property
+    def explorer_dir(self) -> Path:
+        return self.root / EXPLORER_DIR
+
+
+class _TwinLayout(RunLayout):
+    @property
+    def scenes_dir(self) -> Path:
+        return self.root / TWINS_DIR

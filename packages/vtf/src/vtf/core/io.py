@@ -90,10 +90,42 @@ def write_mask_png(path: Path, mask: np.ndarray) -> None:
 
 
 def read_depth(path: Path) -> np.ndarray:
-    depth = np.load(path, allow_pickle=False)
+    """depth.npz (key "depth", contract v0.2) or depth.npy (v0.1) -> (H, W) float32."""
+    loaded = np.load(path, allow_pickle=False)
+    if isinstance(loaded, np.lib.npyio.NpzFile):
+        with loaded:
+            depth = loaded["depth"]
+    else:
+        depth = loaded
     if depth.dtype != np.float32 or depth.ndim != 2:
         raise ValueError(f"{path}: expected (H, W) float32, got {depth.dtype} {depth.shape}")
     return depth
+
+
+def write_depth(path: Path, depth: np.ndarray) -> None:
+    """Write depth.npz (compressed, key "depth"); a .npy suffix writes the v0.1 format."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    depth = np.ascontiguousarray(depth, dtype=np.float32)
+    if path.suffix == ".npy":
+        np.save(path, depth)
+    else:
+        with open(path, "wb") as f:
+            np.savez_compressed(f, depth=depth)
+
+
+def link_or_copy(src: Path, dst: Path) -> None:
+    """Hard-link dst to src (saves disk for task images); copy when linking is not possible."""
+    import os
+    import shutil
+
+    dst = Path(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.unlink(missing_ok=True)
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copyfile(src, dst)
 
 
 def read_rgb_png(path: Path) -> np.ndarray:

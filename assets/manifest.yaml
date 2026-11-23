@@ -1,3 +1,77 @@
-# Asset manifest: object IDs, sources and real-world sizes (filled in stage 3).
-# Poly Haven assets are CC0; procedural boxes and cylinders serve as exact scale references.
-assets: []
+# Asset manifest (contract: vtf.core.assets.AssetManifest, version 0.1.0).
+#
+# Every object the sampler may place. Poly Haven models are CC0 and fetched as glTF into the
+# asset cache (assets/cache/<id>/, gitignored; $VTF_ASSET_CACHE overrides the folder) with
+# `uv run python assets/fetch_polyhaven.py <id> --kind model`. Procedural primitives of exact size
+# are scale references.
+#
+# Mesh convention: glTF +Y up becomes +Z up, times `scale`, centred on the bounding box (see
+# vtf.core.assets). size_m is the real extent x, y, z after that, in metres.
+#
+# SEED ENTRIES ONLY (contracts step, brief 05). The render lane (P10) fills in about 40 Poly
+# Haven objects with measured sizes, colours, collision proxies and container interiors.
+
+manifest_version: "0.1.0"
+cache_dir: assets/cache
+assets:
+  - id: wooden_bowl_02
+    source: polyhaven
+    category: bowl
+    plural: bowls
+    color_name: brown
+    rgb: [0.25, 0.12, 0.05]
+    file: wooden_bowl_02/wooden_bowl_02_1k.gltf
+    scale: 1.0
+    size_m: [0.1307, 0.1254, 0.0731]   # measured: meta.json dimensions_mm, Z up
+    collision: mesh
+    passive: true
+    container:
+      shape: circle
+      inner_radius_m: 0.055
+      floor_z_m: 0.008
+      rim_z_m: 0.0731
+      capacity: 2
+    can_support: false
+    stackable: false
+    license: CC0
+    url: https://polyhaven.com/a/wooden_bowl_02
+    notes: seed entry; interior radius and floor height estimated, render lane to measure
+
+  - id: proc_box_5cm
+    source: procedural
+    shape: box
+    category: cube
+    plural: cubes
+    color_name: null           # the sampler colours procedural references
+    rgb: [0.8, 0.8, 0.8]
+    size_m: [0.05, 0.05, 0.05]
+    collision: primitive
+    can_support: true
+    stackable: true
+    can_go_in_container: true
+    notes: exact 5 cm scale reference
+
+  - id: proc_cylinder_6x10cm
+    source: procedural
+    shape: cylinder
+    category: cylinder
+    plural: cylinders
+    color_name: null
+    rgb: [0.8, 0.8, 0.8]
+    size_m: [0.06, 0.06, 0.10]
+    collision: primitive
+    can_support: true
+    stackable: true
+    notes: exact 6 cm by 10 cm scale reference
+
+  - id: proc_sphere_5cm
+    source: procedural
+    shape: sphere
+    category: ball
+    plural: balls
+    color_name: null
+    rgb: [0.8, 0.8, 0.8]
+    size_m: [0.05, 0.05, 0.05]
+    collision: primitive
+    can_go_in_container: true
+    notes: exact 5 cm scale reference

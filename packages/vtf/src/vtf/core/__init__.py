@@ -2,24 +2,56 @@
 camera math, hashing, seeded RNG, the answer vocabulary and the run folder layout."""
 
 from vtf.core.geometry import Pose
-from vtf.core.program import CompiledQuestion, ProgramRef, ProgramReject, ProgramResult
+from vtf.core.program import (
+    FAMILIES,
+    PROGRAM_FAMILY,
+    CompiledQuestion,
+    FamilySpec,
+    ProgramRef,
+    ProgramReject,
+    ProgramResult,
+    TwinEdit,
+)
 from vtf.core.render_manifest import CameraOutputs, RenderManifest, SettleReport
 from vtf.core.scene import (
+    CameraQuality,
     CameraSpec,
     Gripper,
+    KeyLight,
     Lighting,
     Physics,
+    Placement,
+    QuestionMix,
     RenderSettings,
     RunInfo,
     SceneMeta,
     SceneObject,
     SceneSpec,
     Table,
+    Zone,
     build_gripper,
 )
-from vtf.core.task import EvalRecord, GateResult, ManifestRow, RejectedRow, TaskPackage, Versions
+from vtf.core.task import (
+    EvalRecord,
+    GateResult,
+    ManifestRow,
+    ObjectRef,
+    RejectedRow,
+    TaskPackage,
+    Versions,
+)
 
 __all__ = [
+    "FAMILIES",
+    "PROGRAM_FAMILY",
+    "CameraQuality",
+    "FamilySpec",
+    "KeyLight",
+    "ObjectRef",
+    "Placement",
+    "QuestionMix",
+    "TwinEdit",
+    "Zone",
     "CameraOutputs",
     "CameraSpec",
     "CompiledQuestion",

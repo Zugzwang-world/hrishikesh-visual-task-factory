@@ -87,6 +87,20 @@ wheels = [
 ]
 
 [[package]]
+name = "embreex"
+version = "4.4.0.post1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/48/8e/4099a0c88a36207c4a18a9b800b4bc6d03ef1c266cad6724a2e130ff982f/embreex-4.4.0.post1-cp312-cp312-macosx_13_0_arm64.whl", hash = "sha256:a902809f99ac7a8bf1267a4a207d415a7a7e95a8d2b5e9d443a2cc291b9c1482", size = 5052543, upload-time = "2026-10-21T22:48:32.056Z" },
+    { url = "https://files.pythonhosted.org/packages/35/33/ac598c648dd66f783fa54c43272e6469e922787f471a7a6557e5c2022233/embreex-4.4.0.post1-cp312-cp312-macosx_13_0_x86_64.whl", hash = "sha256:1704af3c2e80fc6be4c1637402748ca20fd217980bd641dd3f228f7e09b0a461", size = 13224525, upload-time = "2026-10-21T22:48:34.347Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/fe/49e8e481cb0f460a7949617847d4afbd573f5c5e1cb3a8c4df509e3a4e8a/embreex-4.4.0.post1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9ee31b8b40a129620e40e06ae5c0af088b12e5f52c583e43428b87a02786d6bb", size = 14593360, upload-time = "2026-10-21T22:48:37.281Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/3e/218cb6cdd12e361320c0c27c47ce284500e43322bdab9ed19ad76ab92474/embreex-4.4.0.post1-cp312-cp312-win_amd64.whl", hash = "sha256:6286204fdcd75465cc458e610319c19dcf898292211755cca13da7248db172ab", size = 13124419, upload-time = "2026-10-21T22:48:40.056Z" },
+]
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -557,6 +571,22 @@ wheels = [
 ]
 
 [[package]]
+name = "rtree"
+version = "1.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/95/09/7302695875a019514de9a5dd17b8320e7a19d6e7bc8f85dcfb79a4ce2da3/rtree-1.4.1.tar.gz", hash = "sha256:c6b1b3550881e57ebe530cc6cffefc87cd9bf49c30b37b894065a9f810875e46", size = 52425, upload-time = "2025-08-13T19:32:01.413Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:d672184298527522d4914d8ae53bf76982b86ca420b0acde9298a7a87d81d4a4", size = 468484, upload-time = "2025-08-13T19:31:50.593Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:a7e48d805e12011c2cf739a29d6a60ae852fb1de9fc84220bbcef67e6e595d7d", size = 436325, upload-time = "2025-08-13T19:31:52.367Z" },
+    { url = "https://files.pythonhosted.org/packages/55/e1/4d075268a46e68db3cac51846eb6a3ab96ed481c585c5a1ad411b3c23aad/rtree-1.4.1-py3-none-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:efa8c4496e31e9ad58ff6c7df89abceac7022d906cb64a3e18e4fceae6b77f65", size = 459789, upload-time = "2025-08-13T19:31:53.926Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/75/e5d44be90525cd28503e7f836d077ae6663ec0687a13ba7810b4114b3668/rtree-1.4.1-py3-none-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:12de4578f1b3381a93a655846900be4e3d5f4cd5e306b8b00aa77c1121dc7e8c", size = 507644, upload-time = "2025-08-13T19:31:55.164Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/85/b8684f769a142163b52859a38a486493b05bafb4f2fb71d4f945de28ebf9/rtree-1.4.1-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:b558edda52eca3e6d1ee629042192c65e6b7f2c150d6d6cd207ce82f85be3967", size = 1454478, upload-time = "2025-08-13T19:31:56.808Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/a4/c2292b95246b9165cc43a0c3757e80995d58bc9b43da5cb47ad6e3535213/rtree-1.4.1-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:f155bc8d6bac9dcd383481dee8c130947a4866db1d16cb6dff442329a038a0dc", size = 1555140, upload-time = "2025-08-13T19:31:58.031Z" },
+    { url = "https://files.pythonhosted.org/packages/74/25/5282c8270bfcd620d3e73beb35b40ac4ab00f0a898d98ebeb41ef0989ec8/rtree-1.4.1-py3-none-win_amd64.whl", hash = "sha256:efe125f416fd27150197ab8521158662943a40f87acab8028a1aac4ad667a489", size = 389358, upload-time = "2025-08-13T19:31:59.247Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/50/0a9e7e7afe7339bd5e36911f0ceb15fed51945836ed803ae5afd661057fd/rtree-1.4.1-py3-none-win_arm64.whl", hash = "sha256:3d46f55729b28138e897ffef32f7ce93ac335cb67f9120125ad3742a220800f0", size = 355253, upload-time = "2025-08-13T19:32:00.296Z" },
+]
+
+[[package]]
 name = "ruff"
 version = "0.17.6"
 source = { registry = "https://pypi.org/simple" }
@@ -668,6 +698,18 @@ wheels = [
 ]
 
 [[package]]
+name = "trimesh"
+version = "5.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/38/e6dfd38aec853a6699a1fd765c68d47fdacdb562761d80a5dd0cef85f6d1/trimesh-5.2.2.tar.gz", hash = "sha256:720b37ba1c72617c96fa1906cfd8beccd7abab808dbd63799d8600a0e95a891a", size = 894423, upload-time = "2026-11-22T02:23:11.48Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/65/6a/b762dba087a749a45db73b0dde30c00661f9181dbe3ca4cba1cab28fcdae/trimesh-5.2.2-py3-none-any.whl", hash = "sha256:579ab2cf8e4eef32d15b2915843f16dac87c8142530c833309c28c3e54dee7c9", size = 755355, upload-time = "2026-11-22T02:23:09.474Z" },
+]
+
+[[package]]
 name = "truststore"
 version = "0.10.5"
 source = { registry = "https://pypi.org/simple" }
@@ -719,6 +761,7 @@ version = "0.0.1"
 source = { editable = "packages/vtf" }
 dependencies = [
     { name = "anthropic" },
+    { name = "embreex" },
     { name = "httpx" },
     { name = "jinja2" },
     { name = "numpy" },
@@ -727,13 +770,16 @@ dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
+    { name = "rtree" },
     { name = "scikit-image" },
+    { name = "trimesh" },
     { name = "typer" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=2.12.0" },
+    { name = "embreex", specifier = ">=4.4.0.post1" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "numpy", specifier = ">=2.5.5" },
@@ -742,7 +788,9 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.14.4" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "pyyaml", specifier = ">=6.0.4" },
+    { name = "rtree", specifier = ">=1.4.1" },
     { name = "scikit-image", specifier = ">=0.26.0" },
+    { name = "trimesh", specifier = ">=5.2.2" },
     { name = "typer", specifier = ">=0.29" },
 ]
 

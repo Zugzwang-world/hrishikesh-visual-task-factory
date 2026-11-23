@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$defs": {
+    "AssetEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Poly Haven asset id, or proc_<shape>_<size> for procedural.",
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "polyhaven",
+            "procedural"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "category": {
+          "description": "Singular noun used in questions, e.g. mug.",
+          "title": "Category",
+          "type": "string"
+        },
+        "plural": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Plural noun; default category + s.",
+          "title": "Plural"
+        },
+        "color_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Colour word for a textured asset (None: no colour word).",
+          "title": "Color Name"
+        },
+        "rgb": {
+          "description": "Representative linear-light colour (procedural: base colour).",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Rgb",
+          "type": "array"
+        },
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "glTF path relative to the asset cache (Poly Haven only).",
+          "title": "File"
+        },
+        "shape": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Procedural primitive: box, cylinder, sphere or cone.",
+          "title": "Shape"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Applied to the file's mesh.",
+          "exclusiveMinimum": 0,
+          "title": "Scale",
+          "type": "number"
+        },
+        "size_m": {
+          "description": "Real extents x, y, z (Z up) after `scale`, metres.",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Size M",
+          "type": "array"
+        },
+        "collision": {
+          "description": "Settle collision proxy. mesh is for passive open containers only.",
+          "enum": [
+            "convex_hull",
+            "box",
+            "mesh",
+            "primitive"
+          ],
+          "title": "Collision",
+          "type": "string"
+        },
+        "passive": {
+          "default": false,
+          "description": "Does not move in the settle (open containers).",
+          "title": "Passive",
+          "type": "boolean"
+        },
+        "container": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContainerInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "can_support": {
+          "default": false,
+          "description": "Flat top that can carry a stack.",
+          "title": "Can Support",
+          "type": "boolean"
+        },
+        "stackable": {
+          "default": false,
+          "description": "May be placed on another object.",
+          "title": "Stackable",
+          "type": "boolean"
+        },
+        "can_go_in_container": {
+          "default": false,
+          "title": "Can Go In Container",
+          "type": "boolean"
+        },
+        "lookalike_group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Assets that are easy to confuse (same colour or category).",
+          "title": "Lookalike Group"
+        },
+        "triangles": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Triangle count of the joined mesh.",
+          "title": "Triangles"
+        },
+        "license": {
+          "default": "CC0",
+          "title": "License",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "category",
+        "rgb",
+        "size_m",
+        "collision"
+      ],
+      "title": "AssetEntry",
+      "type": "object"
+    },
+    "ContainerInfo": {
+      "additionalProperties": false,
+      "description": "Interior of an open container (bowl, tray, basket), in the asset's centred local frame.\n\nAn object is inside when its centre lies within the interior footprint and above the floor,\nand its lowest point is below the rim (the programs own the exact rule and margins).",
+      "properties": {
+        "shape": {
+          "default": "circle",
+          "enum": [
+            "circle",
+            "rect"
+          ],
+          "title": "Shape",
+          "type": "string"
+        },
+        "inner_radius_m": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "circle interior",
+          "title": "Inner Radius M"
+        },
+        "inner_size_xy": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "rect interior",
+          "title": "Inner Size Xy"
+        },
+        "floor_z_m": {
+          "description": "Interior floor height above the asset's lowest point.",
+          "title": "Floor Z M",
+          "type": "number"
+        },
+        "rim_z_m": {
+          "description": "Rim height above the asset's lowest point.",
+          "title": "Rim Z M",
+          "type": "number"
+        },
+        "capacity": {
+          "default": 3,
+          "description": "Most objects the sampler puts inside.",
+          "minimum": 1,
+          "title": "Capacity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "floor_z_m",
+        "rim_z_m"
+      ],
+      "title": "ContainerInfo",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": {
+      "default": "0.1.0",
+      "title": "Manifest Version",
+      "type": "string"
+    },
+    "cache_dir": {
+      "default": "assets/cache",
+      "description": "Asset cache relative to the repo root; $VTF_ASSET_CACHE overrides it.",
+      "title": "Cache Dir",
+      "type": "string"
+    },
+    "assets": {
+      "items": {
+        "$ref": "#/$defs/AssetEntry"
+      },
+      "title": "Assets",
+      "type": "array"
+    }
+  },
+  "title": "AssetManifest",
+  "type": "object"
+}

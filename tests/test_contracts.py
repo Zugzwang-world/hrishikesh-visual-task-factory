@@ -130,3 +130,22 @@ def test_derive_seed_is_stable() -> None:
     assert derive_seed(1, 0) == derive_seed(1, 0)
     assert derive_seed(1, 0) != derive_seed(1, 1)
     assert 0 <= derive_seed("x") < 2**63
+
+
+def test_asset_manifest_loads_and_meshes_match_sizes() -> None:
+    from vtf.core.assets import asset_cache_dir, asset_local_mesh, load_asset_manifest
+
+    manifest = load_asset_manifest()
+    assert manifest.assets, "assets/manifest.yaml lists no assets"
+    for entry in manifest.assets:
+        if entry.source == "polyhaven" and not (asset_cache_dir(manifest) / entry.file).exists():
+            continue  # not fetched on this machine (CI): fetch_polyhaven.py fills the cache
+        extents = asset_local_mesh(entry, manifest=manifest).extents
+        assert np.allclose(extents, entry.size_m, atol=2e-3), (entry.id, extents, entry.size_m)
+
+
+def test_families_registry_is_consistent() -> None:
+    from vtf.core.program import FAMILIES, PROGRAM_FAMILY
+
+    assert len(FAMILIES) == 12
+    assert len(PROGRAM_FAMILY) == sum(len(f.programs) for f in FAMILIES.values())

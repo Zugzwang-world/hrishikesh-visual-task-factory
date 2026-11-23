@@ -7,9 +7,18 @@ The renderer (packages/vtf-blender, inside Blender) writes, per scene, into one 
     <camera_id>/beauty.png    8-bit RGB
     <camera_id>/index.png     16-bit single channel; pixel value = pass_index, 0 = background
                               (from a 1-sample CPU render, so it is exact on re-render)
-    <camera_id>/depth.npy     float32 (H, W); planar camera-frame depth in metres of whatever the
-                              ray hits, 0.0 = no hit. Floor and table legs are renderer props
-                              outside the scene file: index 0, but they keep their depth.
+    <camera_id>/depth.npz     float32 (H, W) under key "depth" (np.savez_compressed; v0.1 wrote
+                              depth.npy, which vtf.core.io.read_depth still reads); planar
+                              camera-frame depth in metres of whatever the ray hits, 0.0 = no
+                              hit. Floor and table legs are renderer props outside the scene
+                              file: index 0, but they keep their depth.
+    <camera_id>/beauty_raw.png  the beauty before the camera-quality dial (only when the dial
+                              changed the image); beauty.png is what tasks show.
+    scene.glb                 optional display export of the settled scene for the Task Explorer
+                              (decimated meshes, small textures; not truth).
+
+With a camera-quality dial (CameraSpec.quality), lens distortion warps beauty, index, depth and
+amodal masks alike, so every pass stays aligned with the image the model sees.
     <camera_id>/amodal/<pass_index>.png   8-bit single channel; 255 where the object, rendered
                                           alone, covers the pixel; 0 elsewhere
 
@@ -21,7 +30,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-MANIFEST_VERSION = "0.1.0"
+MANIFEST_VERSION = "0.2.0"
 
 Matrix3 = tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
 Matrix4 = tuple[
@@ -38,11 +47,19 @@ class _Model(BaseModel):
 
 class CameraOutputs(_Model):
     camera_id: str
+    rig: str = Field(default="front", description="front, overhead or gripper.")
     resolution: tuple[int, int] = Field(description="Width, height in pixels.")
     beauty: str = Field(description="Relative path to beauty.png.")
+    beauty_raw: str | None = Field(
+        default=None, description="Beauty before the camera-quality dial, if the dial ran."
+    )
+    quality: dict = Field(
+        default_factory=dict, description="CameraQuality actually applied (empty: clean)."
+    )
     index: str = Field(description="Relative path to the 16-bit index.png.")
     depth: str = Field(
-        description="Relative path to depth.npy (float32, metres; floor and legs keep depth)."
+        description="Relative path to depth.npz or depth.npy (float32, metres; floor and legs "
+        "keep depth)."
     )
     depth_kind: Literal["planar_z"] = Field(
         default="planar_z", description="Depth is camera-frame z (along the optical axis)."
@@ -96,6 +113,7 @@ class RenderManifest(_Model):
     seed: int
     denoise: bool
     cameras: list[CameraOutputs]
+    gltf: str | None = Field(default=None, description="Relative path to scene.glb, if exported.")
     settle: SettleReport
     timings: dict[str, float] = Field(
         description="Seconds: build, settle, render, amodal, total (wall clock inside Blender)."

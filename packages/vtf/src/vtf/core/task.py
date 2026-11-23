@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from vtf.core.program import Answer, AnswerType, ProgramRef
 
-TASK_VERSION = "0.1.0"
+TASK_VERSION = "0.2.0"
 
 
 class _Model(BaseModel):
@@ -37,14 +37,28 @@ class Versions(_Model):
     renderer: str = Field(description="Renderer and version, e.g. blender 5.3.0.")
 
 
+class ObjectRef(_Model):
+    """One scene object as the scorer sees it: the words that can name it."""
+
+    id: str
+    name: str = Field(description="Full name: [size] [colour] category.")
+    category: str
+    color_name: str | None = None
+    size_word: str | None = None
+
+
 class TaskPackage(_Model):
     task_version: str = TASK_VERSION
     task_id: str = Field(description="Content hash of the task's inputs and answer.")
     scene_id: str
     scene_hash: str = Field(description="sha256 of the settled scene file's canonical JSON.")
     camera_id: str
+    rig: str = Field(default="front", description="front, overhead or gripper.")
     image: str = Field(default="image.png", description="Path relative to the task folder.")
     question: str
+    question_alt: str | None = Field(
+        default=None, description="The other phrasing (prompt-sensitivity subset)."
+    )
     family: str
     template_id: str
     program: ProgramRef
@@ -52,9 +66,25 @@ class TaskPackage(_Model):
     answer_type: AnswerType
     answer_text: str
     tolerance: float | None = Field(default=None, description="None means exact match.")
+    shortcut_conflict: bool | None = Field(
+        default=None,
+        description="Spatial families: True when a 2D-proximity heuristic gives a different "
+        "answer from the 3D truth. Also in `difficulty`. None for non-spatial families.",
+    )
+    shortcut_answer: Answer | None = None
     evidence_object_ids: list[str]
+    scene_objects: list[ObjectRef] = Field(
+        default_factory=list,
+        description="Every object in the scene with its naming words, so the scorer can resolve "
+        "a free-text answer to exactly one object (never shown to the model).",
+    )
     gates: dict[str, GateResult] = Field(description="Gate id (G1, G3, G7, ...) -> result.")
-    twin_of: str | None = Field(default=None, description="Task id of the twin (null in v0).")
+    twin_of: str | None = Field(
+        default=None, description="On a twin task: the task id of the original."
+    )
+    twin_id: str | None = Field(
+        default=None, description="On an original with a G6 twin: the twin's task id."
+    )
     difficulty: dict[str, int | float | str] = Field(default_factory=dict)
     seed: int = Field(description="Per-scene seed.")
     versions: Versions
@@ -66,8 +96,10 @@ class ManifestRow(_Model):
     task_id: str
     scene_id: str
     camera_id: str
+    rig: str = "front"
     family: str
     answer_type: AnswerType
+    shortcut_conflict: bool | None = None
     path: str = Field(description="tasks/<task_id>/task.json, relative to the run folder.")
 
 
@@ -91,6 +123,10 @@ class EvalRecord(_Model):
     model: str
     prompt_version: str
     family: str
+    camera_id: str | None = None
+    rig: str | None = None
+    shortcut_conflict: bool | None = None
+    with_image: bool = Field(default=True, description="False for blind (question-only) runs.")
     answer_type: AnswerType
     truth: Answer
     raw_response: str

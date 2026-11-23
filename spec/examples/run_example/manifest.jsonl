@@ -1,3 +1,3 @@
-{"task_id": "t5f269730c7923078", "scene_id": "scene_0000", "camera_id": "front", "family": "count", "answer_type": "int", "path": "tasks/t5f269730c7923078/task.json"}
-{"task_id": "tf744d88aab5caf3d", "scene_id": "scene_0000", "camera_id": "front", "family": "count", "answer_type": "int", "path": "tasks/tf744d88aab5caf3d/task.json"}
-{"task_id": "t2e1456f6273a3fc5", "scene_id": "scene_0000", "camera_id": "front", "family": "front_to_back", "answer_type": "object", "path": "tasks/t2e1456f6273a3fc5/task.json"}
+{"task_id": "tc7cfc9f0c8088f8d", "scene_id": "scene_0000", "camera_id": "front", "rig": "front", "family": "count", "answer_type": "int", "shortcut_conflict": null, "path": "tasks/tc7cfc9f0c8088f8d/task.json"}
+{"task_id": "t4206e32d90899226", "scene_id": "scene_0000", "camera_id": "front", "rig": "front", "family": "count", "answer_type": "int", "shortcut_conflict": null, "path": "tasks/t4206e32d90899226/task.json"}
+{"task_id": "tb9c7f3a0d6fbba42", "scene_id": "scene_0000", "camera_id": "front", "rig": "front", "family": "front_to_back", "answer_type": "object", "shortcut_conflict": null, "path": "tasks/tb9c7f3a0d6fbba42/task.json"}
