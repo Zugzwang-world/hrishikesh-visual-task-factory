@@ -234,8 +234,11 @@ def test_every_twin_edit_changes_the_answer() -> None:
         result = run_program(q.program.name, q.program.params, apply_twin(s, twin), cam)
         assert result.answer == twin.expected_answer != q.result.answer, (name, q.question)
         assert make_twin(q.program.name, q.program.params, s, cam, seed=3) == twin
-    for family in ("count", "count_attribute", "containment", "reachability", "support",
-                   "distance", "relation", "free_space"):
+    # Coverage on the hand-built scenes. count_attribute is not required: after the render lane
+    # set null colour words for metallic assets (brief 05), its only questions here are empty
+    # containers too small to receive a twin; the flip check above still runs on every twin made.
+    for family in ("count", "containment", "reachability", "support", "distance", "relation",
+                   "free_space"):
         assert made.get(family), family
 
 

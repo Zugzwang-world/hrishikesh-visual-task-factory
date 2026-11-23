@@ -159,6 +159,9 @@ render:
   device: GPU
   denoise: true
 
-# physics: omitted on purpose, so scenes carry the settle settings measured on Blender 5.3.
+# physics: the settle settings measured on Blender 5.3, except a longer settle so objects inside
+# containers come to rest (render lane, brief 05).
+physics:
+  settle_frames: 150
 
 max_layout_attempts: 60

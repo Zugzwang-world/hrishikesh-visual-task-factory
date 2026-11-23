@@ -827,15 +827,18 @@ class _Placer:
                 assert info is not None
                 yaw = self.draw_yaw(it)
                 wall = self.recipe.containers.wall_margin_m
+                # Round objects go within half the free room: off-centre on a sloped floor they
+                # were still rolling at the end of the settle (render lane, brief 05).
+                shrink = 0.5 if it.cand.round else 1.0
                 if info.shape == "circle":
                     room = float(info.inner_radius_m or 0.0) * parent.scale - radius - wall
-                    rho = max(room, 0.0) * math.sqrt(self.rng.random())
+                    rho = max(room, 0.0) * shrink * math.sqrt(self.rng.random())
                     phi = self.rng.uniform(0, 2 * math.pi)
                     ox, oy = rho * math.cos(phi), rho * math.sin(phi)
                 else:
                     ix, iy = info.inner_size_xy or (0.0, 0.0)
-                    rx = max(ix * parent.scale / 2 - radius - wall, 0.0)
-                    ry = max(iy * parent.scale / 2 - radius - wall, 0.0)
+                    rx = max(ix * parent.scale / 2 - radius - wall, 0.0) * shrink
+                    ry = max(iy * parent.scale / 2 - radius - wall, 0.0) * shrink
                     ox, oy = self.rng.uniform(-rx, rx), self.rng.uniform(-ry, ry)
                 bottom = pz - parent.height / 2
                 z = _r(bottom + info.floor_z_m * parent.scale + it.height / 2 + drop)
