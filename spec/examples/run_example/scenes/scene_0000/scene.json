@@ -416,15 +416,17 @@
     "denoise": true
   },
   "physics": {
-    "settle_frames": 60,
+    "settle_frames": 90,
     "fps": 24,
-    "substeps_per_frame": 10,
+    "substeps_per_frame": 40,
     "solver_iterations": 20,
-    "friction": 0.8,
+    "friction": 0.6,
     "restitution": 0.0,
-    "linear_damping": 0.1,
-    "angular_damping": 0.6,
+    "linear_damping": 0.04,
+    "angular_damping": 0.1,
     "collision_margin": 0.0005,
-    "density_kg_m3": 600.0
+    "density_kg_m3": 600.0,
+    "use_deactivation": true,
+    "use_split_impulse": true
   }
 }
