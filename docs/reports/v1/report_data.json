@@ -1,0 +1,225 @@
+{
+  "run_name": "v1",
+  "versions": {
+    "vtf": "0.0.1",
+    "spec": "0.2.0",
+    "task": "0.2.0",
+    "generator": "vtf.scene.sampler_v1 0.1.0",
+    "programs": "0.2.2",
+    "renderer": "blender 5.3.0"
+  },
+  "tiles": {
+    "scenes": 500,
+    "candidates": 7013,
+    "accepted": 3181,
+    "rejected": 4352,
+    "families": 12,
+    "rigs": 3
+  },
+  "gates": [
+    {
+      "gate": "G1 Truth by execution",
+      "run": 3653,
+      "pass": 3653,
+      "rate": 1.0
+    },
+    {
+      "gate": "G2 Second computation",
+      "run": 3653,
+      "pass": 3486,
+      "rate": 0.9542841500136874
+    },
+    {
+      "gate": "G3 Evidence visible",
+      "run": 3653,
+      "pass": 3633,
+      "rate": 0.9945250479058309
+    },
+    {
+      "gate": "G4 No near-ties",
+      "run": 3653,
+      "pass": 3649,
+      "rate": 0.9989050095811661
+    },
+    {
+      "gate": "G5 Vision necessity (balance)",
+      "run": 3959,
+      "pass": 3181,
+      "rate": 0.8034857287193736
+    },
+    {
+      "gate": "G6 Counterfactual twin",
+      "run": 484,
+      "pass": 484,
+      "rate": 1.0
+    },
+    {
+      "gate": "G7 Determinism",
+      "run": 3653,
+      "pass": 3653,
+      "rate": 1.0
+    }
+  ],
+  "models": [
+    {
+      "name": "claude-sonnet-5-5",
+      "n": 1500,
+      "correct": 928,
+      "accuracy": 0.6186666666666667,
+      "ci": [
+        0.5953,
+        0.6433
+      ],
+      "families": {
+        "containment": {
+          "n": 144,
+          "correct": 86,
+          "accuracy": 0.5972,
+          "ci95_low": 0.5139,
+          "ci95_high": 0.6736,
+          "parse_failures": 8
+        },
+        "count": {
+          "n": 144,
+          "correct": 109,
+          "accuracy": 0.7569,
+          "ci95_low": 0.6875,
+          "ci95_high": 0.8264,
+          "parse_failures": 0
+        },
+        "count_attribute": {
+          "n": 147,
+          "correct": 109,
+          "accuracy": 0.7415,
+          "ci95_low": 0.6667,
+          "ci95_high": 0.8095,
+          "parse_failures": 0
+        },
+        "distance": {
+          "n": 119,
+          "correct": 32,
+          "accuracy": 0.2689,
+          "ci95_low": 0.1933,
+          "ci95_high": 0.3529,
+          "parse_failures": 0
+        },
+        "free_space": {
+          "n": 140,
+          "correct": 100,
+          "accuracy": 0.7143,
+          "ci95_low": 0.6357,
+          "ci95_high": 0.7857,
+          "parse_failures": 0
+        },
+        "front_to_back": {
+          "n": 145,
+          "correct": 125,
+          "accuracy": 0.8621,
+          "ci95_low": 0.8069,
+          "ci95_high": 0.9172,
+          "parse_failures": 0
+        },
+        "gripper_view": {
+          "n": 48,
+          "correct": 31,
+          "accuracy": 0.6458,
+          "ci95_low": 0.5,
+          "ci95_high": 0.7708,
+          "parse_failures": 7
+        },
+        "nearest_to_gripper": {
+          "n": 144,
+          "correct": 68,
+          "accuracy": 0.4722,
+          "ci95_low": 0.3958,
+          "ci95_high": 0.5556,
+          "parse_failures": 14
+        },
+        "occlusion": {
+          "n": 76,
+          "correct": 36,
+          "accuracy": 0.4737,
+          "ci95_low": 0.3681,
+          "ci95_high": 0.5793,
+          "parse_failures": 10
+        },
+        "reachability": {
+          "n": 105,
+          "correct": 63,
+          "accuracy": 0.6,
+          "ci95_low": 0.5048,
+          "ci95_high": 0.6952,
+          "parse_failures": 7
+        },
+        "relation": {
+          "n": 144,
+          "correct": 73,
+          "accuracy": 0.5069,
+          "ci95_low": 0.4236,
+          "ci95_high": 0.5833,
+          "parse_failures": 11
+        },
+        "support": {
+          "n": 144,
+          "correct": 96,
+          "accuracy": 0.6667,
+          "ci95_low": 0.5903,
+          "ci95_high": 0.7361,
+          "parse_failures": 4
+        }
+      },
+      "rigs": {
+        "front": {
+          "n": 531,
+          "correct": 345,
+          "accuracy": 0.6497,
+          "ci95_low": 0.6064,
+          "ci95_high": 0.6893,
+          "parse_failures": 12
+        },
+        "gripper": {
+          "n": 466,
+          "correct": 310,
+          "accuracy": 0.6652,
+          "ci95_low": 0.6223,
+          "ci95_high": 0.7082,
+          "parse_failures": 27
+        },
+        "overhead": {
+          "n": 503,
+          "correct": 273,
+          "accuracy": 0.5427,
+          "ci95_low": 0.501,
+          "ci95_high": 0.5865,
+          "parse_failures": 22
+        }
+      },
+      "conflict": {
+        "false": {
+          "n": 541,
+          "correct": 369,
+          "accuracy": 0.6821,
+          "ci95_low": 0.6433,
+          "ci95_high": 0.719,
+          "parse_failures": 29
+        },
+        "n/a": {
+          "n": 746,
+          "correct": 463,
+          "accuracy": 0.6206,
+          "ci95_low": 0.5858,
+          "ci95_high": 0.6555,
+          "parse_failures": 19
+        },
+        "true": {
+          "n": 213,
+          "correct": 96,
+          "accuracy": 0.4507,
+          "ci95_low": 0.385,
+          "ci95_high": 0.5211,
+          "parse_failures": 13
+        }
+      }
+    }
+  ]
+}

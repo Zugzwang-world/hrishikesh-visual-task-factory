@@ -14,6 +14,8 @@ Open questions, each with a recommendation. Close an item by moving its answer t
 | 8 | Lay-flat rest poses are carried by pre-rotated glTF files and free-text notes. | A structured rest_rotation field on AssetEntry in contract v0.3. | Open, low priority |
 | 9 | Some families yield few tasks per scene: occlusion (strict rules), gripper_view (needs one object under a 15 px disc), relation (5-degree cone edge). | Tune after the founder audit, not before; the dataset report shows the yield per family. | Open |
 | 10 | G6 twin rules are weak for front_to_back, nearest, occlusion and gripper_view (often no valid move). | Untwinned tasks record G6 as no_twin_rule, not a failure; improve the rules in stage 4 if the judges' demo needs twins in those families. | Open |
+| 12 | Three G6 twins failed with "ProgramReject got multiple values for argument 'reason'" (a twin rule passes reason= as a detail keyword). | Rename the detail key in vtf.programs.twins; the twins were recorded twin_invalid and did not affect their originals. | Open, small fix |
+| 13 | The scale run stopped at 300 of 500 scenes (disk floor). | Free about 3 GB (Docker Desktop's VM disk is 41 GB), then resume with the command in NOW.md; rerun balance, eval and report. 3,181 tasks already meet the brief's target of about 3,000. | Founder |
 | 11 | RejectedRow has no task_id field; G5 rebalance rows carry it in detail.task_id. | Add an optional task_id in contract v0.3. | Open, low priority |
 
 

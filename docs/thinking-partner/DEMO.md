@@ -22,13 +22,14 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 | Asset sheet: the 44 objects | Variation story | Done: [docs/media/assets_sheet.jpg](../media/assets_sheet.jpg) |
 | Camera-quality dial: clean, mild, harsh, CCTV | Variation story | Done: [docs/media/camera_dial_sample.jpg](../media/camera_dial_sample.jpg) |
 | Sampler v1 ray-cast preview (exact second route) | Proof beat | Done: [docs/media/sampler_v1_raycast.jpg](../media/sampler_v1_raycast.jpg) |
-| The shortcut finding: nearest-to-gripper conflict tasks | Findings beat | Stage 3 re-run: 0 of 7 conflict tasks right, every miss the 2D-shortcut object (RESEARCH.md); larger split from the 500-scene run |
+| The shortcut finding | Findings beat | v1 run, Sonnet 5.5 on 1,500 tasks: 68% when the 2D shortcut agrees with 3D truth, 45% when it does not; nearest to gripper 59% vs 15%; 65 of 117 conflict misses are exactly the shortcut answer (RESEARCH.md) |
+| Dataset report | Proof beat | Done: [docs/reports/v1/index.html](../reports/v1/index.html) (gates, rejections, coverage, answer distributions, shortcut share, model splits) |
 | Stage 2 contact sheet: 24 tasks with question, true answer, model answer, tick or cross | Proof beat; findings teaser | Done: [docs/media/stage2_contact_sheet.png](../media/stage2_contact_sheet.png) (Claude Sonnet 5.5, 20 of 24 shown correct) |
 | The 2D-proximity miss: scene 0, gripper tip directly above the black box, model answers "green cone" | Findings beat: why robots need exact depth | Found in stage 2 (`out/s2`, task te10076218634b219); make a callout image in stage 4 |
 | Turntable GIFs of 2–3 scenes | Hook, README, slides | To do (stage 3) |
 | Clutter ladder: same scene at 3, 10, 25 objects | Variation story | To do (stage 3) |
 | Counterfactual twin pair (before/after, answer flips) | Originality beat | To do (stage 3) |
-| Gate report screenshot and a rejected-task example | Proof beat | To do (stage 3) |
+| Gate report screenshot and a rejected-task example | Proof beat | Report done (docs/reports/v1); screenshot to take for the slides |
 | `vtf verify` terminal recording | Proof beat | To do (stage 3) |
 | Skill x model accuracy chart with intervals | Findings | To do (stage 4) |
 | Breaking-point curves per difficulty control | Findings | To do (stage 4) |

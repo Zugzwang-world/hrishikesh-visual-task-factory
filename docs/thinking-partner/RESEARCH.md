@@ -37,6 +37,20 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 
 ## New research
 
+### 23 Nov 2026: Stage 3 scale run, Claude Sonnet 5.5 on 1,500 stratified tasks
+
+- **Data.** out/v1: 300 scenes x 3 cameras (the disk floor stopped the run at 300 of 500), 3,181 tasks after G5 rebalancing; sample stratified by family x rig, seed 0. Settings: adaptive thinking, effort high, structured JSON, prompt 0.2.0, API 2026-10-21. Cost $6.80.
+- **Overall:** 928 of 1,500, 61.9% (95% interval 60 to 64%). Front 65.0%, wrist 66.5%, overhead 54.3%.
+- **shortcut_conflict (decision 2, the headline diagnostic):** false 369 of 541 (68.2%), true 96 of 213 (45.1%); non-spatial families 62.1%.
+  - Nearest to gripper: 59.0% (n 105) vs 15.4% (n 39); 20 of 33 misses are exactly the 2D-shortcut object.
+  - Front-to-back: 93.3% vs 67.5%; all 13 misses are the shortcut answer.
+  - Free space: 80.6% vs 50.0%; all 21 misses are the shortcut answer.
+  - Reachability 62.9% vs 25.0% (n 8); relation 54.2% vs 47.2%; occlusion 46.9% vs 50.0% (n 12).
+  - Across spatial families, 65 of 117 misses on conflict tasks equal the 2D-shortcut answer.
+- **By family:** front-to-back 86%, count 76%, count by colour 74%, free space 71%, support 67%, gripper view 65%, reachability 60%, containment 60%, relation 51%, occlusion 47%, nearest to gripper 47%, distance in cm 27% (mostly underestimates).
+- **G5 blind baseline:** the same model with no image scores 15% (27 of 180) against a 25% prior-only baseline.
+- **Reading.** The model reads 3D from 2D proximity cues: when image-plane closeness agrees with 3D truth it does well, and when they disagree it mostly answers what the 2D picture suggests. This is the robot-relevant failure: the wrong grasp target or a missed collision.
+
 ### 23 Nov 2026: Nearest-to-gripper re-run with fair evidence (stage 3, Claude Sonnet 5.5)
 
 - **Setup.** 40 stage-2 style scenes (5 to 10 coloured primitives) with the key light, the low gripper (fingertip 3 to 12 cm above the tallest nearby object), and three cameras: front, overhead and wrist. Run `out/nearest_v1`, recipe `recipes/s2_nearest_v1.yaml`, seed 1. 69 tasks passed every gate (G1 to G4 and G7 at 100%).
