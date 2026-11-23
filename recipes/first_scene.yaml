@@ -1,0 +1,68 @@
+# First scene (stage 2, sampler v0): 5 to 10 coloured primitives on a table, a two-finger
+# gripper hovering above, one front camera, studio HDRI.
+#
+#   uv run vtf generate --recipe recipes/first_scene.yaml --n 20 --seed 1 --out out/s2
+#
+# Units are metres and degrees. Ranges are [low, high], sampled uniformly with numpy's seeded
+# Generator. The recipe hash (sha256 of this file after defaults are filled in) is written into
+# every scene's meta, so changing any number here changes every scene file.
+
+recipe_version: "0.1.0"
+name: first_scene
+description: Coloured primitives on a wooden table, a gripper above, one front camera.
+
+table:
+  size_xy: [1.0, 0.7]
+  height: 0.75
+  thickness: 0.03
+  material_id: wood_simple
+
+objects:
+  count: [5, 10]
+  shapes: [box, cylinder, sphere, cone]
+  colours: [red, green, blue, yellow, orange, purple, white, black]
+  size_m: [0.04, 0.10]          # box sides; cylinder/cone diameter and height; sphere diameter
+  box_yaw_deg: [-180, 180]      # cylinders and cones stand upright; spheres are not rotated
+  drop_m: 0.01                  # spawn 1 cm above the table so the settle is short
+  roughness: 0.45
+  metallic: 0.0
+
+placement:
+  table_margin_m: 0.04          # footprint circles stay 4 cm inside the table edge
+  gap_m: 0.015                  # minimum gap between footprint circles
+  tries_per_object: 200
+
+gripper:
+  tip_height_m: [0.12, 0.25]    # fingertip midpoint above the table top
+  xy_margin_m: 0.10
+  yaw_deg: [-90, 90]            # the two-finger gripper is symmetric under a half turn
+  min_clearance_m: 0.02         # not simulated: fingertips stay 2 cm above the tallest object
+  tries: 200
+
+camera:
+  id: front
+  rig: front
+  target_jitter_m: 0.02         # look-at target = table-top centre + jitter in x and y
+  distance_m: [0.88, 0.92]
+  elevation_deg: [38, 42]
+  azimuth_deg: [-5, 5]          # 0 = camera on the -y side of the table, looking at +y
+  focal_mm: [26, 30]
+  sensor_width_mm: 36.0
+  resolution: [1024, 768]
+  view_margin_px: 16
+
+lighting:
+  hdri_id: studio_small_09
+  strength: 1.0
+  rotation_deg: [0, 360]
+
+render:
+  samples: 128
+  seed: 0
+  device: GPU
+  denoise: true
+
+# physics: omitted on purpose, so scenes carry the settle settings measured on Blender 5.3
+# (vtf.core.scene.Physics defaults).
+
+max_layout_attempts: 50
