@@ -42,6 +42,7 @@ FLAT_BASE_M = 0.004  # hull proxies: points within this of the bottom also proje
 HULL_GRID_M = 0.0005  # hull input points are deduplicated on this grid
 HULL_MAX_VERTS = 96  # hull proxies keep at most this many vertices
 HULL_BASE_VERTS = 16  # of which this many outline the flat base
+MESH_MAX_TRIANGLES = 1500  # container colliders are decimated to at most this many triangles
 
 _PROXY_MESHES: dict[str, bpy.types.Mesh] = {}
 
@@ -157,6 +158,37 @@ def hull_proxy_mesh(mesh: bpy.types.Mesh) -> bpy.types.Mesh:
     return proxy
 
 
+def collider_mesh(mesh: bpy.types.Mesh) -> bpy.types.Mesh:
+    """A container's triangle-mesh collider, decimated to at most MESH_MAX_TRIANGLES (collapse
+    decimation keeps the shape within about a millimetre at these sizes; Bullet's convex-vs-mesh
+    cost grows with the triangles under each contact)."""
+    key = f"{mesh.name}_collider"
+    cached = _PROXY_MESHES.get(key)
+    try:
+        if cached is not None and cached.name in bpy.data.meshes:
+            return cached
+    except ReferenceError:
+        pass
+    tris = sum(len(p.vertices) - 2 for p in mesh.polygons)
+    if tris <= MESH_MAX_TRIANGLES:
+        _PROXY_MESHES[key] = mesh
+        return mesh
+    tmp = bpy.data.objects.new("vtf_decimate_tmp", mesh)
+    bpy.context.scene.collection.objects.link(tmp)
+    mod = tmp.modifiers.new("decimate", "DECIMATE")
+    mod.decimate_type = "COLLAPSE"
+    mod.ratio = MESH_MAX_TRIANGLES / tris
+    bpy.context.view_layer.update()
+    evaluated = tmp.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    collider = bpy.data.meshes.new_from_object(evaluated)
+    collider.name = key
+    collider.materials.clear()
+    collider.use_fake_user = True
+    bpy.data.objects.remove(tmp, do_unlink=True)
+    _PROXY_MESHES[key] = collider
+    return collider
+
+
 def _mass(rule: str, dims, density: float) -> float:
     dx, dy, dz = (float(v) for v in dims)
     factor = HULL_FILL if rule == "hull" else VOLUME_FACTOR[rule]
@@ -201,8 +233,13 @@ def settle(built: BuiltScene, spec: dict) -> tuple[dict[str, tuple[list, list]],
     proxies = []
     for obj, ob in built.objects:
         shape, rule, _ = kinds[obj["id"]]
+        proxy_mesh = None
         if rule == "hull" and shape == "CONVEX_HULL":
-            proxy = bpy.data.objects.new(f"{obj['id']}_proxy", hull_proxy_mesh(ob.data))
+            proxy_mesh = hull_proxy_mesh(ob.data)
+        elif shape == "MESH":
+            proxy_mesh = collider_mesh(ob.data)
+        if proxy_mesh is not None:
+            proxy = bpy.data.objects.new(f"{obj['id']}_proxy", proxy_mesh)
             scene.collection.objects.link(proxy)
             proxy.rotation_mode = "QUATERNION"
             proxy.location = ob.location.copy()
@@ -348,6 +385,7 @@ def settle_report(built, spec, poses, previous, final, seconds) -> dict:
             turn = a.to_quaternion().rotation_difference(b.to_quaternion()).angle
             if step > MOVING_M or min(turn, 2 * math.pi - turn) > MOVING_RAD:
                 moving.append(oid)
+                print(f"VTF_SETTLE_MOVING {oid} step_m={step:.2e} turn_rad={turn:.2e}")
     phys = spec["physics"]
     return {
         "frames": int(phys["settle_frames"]),
