@@ -2,6 +2,18 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 23 Nov 2026: Finish setup (brief 03)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| **Determinism (closes OPEN item 6)** | G7 checks scene files, answers, masks and depth for exact equality, comparing decoded pixels rather than file bytes. Images are compared with SSIM and pass at 0.999 or above. GPU stays the default device. A CPU device option gives byte-identical images when they are wanted, for example `vtf verify` on stage. | The setup run found same-seed GPU renders differ by one colour level in 2 of 307,200 pixels, while masks, depth and CPU renders are exact. Masks, depth and the scene file carry all the truth, and G2 recomputes answers from them. Rule C, the G7 row and the "Repeatable" requirement row in BRIEF.md now say exactly this. |
+| Device option | `vtf_blender.device.configure_device("GPU" or "CPU")`, shared by every Blender script; `--device` on the smoke scripts and on the `vtf render` and `vtf verify` stubs | One implementation of the GPU/CPU choice. It tries Metal, then OptiX, CUDA, HIP and oneAPI, so the same code runs on the DGX Spark or a cloud GPU. |
+| Node.js | Node 26 LTS (26.13.1) installed with fnm and pinned for this repo in `.node-version`; the machine default stays Node 24 | Node 26 is the active LTS since Oct 2026 and Node 24 is in maintenance. fnm switches on `cd`, so other projects on this Mac are untouched. |
+| Vercel CLI | 66.6.0, installed under both Node 24 and Node 26; already logged in as zugzwang-world | No new login was needed. The web app itself waits for P25. |
+| Hugging Face CLI | `hf` 2.4.0 from `uv tool install huggingface_hub` | The current CLI is `hf`, which replaced `huggingface-cli`. Dataset repos are created with `hf repos create <id> --type dataset --public`. |
+| Python libraries | Runtime libraries in `packages/vtf`: pydantic, typer, numpy, opencv-python-headless, pillow, pyyaml, jinja2, httpx, scikit-image, python-dotenv. hypothesis and pytest sit in the workspace dev group. | The headless OpenCV build has the same API, ArUco included, without GUI libraries, so it suits Docker and CI. Test tools stay out of the runtime package. python-dotenv loads `.env`. `vtf-blender` still imports only what Blender ships (bpy, numpy, OpenImageIO). |
+| Poly Haven access | `assets/fetch_polyhaven.py` (stdlib only) caches assets in `assets/cache/` (gitignored). Every API call sends the User-Agent `vtf-visual-task-factory/0.0.1`. Models are fetched as glTF. | The API terms require a unique User-Agent naming the software. glTF avoids `.blend` files, which can carry embedded Python. The assets are CC0. If the Task Explorer ever pulls content from the live API, it must show a "Powered by Poly Haven" credit; our renders of downloaded assets need none. |
+
 ## 23 Nov 2026: Setup (stage 1)
 
 | Decision | Choice | Why |

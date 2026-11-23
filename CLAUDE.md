@@ -48,6 +48,22 @@ Frontmatter keys (`name`, `description`, `tools`, `model`, `effort`, `isolation`
 - Merge when it runs. Push after each merge.
 - Small logical commits with clear messages.
 
+## Parallel work
+
+Contracts land on main first: spec/scene.schema.json and spec/task_package.schema.json (P03). After that, lanes run in parallel worktrees, and each lane edits only its own folders:
+
+| Lane | Folders |
+| --- | --- |
+| Spec and sampler | packages/vtf/src/vtf/core, scene; spec/; recipes/ |
+| Render | packages/vtf-blender; packages/vtf/src/vtf/camera; assets/ |
+| Questions | packages/vtf/src/vtf/programs |
+| Validation and packaging | packages/vtf/src/vtf/validate, package |
+| Eval | packages/vtf/src/vtf/eval; configs/models.yaml |
+| Twins | packages/vtf/src/vtf/twin |
+| Web | web/ |
+
+Only the Coordinator edits docs/thinking-partner/ and CLAUDE.md, after merges. A lane that needs a contract change stops and asks the Coordinator, who changes the schema on main first. Merge a lane when its piece runs; integrate on main.
+
 ## Thinking-partner habit
 
 The claude.ai Project syncs `docs/thinking-partner/` and this file from GitHub, and the thinking partner reads them. At the end of every work session:
@@ -78,4 +94,7 @@ uv run vtf --help                    # CLI (stubs until stage 2)
 uv run pytest                        # tests
 uv run ruff check .                  # lint
 /Applications/Blender.app/Contents/MacOS/Blender -b -P packages/vtf-blender/scripts/smoke_render.py   # smoke render into out/smoke/
+/Applications/Blender.app/Contents/MacOS/Blender -b -P packages/vtf-blender/scripts/smoke_render.py -- --device CPU   # byte-identical images
+uv run python assets/fetch_polyhaven.py wooden_bowl_02 --kind model   # cache a Poly Haven asset in assets/cache/
+/Applications/Blender.app/Contents/MacOS/Blender -b -P packages/vtf-blender/scripts/polyhaven_smoke.py   # out/smoke/polyhaven.png
 ```

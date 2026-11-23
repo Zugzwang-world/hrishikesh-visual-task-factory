@@ -10,6 +10,12 @@ app = typer.Typer(
 )
 
 
+DEVICE_HELP = (
+    "Render device. gpu (default) is fast; images then match re-renders at SSIM >= 0.999. "
+    "cpu gives byte-identical images, e.g. for vtf verify on stage."
+)
+
+
 def _stub(command: str) -> None:
     typer.echo(f"vtf {command}: not yet implemented")
 
@@ -24,7 +30,10 @@ def generate(
 
 
 @app.command()
-def render(path: Path = typer.Argument(None, help="Generated task directory.")) -> None:
+def render(
+    path: Path = typer.Argument(None, help="Generated task directory."),
+    device: str = typer.Option("gpu", help=DEVICE_HELP),
+) -> None:
     """Render scenes headless in Blender, with mask and depth passes."""
     _stub("render")
 
@@ -54,6 +63,7 @@ def report(path: Path = typer.Argument(None, help="Evaluated task directory.")) 
 def verify(
     path: Path = typer.Argument(None, help="Task directory."),
     sample: int = typer.Option(20, help="Number of tasks to rebuild from their seeds."),
+    device: str = typer.Option("gpu", help=DEVICE_HELP),
 ) -> None:
     """Rebuild sampled tasks from their seeds and compare hashes."""
     _stub("verify")
