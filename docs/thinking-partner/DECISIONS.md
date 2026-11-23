@@ -2,6 +2,21 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 23 Nov 2026: Integration and the scale run (brief 05, phase B)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Free disk (founder, 19:10) | Founder approved clearing app caches outside the project (Chrome cache, older Playwright browsers and MCP profiles, VS Code update files, pnpm, Homebrew downloads): 14.1 GB freed, 27 to 30 GB free; the newest Playwright browsers kept | Swap had grown to 21 GB and free space was below the founder's 20 GB floor. |
+| Frozen code for long runs | The scale run runs from its own worktree (.claude/worktrees/run-v1) at a fixed commit and writes to the main checkout's out/v1 | Blender re-reads the renderer scripts on every launch, so editing the working tree mid-run would change the run. |
+| Restarts for validity fixes | Three cheap restarts in the first hour (renders kept, validation re-run): programs 0.2.1, 0.2.2 and validate 0.2.1 | Each fix came from reading real model misses or rejections; a validity bug found after 500 scenes would cost far more. |
+| Occlusion (programs 0.2.1) | Reject when the answer is the object the occluder rests on or sits in | "Partly hidden by the lemon: the bowl" is true geometry but not a fair occlusion question. |
+| Reach zones (programs 0.2.2) | Asked only when the whole zone outline is in frame | A wrist view showing one corner of a zone cannot support "inside the zone". |
+| Names a model can see (programs 0.2.2) | task.scene_objects lists only objects with at least 20 visible pixels in that camera; the scorer resolves names among them | "hammer" must be right when only one hammer is in the image, even if another is out of view. |
+| Settle drift (validate 0.2.1) | 3 cm for objects placed on the table, 10 cm for objects placed in or on another object | Contents slide to the bottom of curved bowls and baskets; that is real physics and the settled pose is the truth. Batch 1 lost 8 of 25 scenes to the 3 cm rule, mostly the container scenes, which would have biased coverage. |
+| G4 single candidate (validate 0.2.1) | A question with exactly one candidate and no runner-up passes G4, with no_runner_up recorded | There is no tie to measure; the answer is unique by construction. |
+| Phase B tail detached | out/v1/logs/after_scale_run.sh waits for the run (resuming it up to twice if the driver dies), then runs balance, the blind baseline, Sonnet on a stratified 1,500 tasks, the dataset report, the 150-task audit set and a Task Explorer export and deploy | The rest of the night does not depend on this session staying up. |
+| Nearest-to-gripper re-run | 40 primitive scenes (recipes/s2_nearest_v1.yaml) with the key light, the low gripper and three cameras | Decision 1 of brief 05: make the evidence fair, then measure again. |
+
 ## 23 Nov 2026: Stage 3 lane decisions (brief 05)
 
 | Decision | Choice | Why |
