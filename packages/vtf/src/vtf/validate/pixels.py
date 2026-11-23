@@ -93,10 +93,16 @@ class CameraPasses:
         ok = d > 0
         rows, cols, d = rows[ok], cols[ok], d[ok]
         k = self.K
-        x = (cols + 0.5 - k[0, 2]) / k[0, 0]
-        y = (rows + 0.5 - k[1, 2]) / k[1, 1]
+        u, v = cols + 0.5, rows + 0.5
         if self.k1:
-            x, y = undistort_normalised(x, y, self.k1)
+            # The dial's exact inverse (k1 plus its fill-the-frame zoom), from vtf.camera.
+            from vtf.camera import undistort_points
+
+            uv = undistort_points(np.stack([u, v], axis=1), self.k1, k)
+            keep = np.isfinite(uv).all(axis=1)
+            u, v, d = uv[keep, 0], uv[keep, 1], d[keep]
+        x = (u - k[0, 2]) / k[0, 0]
+        y = (v - k[1, 2]) / k[1, 1]
         pc = np.stack([x * d, y * d, d], axis=1)
         w2c = self.w2c
         rot, t = w2c[:3, :3], w2c[:3, 3]

@@ -80,7 +80,7 @@ questions:
   max_per_camera: 5
 
 render:
-  samples: 128
+  samples: 64                   # brief 05: 64 samples plus the denoiser for stage 3
   seed: 0
   device: GPU
   denoise: true
