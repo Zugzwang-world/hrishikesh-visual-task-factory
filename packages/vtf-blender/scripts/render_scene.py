@@ -305,6 +305,44 @@ def render_one(scene_path: Path, out: Path, device_arg, assets: Path, gltf: bool
 # ---------------------------------------------------------------- entry points
 
 
+MEMSTAT_MARKER = "VTF_MEMSTAT"
+_MEM_KINDS = ("objects", "meshes", "materials", "images", "node_groups", "worlds", "textures")
+
+
+def memstat(n: int) -> dict:
+    """Memory diagnostics after scene n of a batch (one log line; the bridge keeps it in the
+    scene's render.log): datablock counts, megapixels of images held in memory, and this
+    process's resident and peak resident size. Shows whether a batch keeps data between scenes."""
+    import resource
+    import subprocess
+
+    counts = {k: len(getattr(bpy.data, k)) for k in _MEM_KINDS}
+    loaded = [i for i in bpy.data.images if i.has_data]
+    mpx = sum(i.size[0] * i.size[1] for i in loaded) / 1e6
+    try:
+        rss_kb = int(
+            subprocess.run(
+                ["ps", "-o", "rss=", "-p", str(os.getpid())],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            ).stdout.strip()
+        )
+    except (ValueError, OSError, subprocess.SubprocessError):
+        rss_kb = -1
+    peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # bytes on macOS, KB on Linux
+    peak_mb = peak / 1e6 if sys.platform == "darwin" else peak / 1e3
+    stat = {
+        **counts,
+        "images_loaded": len(loaded),
+        "image_mpx": round(mpx, 1),
+        "rss_mb": round(rss_kb / 1e3, 1),
+        "peak_rss_mb": round(peak_mb, 1),
+    }
+    print(f"{MEMSTAT_MARKER} {n} {json.dumps(stat)}", flush=True)
+    return stat
+
+
 def run_batch(jobs: list[dict], args) -> int:
     """Render every job; a failure is reported and the batch goes on. Returns the failure count."""
     failures = 0
@@ -316,6 +354,7 @@ def run_batch(jobs: list[dict], args) -> int:
                 time.sleep(float(job["debug_sleep_s"]))
             gltf = bool(job.get("gltf", True)) and not args.no_gltf
             manifest = render_one(Path(job["scene"]), out, args.device, args.assets, gltf)
+            memstat(n)
             print(f"VTF_SCENE_DONE {n} {json.dumps(manifest['timings'])}", flush=True)
         except Exception as exc:
             failures += 1

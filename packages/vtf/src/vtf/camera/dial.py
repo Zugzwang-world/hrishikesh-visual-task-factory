@@ -107,6 +107,8 @@ def distort_points(uv: np.ndarray, quality: CameraQuality | float, k: np.ndarray
 
 def _undistort_normalised(xd: np.ndarray, yd: np.ndarray, k1: float, s: float):
     """Invert x_d = s x_u (1 + k1 r_u^2) per point: (x_u, y_u, valid)."""
+    if np.size(xd) == 0:  # no points (an object with no pixels in this view): nothing to invert
+        return xd.copy(), yd.copy(), np.zeros(np.shape(xd), dtype=bool)
     rd = np.hypot(xd, yd)
     target = rd / s
     ru = target.copy()
