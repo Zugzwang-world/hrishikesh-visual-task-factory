@@ -17,7 +17,9 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 | Asset | For | Status |
 | --- | --- | --- |
 | First smoke render (beauty, object index, depth side by side) | "It renders headless" beat; README | Done: `out/smoke/preview.png` (regenerate with the smoke script; out/ is gitignored) |
-| Hero renders: one workcell from all three cameras | Hook, slides title | To do (stage 3) |
+| Hero renders: one workcell from all three cameras | Hook, slides title | Front camera done: [docs/media/hero_scene_0000_front.png](../media/hero_scene_0000_front.png), [docs/media/hero_scene_0013_front.png](../media/hero_scene_0013_front.png). Overhead and gripper cameras in stage 3 |
+| Stage 2 contact sheet: 24 tasks with question, true answer, model answer, tick or cross | Proof beat; findings teaser | Done: [docs/media/stage2_contact_sheet.png](../media/stage2_contact_sheet.png) (Claude Sonnet 5.5, 20 of 24 shown correct) |
+| The 2D-proximity miss: scene 0, gripper tip directly above the black box, model answers "green cone" | Findings beat: why robots need exact depth | Found in stage 2 (`out/s2`, task te10076218634b219); make a callout image in stage 4 |
 | Turntable GIFs of 2–3 scenes | Hook, README, slides | To do (stage 3) |
 | Clutter ladder: same scene at 3, 10, 25 objects | Variation story | To do (stage 3) |
 | Counterfactual twin pair (before/after, answer flips) | Originality beat | To do (stage 3) |

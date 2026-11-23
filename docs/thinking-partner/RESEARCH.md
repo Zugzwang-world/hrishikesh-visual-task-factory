@@ -37,6 +37,26 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 
 ## New research
 
+### 23 Nov 2026: First model result (stage 2, Claude Sonnet 5.5)
+
+- 83 gated tasks from 20 front-camera scenes: count 37/37, front-to-back 34/34, nearest to the gripper 5/12 (42%); 92% overall; no parse failures; $0.25 in all.
+- Every miss is nearest-to-gripper, and the misses look like a 2D shortcut: the model picks the object that looks closest to the fingertips in the image, not in 3D. In scene 0 the tip hangs 19 cm directly above the black box, but in the image the fingertips sit next to the green cone further back; the model answered "green cone". The ground truth was checked by projecting the tip onto the table.
+- This is the robot-relevant error the brief predicted (metric depth near the gripper) and the first evidence for the findings report. 12 tasks is a tiny sample: confirm at scale in stage 4.
+
+### 23 Nov 2026: Blender 5.3 measurements for the renderer (expert subagent)
+
+- Rigid-body settle: Blender's default 10 substeps let cylinders fall through the table; 40 substeps and 20 iterations settled 20 of 20 seeds by frame 57 in about 0.07 s, bit-identical run to run. Convex hulls are 10x slower and let spheres roll.
+- Cycles' Z pass is planar camera depth (matched analytic depth to 1e-6 m); background is 1e10. The index and depth passes behave like pixel-centre rays and do not depend on the seed.
+- On the Metal GPU, depth differs by about 6e-8 m in 1 or 2 pixels per frame between re-renders; CPU passes are exact and the CPU index equals the GPU index pixel for pixel.
+- One-sample CPU amodal masks take about 0.04 s each; visible pixels were inside the mask in 70 of 70 cases.
+
+### 23 Nov 2026: Anthropic Messages API for the eval harness
+
+- `claude-sonnet-5-5` (released 28 Sep 2026) takes image input; $2 / $10 per million input / output tokens.
+- API version 2026-10-21 rejects temperature, top_p and top_k with a 400, so repeated runs can differ; record the model ID and API version with every result.
+- Structured outputs (`output_config.format` with a JSON schema) work together with image input; confirmed on 83 real calls.
+- Sources: [Sonnet 5.5 overview](https://platform.claude.com/docs/en/models/sonnet-5-5/overview), [vision](https://platform.claude.com/docs/en/build-with-claude/vision), [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs), [versioning](https://platform.claude.com/docs/en/api/versioning), [pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+
 ### 23 Nov 2026: Blender 5.3 is the current stable release
 
 - Blender 5.3 was released on 10 Nov 2026. It is a regular release (5.4 replaces it); 5.2 is the current LTS, with fixes until July 2028. Minimum macOS is now 13 Ventura.

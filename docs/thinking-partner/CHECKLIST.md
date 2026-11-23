@@ -7,7 +7,7 @@ Everything the organizers asked for, with evidence. Tick a row when the evidence
 | ID | Requirement | Evidence | Done |
 | --- | --- | --- | --- |
 | C01 | An image family and a visual-understanding problem with real practical impact | BRIEF.md, slides | [ ] |
-| C02 | Automated pipeline that generates synthetic images, questions and verifiable reference answers | vtf generate, render, validate | [ ] |
+| C02 | Automated pipeline that generates synthetic images, questions and verifiable reference answers | vtf generate, render, validate: stage 2 run of 20 scenes, 83 tasks ([contact sheet](../media/stage2_contact_sheet.png)) | [x] |
 | C03 | Explain the application, why errors matter, and how the synthetic examples represent its visual challenges | README, slides, physical-twin results | [ ] |
 | C04 | Each task requires visual understanding | G5 blind-baseline results | [ ] |
 | C05 | Each image holds enough evidence to answer | G3 results, rule A | [ ] |
