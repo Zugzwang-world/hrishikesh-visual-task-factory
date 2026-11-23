@@ -400,7 +400,8 @@ class _Twin:
         d_occ = planar_depth(self.cam, go.centre)
         from vtf.programs.view import image_footprint
 
-        r_occ = diameter(image_footprint(self.cam, go)) / 2
+        hull = image_footprint(self.cam, go)
+        r_occ = diameter(hull) / 2 if len(hull) else 0.0
         others = [o.id for o in self.sg.objects
                   if o.id not in (occ, x) and self.movable(o.id) and self.sg.name(o.id)]
         for oid in self.shuffled(others)[:3]:

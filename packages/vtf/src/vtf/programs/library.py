@@ -376,6 +376,8 @@ def nearest_to_gripper(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
     heur = []
     for o in ctx.sg.objects:
         hull = ctx.footprint_px(o.id)
+        if len(hull) == 0:  # wholly behind the camera: not in the image, not a 2D candidate
+            continue
         d = 0.0 if point_in_polygon(tip_px, hull) else min(
             point_segment_distance(tip_px, hull[i], hull[(i + 1) % len(hull)])
             for i in range(len(hull))
@@ -475,7 +477,10 @@ def front_to_back(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
     ctx.require_name(a.id, "a")
     ctx.require_name(b.id, "b")
     name = ctx.require_name(closer.id, "answer")
-    low = {o.id: float(ctx.footprint_px(o.id)[:, 1].max()) for o in (a, b)}
+    hulls = {o.id: ctx.footprint_px(o.id) for o in (a, b)}
+    if any(len(h) == 0 for h in hulls.values()):
+        raise ProgramReject("not_in_view", objects=[k for k, h in hulls.items() if len(h) == 0])
+    low = {k: float(h[:, 1].max()) for k, h in hulls.items()}
     h_id = a.id if (low[a.id], b.id) > (low[b.id], a.id) else b.id
     trace = [
         {"step": "camera", "camera_id": cam.id, "rig": ctx.rig, "position": _vec(eye)},
@@ -824,6 +829,9 @@ def room_between(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
                             width_min_m=_r(w_min), yes_margin_m=FREE_YES_M,
                             no_margin_m=FREE_NO_M)  # fmt: skip
     fa, fb, fi = ctx.footprint_px(a.id), ctx.footprint_px(b.id), ctx.footprint_px(item.id)
+    if min(len(fa), len(fb), len(fi)) == 0:
+        raise ProgramReject("not_in_view", objects=[o.id for o, f in ((a, fa), (b, fb),
+                                                                      (item, fi)) if len(f) == 0])
     gap_px, width_px = polygon_distance(fa, fb), diameter(fi)
     margin_px = abs(gap_px - width_px)
     if _below(margin_px, FREE_PX):
