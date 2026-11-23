@@ -158,7 +158,10 @@ class TwinEdit(_Model):
     """
 
     object_id: str
-    new_pose: Pose
+    new_pose: Pose | None = Field(default=None, description="None only when remove is True.")
+    remove: bool = Field(
+        default=False, description="Remove the object instead (count twins, spec/families.md)."
+    )
     expected_answer: Answer | None = Field(
         default=None, description="The answer the rule expects on the twin (before re-settle)."
     )

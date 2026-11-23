@@ -54,14 +54,16 @@ Contracts land on main first: spec/scene.schema.json and spec/task_package.schem
 
 | Lane | Folders |
 | --- | --- |
-| Contracts (Coordinator) | packages/vtf/src/vtf/core; spec/*.schema.json; spec/examples/; packages/vtf/src/vtf/cli.py (each lane may edit only its own command function) |
-| Spec and sampler | packages/vtf/src/vtf/scene; recipes/ |
-| Render | packages/vtf-blender; packages/vtf/src/vtf/render (the bridge that calls Blender); packages/vtf/src/vtf/camera; assets/ |
-| Questions | packages/vtf/src/vtf/programs |
-| Validation and packaging | packages/vtf/src/vtf/validate, package |
+| Contracts (Coordinator) | packages/vtf/src/vtf/core (except the files below); spec/*.schema.json; spec/families.md; spec/examples/; packages/vtf/src/vtf/cli.py (each lane may edit only its own command function, or add new ones) |
+| Spec and sampler | packages/vtf/src/vtf/scene; recipes/; packages/vtf/src/vtf/core/raycast.py (mesh ray caster, stage 3) |
+| Render: assets and look | assets/; packages/vtf-blender/src/vtf_blender (build, settle, passes, materials); docs/media/ hero renders |
+| Render: cameras and pipeline | packages/vtf/src/vtf/camera; packages/vtf/src/vtf/render; packages/vtf-blender/scripts/render_scene.py; packages/vtf-blender/src/vtf_blender/export.py |
+| Questions | packages/vtf/src/vtf/programs; packages/vtf/src/vtf/core/vocab.py; packages/vtf/src/vtf/eval/scorer.py and prompt.py |
+| Validation and packaging | packages/vtf/src/vtf/validate (except g5 and report.py); packages/vtf/src/vtf/package/writer.py; scripts/scale_run.py |
+| Report and audit | packages/vtf/src/vtf/validate/gates/g5_vision_necessity.py, validate/balance.py, validate/report.py; packages/vtf/src/vtf/package/audit*; packages/vtf/src/vtf/report/; packages/vtf/src/vtf/eval/runner.py and summary.py (blind mode, splits) |
 | Eval | packages/vtf/src/vtf/eval; configs/models.yaml |
-| Twins | packages/vtf/src/vtf/twin |
-| Web | web/ |
+| Twins | packages/vtf/src/vtf/twin; recipes/physical_twin.yaml; docs/twins/ |
+| Web | web/; packages/vtf/src/vtf/package/explorer.py |
 
 Only the Coordinator edits docs/thinking-partner/ and CLAUDE.md, after merges. A lane that needs a contract change stops and asks the Coordinator, who changes the schema on main first. Merge a lane when its piece runs; integrate on main.
 
