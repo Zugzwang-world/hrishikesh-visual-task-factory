@@ -8,6 +8,8 @@ A dated log, newest first. Each entry says what was decided and why. Reversals g
 | --- | --- | --- |
 | Blender version | **Blender 5.3.0**, installed with the Homebrew cask (`brew install --cask blender`) | Latest stable, released 10 Nov 2026. 5.2 is the LTS; we take 5.3 because the brief says latest stable and 5.3 adds RTX Spark support for the DGX Spark plan. Pin this version in Docker and CI later; images are only byte-identical on the same Blender version (Rule C). |
 | GitHub account | Repo lives at `Zugzwang-world/hrishikesh-visual-task-factory`, public, default branch `main` | That is the account `gh` is logged in as on this Mac. |
+| Commit email | This repo's git config uses the account's GitHub no-reply address | The GitHub account blocks pushes that expose its private email. Worktrees share the setting. |
+| CI action pins | `actions/checkout@v7`, `astral-sh/setup-uv@v10.4.0` | setup-uv publishes only full version tags, so a bare `@v10` fails. |
 | Python | 3.12, pinned through uv (`.python-version` and `requires-python`) | As the brief's stack table says. Blender ships its own Python; the `vtf` core never runs inside it. |
 | Workspace layout | uv workspace with two members: `packages/vtf` (core, CLI) and `packages/vtf-blender` (scripts run by Blender) | Keeps `bpy` out of the core. The renderer talks to the core only through files. |
 | CLI framework | Typer | The setup brief names it. |
