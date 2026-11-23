@@ -5,8 +5,9 @@ own module and (at most) its own command function here:
 
     generate  -> vtf.scene.generate.generate_run          (spec and sampler lane)
     render    -> vtf.render.bridge.render_run             (render lane)
-    validate  -> vtf.validate.pipeline.validate_run       (coordinator, P07)
-    verify    -> vtf.validate.verify.verify_run           (coordinator, P07)
+    validate  -> vtf.validate.pipeline.validate_run       (validation lane)
+    run       -> vtf.validate.scale.scale_run             (validation lane)
+    verify    -> vtf.validate.verify.verify_run           (validation lane)
     eval      -> vtf.eval.runner.eval_run                 (eval lane)
     balance   -> vtf.validate.balance.balance_run         (report and audit lane, G5)
     baseline  -> vtf.validate.gates.g5_vision_necessity.blind_baseline
@@ -72,9 +73,48 @@ def render(
 
 
 @app.command()
-def validate(path: Path = typer.Argument(..., help="Rendered run folder.")) -> None:
-    """Compile questions, run gates G1, G3 and G7, and package passing tasks."""
-    _lane("validate", "vtf.validate.pipeline", "validate_run")(run_dir=path)
+def validate(
+    path: Path = typer.Argument(..., help="Rendered run folder."),
+    twins: bool = typer.Option(
+        True, "--twins/--no-twins", help="G6: render counterfactual twins for a sample of tasks."
+    ),
+    twin_fraction: float = typer.Option(0.2, help="G6 sample per family x rig (0.2 = 20%)."),
+    device: str = typer.Option("gpu", help=DEVICE_HELP),
+    force: bool = typer.Option(False, help="Re-validate scenes that are already validated."),
+    collect_only: bool = typer.Option(
+        False, help="Only rebuild manifest.jsonl, rejected.jsonl and validate_report.json."
+    ),
+) -> None:
+    """Validate rendered scenes not yet validated (gates G1-G4, G7; G6 twins on a sample),
+    package passing tasks, then collect the run's manifest, rejection log and report."""
+    if collect_only:
+        _lane("validate", "vtf.validate.pipeline", "collect")(run_dir=path)
+        return
+    _lane("validate", "vtf.validate.pipeline", "validate_run")(
+        run_dir=path, force=force, twins=twins, twin_fraction=twin_fraction, device=device
+    )
+
+
+@app.command(name="run")
+def run_(
+    recipe: Path = typer.Option(..., help="Recipe YAML."),
+    n: int = typer.Option(..., help="Number of scenes."),
+    seed: int = typer.Option(1, help="Run seed."),
+    out: Path = typer.Option(..., help="Run folder."),
+    batch: int = typer.Option(25, help="Scenes per batch (render, validate, twins, collect)."),
+    twin_fraction: float = typer.Option(0.2, help="G6 sample of each batch's new tasks."),
+    no_twins: bool = typer.Option(False, "--no-twins", help="Skip G6 twins."),
+    max_scenes: int = typer.Option(None, help="Process only the first N scenes of the run."),
+    device: str = typer.Option("gpu", help=DEVICE_HELP),
+    min_free_gb: float = typer.Option(20.0, help="Stop cleanly below this much free disk (GB)."),
+    keep_beauty_raw: bool = typer.Option(False, help="Keep beauty_raw.png copies."),
+) -> None:
+    """Resumable scale run: generate, then render, validate, twin and collect in batches."""
+    _lane("run", "vtf.validate.scale", "scale_run")(
+        recipe=recipe, n=n, seed=seed, out=out, batch=batch, twin_fraction=twin_fraction,
+        twins=not no_twins, max_scenes=max_scenes, device=device, min_free_gb=min_free_gb,
+        keep_beauty_raw=keep_beauty_raw,
+    )  # fmt: skip
 
 
 @app.command(name="eval")
