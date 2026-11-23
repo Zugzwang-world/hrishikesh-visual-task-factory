@@ -16,7 +16,7 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 
 | Asset | For | Status |
 | --- | --- | --- |
-| First smoke render (beauty, object index, depth side by side) | "It renders headless" beat; README | Stage 1 (out/smoke/) |
+| First smoke render (beauty, object index, depth side by side) | "It renders headless" beat; README | Done: `out/smoke/preview.png` (regenerate with the smoke script; out/ is gitignored) |
 | Hero renders: one workcell from all three cameras | Hook, slides title | To do (stage 3) |
 | Turntable GIFs of 2–3 scenes | Hook, README, slides | To do (stage 3) |
 | Clutter ladder: same scene at 3, 10, 25 objects | Variation story | To do (stage 3) |

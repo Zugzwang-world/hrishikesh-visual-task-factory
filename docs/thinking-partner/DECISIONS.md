@@ -13,7 +13,10 @@ A dated log, newest first. Each entry says what was decided and why. Reversals g
 | CLI framework | Typer | The setup brief names it. |
 | Lint | Ruff, configured in the root `pyproject.toml` | Fast, one tool; no gating beyond what CI runs. |
 | CI | One GitHub Action: `uv sync` then `pytest` | Minimal proof that main runs. Determinism checks join it in stage 2. |
-| Smoke render | Cycles on the Metal GPU, 64 samples, 640x480, beauty + object-index + depth passes | Proves the headless render path and the passes the gates need. Results are in NOW.md and OPEN.md. |
+| Smoke render | Cycles on the Metal GPU, 64 samples, 640x480, beauty + object-index + depth passes | Proves the headless render path and the passes the gates need. Metal works; results are in OPEN.md. |
+| Passes without the compositor | Render to a multilayer EXR and read the passes with Blender's bundled OpenImageIO and numpy | The compositor API changed in Blender 5.x; the EXR route keeps exact float depth and integer object index for G2 with no node setup. |
+| No volatile metadata in outputs | Turn off every `use_stamp*` option and re-encode the beauty PNG without Cycles' render-time text chunks | So identical pixels give identical bytes; needed for G7. |
+| Two Pythons | The workspace runs on Python 3.12; Blender 5.3 bundles Python 3.13, which runs everything in `packages/vtf-blender/scripts/` | Blender's Python can't be changed. Renderer scripts must stay compatible with Blender's Python and import nothing from `vtf`. |
 | Subagent definitions | `.claude/agents/` with builder, expert, reviewer and scout, using the documented frontmatter keys (`model`, `effort`, `isolation`) | Checked against the Claude Code subagent docs on 23 Nov 2026; see RESEARCH.md. |
 
 ## 23 Nov 2026: Decided in BRIEF.md
