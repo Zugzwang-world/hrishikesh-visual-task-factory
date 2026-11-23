@@ -60,10 +60,21 @@ def render(
     ),
     limit: int = typer.Option(None, help="Render at most this many scenes."),
     force: bool = typer.Option(False, help="Re-render scenes that already have a manifest."),
+    batch_size: int = typer.Option(5, help="Scenes per Blender process."),
+    timeout: float = typer.Option(300, help="Seconds per scene before Blender is killed."),
+    gltf: bool = typer.Option(True, help="Export scene.glb for the Task Explorer."),
 ) -> None:
-    """Render scenes headless in Blender: beauty, object index, depth, amodal masks."""
+    """Render scenes headless in Blender: every camera's beauty, object index, depth and amodal
+    masks, the camera-quality dial, and scene.glb."""
     _lane("render", "vtf.render.bridge", "render_run")(
-        run_dir=path, device=device, blender=blender, limit=limit, force=force
+        run_dir=path,
+        device=device,
+        blender=blender,
+        limit=limit,
+        force=force,
+        batch_size=batch_size,
+        timeout_per_scene=timeout,
+        gltf=gltf,
     )
 
 

@@ -5,6 +5,9 @@ The Blender tests are skipped when Blender or the cached HDRI is missing (CI has
 """
 
 import json
+import stat
+import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -23,10 +26,11 @@ from vtf.core.layout import RunLayout
 from vtf.core.projection import intrinsics, world_to_camera
 from vtf.core.raycast import raycast
 from vtf.core.scene import GRIPPER_PASS_INDEX, TABLE_PASS_INDEX
-from vtf.render.bridge import find_blender, render_run, render_scene
+from vtf.render.bridge import find_blender, render_run, render_scene, render_scenes
 
 REPO = Path(__file__).resolve().parents[1]
 EXAMPLE = REPO / "spec" / "examples" / "scene_example.json"
+FIXTURE = REPO / "spec" / "examples" / "run_example" / "scenes" / "scene_0000"
 HDRI_META = REPO / "assets" / "cache" / "studio_small_09" / "meta.json"
 
 
@@ -198,3 +202,76 @@ def test_find_blender_rejects_missing_path(monkeypatch, tmp_path) -> None:
 def test_render_run_needs_scenes(tmp_path) -> None:
     with pytest.raises(FileNotFoundError):
         render_run(tmp_path / "empty")
+
+
+FAKE_BLENDER = """#!{python}
+# Stands in for Blender: speaks render_scene.py's batch protocol. A scene whose path contains
+# "slow" hangs; the others get the contract fixture's render folder.
+import json, shutil, sys, time
+args = sys.argv[sys.argv.index("--") + 1:]
+jobs = json.load(open(args[args.index("--jobs") + 1]))
+with open({launches!r}, "a") as f:
+    f.write(str(len(jobs)) + "\\n")
+print("fake blender starting", flush=True)
+for n, job in enumerate(jobs):
+    print(f"VTF_SCENE_START {{n}} {{json.dumps(job)}}", flush=True)
+    if "slow" in job["scene"]:
+        time.sleep(120)
+    if "broken" in job["scene"]:
+        print(f"VTF_RENDER_ERROR ValueError: broken scene", flush=True)
+        print(f"VTF_SCENE_FAILED {{n}} ValueError: broken scene", flush=True)
+        continue
+    shutil.copytree({fixture!r}, job["out"], dirs_exist_ok=True)
+    print(f"VTF_SCENE_DONE {{n}} {{{{}}}}", flush=True)
+"""
+
+
+def test_batches_timeout_and_restart(tmp_path) -> None:
+    """One process per batch; a hung scene is killed at the timeout, marked failed with no
+    manifest, and Blender restarts for the rest of its batch."""
+    launches = tmp_path / "launches.txt"
+    fake = tmp_path / "fake_blender"
+    fake.write_text(
+        FAKE_BLENDER.format(
+            python=sys.executable, launches=str(launches), fixture=str(FIXTURE / "render")
+        )
+    )
+    fake.chmod(fake.stat().st_mode | stat.S_IEXEC)
+    names = ["a", "slow", "b", "broken", "c"]
+    scenes, outs = [], []
+    for name in names:
+        scene = tmp_path / name / "scene.json"
+        scene.parent.mkdir()
+        scene.write_bytes((FIXTURE / "scene.json").read_bytes())
+        scenes.append(scene)
+        outs.append(tmp_path / name / "render")
+    stale = outs[1] / "render_manifest.json"  # a stale manifest must not survive a failure
+    stale.parent.mkdir()
+    stale.write_text("{}")
+    seen = []
+    start = time.perf_counter()
+    results = render_scenes(
+        scenes, outs, batch_size=3, timeout_per_scene=3, blender=fake,
+        on_result=lambda i, r: seen.append(i),
+    )  # fmt: skip
+    elapsed = time.perf_counter() - start
+    assert [r.ok for r in results] == [True, False, True, False, True]
+    assert results[1].timed_out and "timed out" in results[1].error
+    assert "broken scene" in results[3].error and not results[3].timed_out
+    assert not stale.exists() and not (outs[3] / "render_manifest.json").exists()
+    for i in (0, 2, 4):
+        assert read_manifest(results[i].manifest).scene_id == "scene_0000"
+        assert results[i].log.exists()
+    assert "VTF_SCENE_START" in results[1].log.read_text()
+    # batch [a, slow, b] is killed at slow; a new process runs [b, broken, c]
+    assert launches.read_text().split() == ["3", "3"]
+    assert sorted(seen) == list(range(5))
+    assert elapsed < 60, elapsed
+
+
+def test_missing_blender_fails_every_scene(tmp_path) -> None:
+    results = render_scenes(
+        [FIXTURE / "scene.json"], [tmp_path / "out"], blender=tmp_path / "no-blender"
+    )
+    assert not results[0].ok and "not found" in results[0].error
+    assert not (tmp_path / "out" / "render_manifest.json").exists()
