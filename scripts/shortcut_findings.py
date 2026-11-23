@@ -1080,7 +1080,7 @@ def main() -> None:
     # common task set: the tasks every present model answered in the sweep files
     common = set.intersection(*(set(r["task_id"] for r in rs) for rs in rows_by.values()))
     out: dict[str, Any] = {
-        "run": str(run),
+        "run": f"out/{run.name}",
         "tasks_in_set": len(ids),
         "tasks_common": len(common),
         "scenes": len(scenes),
