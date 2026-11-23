@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Node
+node_modules/
+.next/
+.vercel/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Generated output
+out/
+renders/
+
+# Blender backups and temp files
+*.blend1
+*.blend2
+*.blend@
+*.blend~
