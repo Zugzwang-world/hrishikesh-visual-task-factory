@@ -8,7 +8,7 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 | --- | --- | --- | --- | --- |
 | P01 | Repo, CLAUDE.md, roster, thinking-partner files, Blender smoke render | M | Smoke render and passes exist; repo public | done |
 | P02 | Tracker: PLAN.md, CHECKLIST.md, update rule | S | Both files pushed | done |
-| P02a | Finish setup: Node 26 LTS, Vercel CLI, Hugging Face CLI and empty dataset repo, plan libraries, Poly Haven proof render, determinism decision, parallel-work lanes | M | Tools proven; Poly Haven render exists; HF dataset repo exists | doing |
+| P02a | Finish setup: Node 26 LTS, Vercel CLI, Hugging Face CLI and empty dataset repo, plan libraries, Poly Haven proof render, determinism decision, parallel-work lanes | M | Tools proven; Poly Haven render exists; HF dataset repo exists | done |
 
 ## Stage 2: First scene (one task end to end)
 

@@ -1,7 +1,7 @@
 # NOW
 
-**Updated:** 23 Nov 2026, 17:05 IST
-**Stage:** Setup is complete apart from the Hugging Face login, which waits on a token from the founder (P02a). Next item: **P03, scene spec v0**, which starts stage 2, First scene.
+**Updated:** 23 Nov 2026, 17:15 IST
+**Stage:** Setup is **complete** (P01, P02 and P02a done). Next item: **P03, scene spec v0**, which starts stage 2, First scene.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
 ## What exists
@@ -22,7 +22,7 @@
 | GitHub CLI | 2.103.3 | Zugzwang-world | Logged in; repo public |
 | Node.js / npm | 26.13.1 LTS / 11.20.0 (pinned in `.node-version`) | — | Ready for the Task Explorer (P25) |
 | Vercel CLI | 66.6.0 | zugzwang-world | Logged in; no project yet (P25) |
-| Hugging Face CLI | `hf` 2.4.0 | — | Installed; **not logged in yet**, dataset repo not created |
+| Hugging Face CLI | `hf` 2.4.0 | Hrishi1802 | Logged in (write token in `.env` and the hf cache); empty public dataset repo [Hrishi1802/hrishikesh-visual-task-factory](https://huggingface.co/datasets/Hrishi1802/hrishikesh-visual-task-factory) |
 | Poly Haven API | public, no key | — | Proven: one model and one HDRI fetched and rendered |
 
 ## Poly Haven proof
@@ -35,12 +35,10 @@ G7 checks scene files, answers, masks and depth exactly; images pass at SSIM 0.9
 
 ## What is next
 
-1. As soon as the token arrives: log in to Hugging Face, create the empty public dataset repo `hrishikesh-visual-task-factory`, and mark P02a done.
-2. **P03:** scene spec v0, a pydantic SceneSpec with JSON Schema export to `spec/scene.schema.json`. It lands on main first; the parallel lanes start after it.
-3. Then P04 to P09, as listed in PLAN.md.
+1. **P03:** scene spec v0, a pydantic SceneSpec with JSON Schema export to `spec/scene.schema.json`. It lands on main first; the parallel lanes start after it.
+2. Then P04 to P09, as listed in PLAN.md.
 
 ## Blockers and asks
 
-- **Founder:** a Hugging Face write-access token (huggingface.co, Settings, Access Tokens, new token, Write).
 - **Founder:** add the GitHub sync in the claude.ai Project (this repo, `docs/thinking-partner` plus `CLAUDE.md`) and tap Sync now, if not done yet.
 - The Anthropic API key is needed at P08, not before.
