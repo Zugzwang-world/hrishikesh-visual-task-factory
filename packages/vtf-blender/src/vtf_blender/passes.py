@@ -89,6 +89,30 @@ def _image_settings(scene: bpy.types.Scene, kind: str) -> None:
         settings.exr_codec = "ZIP"
 
 
+# Beauty speed settings (P12, measured on the M4 at 1024x768, hero_kitchen front camera):
+# 64 samples took 8.1 s with Blender's defaults and 6.4 s with these; 32 samples took 3.6 s and
+# looked the same after denoising. Adaptive sampling stops converged pixels early; a tabletop
+# needs few bounces and no caustics; OIDN runs on the GPU with the fast prefilter.
+BEAUTY_SETTINGS = {
+    "use_adaptive_sampling": True,
+    "adaptive_threshold": 0.02,
+    "adaptive_min_samples": 0,
+    "max_bounces": 6,
+    "diffuse_bounces": 3,
+    "glossy_bounces": 3,
+    "transmission_bounces": 4,
+    "transparent_max_bounces": 4,
+    "volume_bounces": 0,
+    "caustics_reflective": False,
+    "caustics_refractive": False,
+    "blur_glossy": 1.0,
+    "denoiser": "OPENIMAGEDENOISE",
+    "denoising_input_passes": "RGB_ALBEDO_NORMAL",
+    "denoising_prefilter": "FAST",
+    "denoising_quality": "BALANCED",
+}
+
+
 def render_beauty(built: BuiltScene, render: dict, device: str, path: Path) -> float:
     """Full render on `device` (GPU or CPU) to an 8-bit RGB PNG without text chunks."""
     scene = built.scene
@@ -96,6 +120,11 @@ def render_beauty(built: BuiltScene, render: dict, device: str, path: Path) -> f
     c.device = device
     c.samples = int(render["samples"])
     c.use_denoising = bool(render["denoise"])
+    for attr, value in BEAUTY_SETTINGS.items():
+        if hasattr(c, attr):
+            setattr(c, attr, value)
+    if hasattr(c, "denoising_use_gpu"):
+        c.denoising_use_gpu = device == "GPU"
     scene.world = built.world
     view_layer = scene.view_layers[0]
     view_layer.use_pass_z = False
@@ -119,12 +148,12 @@ class DataPasses:
         self.tmp_dir = tmp_dir
         scene = built.scene
         c = scene.cycles
-        self.saved = {
-            a: getattr(c, a) for a in (*BOUNCE_ATTRS, "samples", "use_denoising", "device")
-        }
+        keep = (*BOUNCE_ATTRS, "samples", "use_denoising", "device", "use_adaptive_sampling")
+        self.saved = {a: getattr(c, a) for a in keep}
         c.device = "CPU"
         c.samples = 1
         c.use_denoising = False
+        c.use_adaptive_sampling = False
         for attr in BOUNCE_ATTRS:
             setattr(c, attr, 0)
         scene.world = None

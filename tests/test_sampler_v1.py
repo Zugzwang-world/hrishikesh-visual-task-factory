@@ -169,7 +169,7 @@ def test_objects_names_and_assets(scenes: list[SceneSpec], recipe: RecipeV1) -> 
         for o in scene.objects:
             entry = manifest.get(o.shape)
             assert o.source == "asset" and o.category == entry.category
-            if entry.color_name is None:  # procedural reference: a recipe colour
+            if entry.source == "procedural" and entry.color_name is None:  # a recipe colour
                 assert o.color_name in recipe.objects.colours and o.rgb == linear_rgb(o.color_name)
             else:
                 assert o.color_name == entry.color_name and o.rgb == entry.rgb

@@ -16,6 +16,7 @@ from pathlib import Path
 
 import numpy as np
 import trimesh
+from rest_pose import REST, rest_file
 
 from vtf.core.assets import GLTF_TO_ZUP, asset_cache_dir
 
@@ -60,8 +61,13 @@ def colour_word(linear_rgb) -> str:
 
 
 def load(asset_id: str, cache: Path):
+    """The cached glTF, or its rest-pose variant (assets/rest_pose.py) when one is derived."""
     meta = json.loads((cache / asset_id / "meta.json").read_text())
-    scene = trimesh.load(str(cache / asset_id / meta["file"]), force="scene", process=False)
+    path = cache / asset_id / meta["file"]
+    if asset_id in REST and rest_file(asset_id, cache).exists():
+        path = rest_file(asset_id, cache)
+    meta["file"] = path.name
+    scene = trimesh.load(str(path), force="scene", process=False)
     return meta, scene
 
 
