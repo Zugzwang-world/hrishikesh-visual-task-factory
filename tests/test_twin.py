@@ -197,31 +197,50 @@ def twin_run(tmp_path_factory: pytest.TempPathFactory) -> Path:
     from vtf.scene.generate import generate_run
 
     out = tmp_path_factory.mktemp("twins")
-    generate_run(recipe=TWIN_RECIPE, n=6, seed=19, out=out)
+    generate_run(recipe=TWIN_RECIPE, n=5, seed=19, out=out)
     return out
+
+
+def _buildable(run_dir: Path) -> list[str]:
+    from vtf.core.io import read_scene
+    from vtf.core.layout import RunLayout
+    from vtf.twin.layouts import shortfall
+    from vtf.twin.shopping import build_shopping_list
+
+    quantities = {it.asset_id: it.quantity for it in build_shopping_list()}
+    run = RunLayout(run_dir)
+    return [s for s in run.scene_ids() if not shortfall(read_scene(run.scene_file(s)), quantities)]
 
 
 def test_twin_recipe_layouts_fit_the_mat(twin_run: Path) -> None:
     from vtf.core.io import read_scene
     from vtf.core.layout import RunLayout
     from vtf.twin.layouts import camera_spots, object_placements
+    from vtf.twin.shopping import build_shopping_list
 
     spec = default_mat_spec()
     area = spec.placement_area
+    bought = {it.asset_id for it in build_shopping_list()}
     run = RunLayout(twin_run)
     for sid in run.scene_ids():
         scene = read_scene(run.scene_file(sid))
         assert tuple(scene.table.size_xy) == spec.size_xy
+        assert scene.table.grid_cell_m == pytest.approx(0.01)
         assert 3 <= len(scene.objects) <= 8
         for p in object_placements(scene):
+            assert p.obj.source == "asset" and p.obj.shape in bought
+            assert p.obj.placement.kind in ("table", "in")  # no stacks
             for x, y in p.footprint_m:  # every footprint point inside the placement area
                 assert area.contains(x, y), (sid, p.obj.id, x, y)
-        (spot,) = camera_spots(scene)
-        assert spot.camera.id == "front"
-        assert spot.height_cm == pytest.approx(49.8, abs=0.1)
-        assert spot.lens_cm[1] == pytest.approx(-41.8, abs=0.1)
-        assert spot.aim_cm == pytest.approx((0.0, 0.0), abs=0.01)
-        assert spot.tilt_down_deg == pytest.approx(50.0, abs=0.01)
+        front, overhead = camera_spots(scene)
+        assert (front.camera.id, overhead.camera.id) == ("front", "overhead")
+        assert front.height_cm == pytest.approx(49.8, abs=0.1)
+        assert front.lens_cm[1] == pytest.approx(-41.8, abs=0.1)
+        assert front.aim_cm == pytest.approx((0.0, 0.0), abs=0.01)
+        assert front.tilt_down_deg == pytest.approx(50.0, abs=0.01)
+        assert overhead.height_cm == pytest.approx(60.0, abs=0.01)
+        assert overhead.lens_cm == pytest.approx((0.0, 0.0), abs=0.01)
+        assert overhead.tilt_down_deg == pytest.approx(90.0, abs=0.01)
 
 
 def test_layout_placements_read_poses() -> None:
@@ -255,7 +274,7 @@ def test_layouts_pdf_has_cover_and_one_page_per_scene(twin_run: Path, tmp_path: 
     pdf = make_layouts(twin_run, tmp_path / "layouts.pdf")
     again = make_layouts(twin_run, tmp_path / "again.pdf")
     assert pdf.read_bytes() == again.read_bytes()
-    assert _pdf_pages(pdf) == 1 + 6
+    assert _pdf_pages(pdf) == 1 + len(_buildable(twin_run))
     assert pdf.stat().st_size < 2_000_000
 
 
@@ -274,6 +293,6 @@ def test_cli_twin_commands(twin_run: Path, tmp_path: Path) -> None:
     assert (docs / "shopping_list.md").exists()
     res = runner.invoke(app, ["twin", "layouts", str(twin_run), "--out", str(docs), "--limit", "2"])
     assert res.exit_code == 0, res.output
-    assert _pdf_pages(docs / "layouts.pdf") == 3
+    assert _pdf_pages(docs / "layouts.pdf") == 1 + min(2, len(_buildable(twin_run)))
     res = runner.invoke(app, ["twin", "bogus"])
     assert res.exit_code != 0

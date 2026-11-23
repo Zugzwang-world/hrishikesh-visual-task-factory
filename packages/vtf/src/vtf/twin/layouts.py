@@ -7,10 +7,12 @@ arrow along each object's local x axis with the turn angle; the camera spots wit
 and a table with the same numbers for placing by hand.
 
 Positions come from render/scene.settled.json when the scene has been rendered (that file is the
-truth the questions use), else from scene.json as sampled; the sheet says which.
+truth the questions use), else from scene.json as sampled; the sheet says which. Scenes that need
+more copies of an asset than the shopping list buys are skipped and listed on the cover.
 """
 
 import math
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,6 +37,7 @@ from vtf.twin.mat import (
     default_mat_spec,
     marker_cells,
 )
+from vtf.twin.shopping import build_shopping_list
 
 PAGE_W, PAGE_H = (v / mm for v in A4)  # millimetres
 MARGIN = 12.0
@@ -311,13 +314,18 @@ def _draw_cameras(c: rl_canvas.Canvas, spots: list[CameraSpot]) -> None:
             ang = math.atan2(v0 - v1, u0 - u1)
             _arrow(c, u0 - 6 * math.cos(ang), v0 - 6 * math.sin(ang), u0, v0, 2.2)
         _font(c, 7, bold=True)
+        if inside:  # over the mat: a short tag only, so it never hides objects
+            c.drawString(u0 + 3.0, v0 - 1.0, f"{s.camera.id} {s.height_cm:.0f} cm up")
+            continue
         label = f"{s.camera.id} camera: lens {s.height_cm:.1f} cm up"
-        where = "" if inside else f", {_dist_cm(s)} cm off the drawing"
         off = 3.0 if u0 < PAGE_W / 2 else -3.0
         draw = c.drawString if off > 0 else c.drawRightString
         draw(u0 + off, v0 + 1.5, label)
         _font(c, 6.5)
-        draw(u0 + off, v0 - 1.8, f"at ({_fmt(s.lens_cm[0])}, {_fmt(s.lens_cm[1])}){where}")
+        draw(
+            u0 + off, v0 - 1.8,
+            f"at ({_fmt(s.lens_cm[0])}, {_fmt(s.lens_cm[1])}), {_dist_cm(s)} cm off the drawing",
+        )  # fmt: skip
 
 
 def _dist_cm(s: CameraSpot) -> str:
@@ -360,14 +368,14 @@ def _object_rows(placements: list[ObjectPlacement]) -> list[tuple[str, ...]]:
         turn = "any" if p.turn_deg is None else f"{p.turn_deg:+.0f} deg"
         size = " x ".join(f"{v * 100:.1f}" for v in d)
         rows.append(
-            (str(p.number), p.obj.id, p.obj.name,
+            (str(p.number), p.obj.name, p.obj.shape,
              f"({_fmt(p.centre_cm[0])}, {_fmt(p.centre_cm[1])})", turn, size, p.note)
         )  # fmt: skip
     return rows
 
 
-COLUMNS = (("#", 0), ("id", 6), ("object", 20), ("centre x, y cm", 62), ("turn", 92),
-           ("size x, y, z cm", 110), ("notes", 144))  # fmt: skip
+COLUMNS = (("#", 0), ("object", 5), ("asset", 30), ("centre x, y cm", 68), ("turn", 94),
+           ("size x, y, z cm", 110), ("notes", 140))  # fmt: skip
 
 
 def _draw_scene_page(
@@ -452,9 +460,11 @@ COVER_STEPS = (
     "taped together). Check that both 10 cm bars measure exactly 10 cm.",
     "Tape the mat flat on a table, front edge toward you. Keep the four corner markers "
     "uncovered and in every photo.",
-    "Set the phone at the camera spot on the sheet (a stand or a stack of books): lens height "
-    "above the table, distance in front of the front edge, aimed at the marked point. Use the "
-    "1x camera, landscape, no zoom. The spot is the same for every scene, so it stays put.",
+    "Set the phone at each camera spot on the sheet: the front spot on a stand or a stack of "
+    "books (lens height above the table, distance in front of the front edge, aimed at the "
+    "marked point); the overhead spot straight above the mat centre, screen level, top of the "
+    "phone toward the back edge. Use the 1x camera, landscape, no zoom. The spots are the same "
+    "for every scene.",
     "For each page: place every object with its centre on the given (x, y) in cm and its red "
     "arrow pointing as drawn. Colours and names match the shopping list.",
     "Take one photo per camera spot. Name it <scene_id>_<camera_id>.jpg (for example "
@@ -464,7 +474,12 @@ COVER_STEPS = (
 )
 
 
-def _draw_cover(c: rl_canvas.Canvas, run_name: str, scenes: list[tuple[SceneSpec, bool]]) -> None:
+def _draw_cover(
+    c: rl_canvas.Canvas,
+    run_name: str,
+    scenes: list[tuple[SceneSpec, bool]],
+    skipped: list[tuple[str, str]],
+) -> None:
     c.saveState()
     c.scale(mm, mm)
     y = PAGE_H - MARGIN - 8
@@ -487,19 +502,15 @@ def _draw_cover(c: rl_canvas.Canvas, run_name: str, scenes: list[tuple[SceneSpec
                 c.drawString(MARGIN, y, f"{i}.")
             c.drawString(MARGIN + 6, y, part)
         y -= 2
-    if scenes and any(o.source == "primitive" for s, _ in scenes for o in s.objects):
-        y -= 6
-        c.setFillColorRGB(0.75, 0.0, 0.0)
-        _font(c, 9, bold=True)
-        for part in _wrap(
-            c,
-            "Placeholder layouts: these scenes come from sampler v0 (coloured primitives). "
-            "Regenerate them once the twin recipe can draw the shopping-list assets.",
-            PAGE_W - 2 * MARGIN,
-        ):
-            y -= 5
+    if skipped:
+        y -= 4
+        _font(c, 8)
+        text = "Skipped, need more than the shopping list: " + "; ".join(
+            f"{sid} ({why})" for sid, why in skipped
+        )
+        for part in _wrap(c, text, PAGE_W - 2 * MARGIN):
+            y -= 4.2
             c.drawString(MARGIN, y, part)
-        c.setFillGray(0.0)
     y -= 10
     _font(c, 11, bold=True)
     c.drawString(MARGIN, y, "Scenes")
@@ -512,13 +523,39 @@ def _draw_cover(c: rl_canvas.Canvas, run_name: str, scenes: list[tuple[SceneSpec
     c.restoreState()
 
 
-def make_layouts(run_dir: Path, out: Path, limit: int | None = None) -> Path:
-    """`vtf twin layouts`: cover page plus one layout page per scene of the run."""
+def shortfall(scene: SceneSpec, quantities: dict[str, int]) -> str:
+    """What a scene needs beyond the bought quantities ('' when it can be built)."""
+    need = Counter(o.shape for o in scene.objects)
+    short = [f"{n} x {a}" for a, n in sorted(need.items()) if n > quantities.get(a, 0)]
+    return ", ".join(short)
+
+
+def make_layouts(
+    run_dir: Path, out: Path, limit: int | None = None, buildable_only: bool = True
+) -> Path:
+    """`vtf twin layouts`: cover page plus one layout page per scene of the run.
+
+    With `buildable_only`, scenes that need more copies of an asset than the shopping list buys
+    (or an asset not on it) are skipped and listed on the cover; `limit` counts kept scenes.
+    """
     run = RunLayout(run_dir)
-    ids = run.scene_ids()[:limit] if limit else run.scene_ids()
-    if not ids:
+    all_ids = run.scene_ids()
+    if not all_ids:
         raise FileNotFoundError(f"no scenes in {run.scenes_dir}")
-    scenes = [load_layout_scene(run, sid) for sid in ids]
+    quantities = {it.asset_id: it.quantity for it in build_shopping_list()}
+    scenes: list[tuple[SceneSpec, bool]] = []
+    skipped: list[tuple[str, str]] = []
+    for sid in all_ids:
+        if limit and len(scenes) >= limit:
+            break
+        scene, settled = load_layout_scene(run, sid)
+        why = shortfall(scene, quantities) if buildable_only else ""
+        if why:
+            skipped.append((sid, why))
+        else:
+            scenes.append((scene, settled))
+    if not scenes:
+        raise ValueError(f"no scene in {run.scenes_dir} can be built from the shopping list")
     spec = default_mat_spec()
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -526,11 +563,14 @@ def make_layouts(run_dir: Path, out: Path, limit: int | None = None) -> Path:
     c.setTitle("VTF physical-twin layout sheets")
     c.setAuthor("Visual Task Factory (vtf twin)")
     run_name = Path(run_dir).name
-    _draw_cover(c, run_name, scenes)
+    _draw_cover(c, run_name, scenes, skipped)
     c.showPage()
     for scene, settled in scenes:
         _draw_scene_page(c, scene, settled, spec, run_name)
         c.showPage()
     c.save()
-    print(f"vtf twin layouts: {len(scenes)} scenes -> {out} ({out.stat().st_size:,} bytes)")
+    print(
+        f"vtf twin layouts: {len(scenes)} scenes ({len(skipped)} skipped, not buildable from "
+        f"the shopping list) -> {out} ({out.stat().st_size:,} bytes)"
+    )
     return out
