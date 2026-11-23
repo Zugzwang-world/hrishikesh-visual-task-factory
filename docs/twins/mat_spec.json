@@ -1,0 +1,220 @@
+{
+  "mat_spec_version": "0.1.0",
+  "units": "m",
+  "frame": "Mat frame = scene world frame on the table top. Origin at the mat centre (the table centre); +x to the right seen from the front edge; +y away from the front edge, toward the back. Metres.",
+  "size_xy": [
+    0.4,
+    0.28
+  ],
+  "grid_cell_m": 0.01,
+  "grid_bold_every_m": [
+    0.05,
+    0.1
+  ],
+  "aruco_dictionary": "DICT_4X4_50",
+  "marker_size_m": 0.03,
+  "marker_quiet_zone_m": 0.005,
+  "markers": [
+    {
+      "id": 0,
+      "corner": "back-left",
+      "center_xy": [
+        -0.18,
+        0.12
+      ],
+      "corners_xy": [
+        [
+          -0.195,
+          0.135
+        ],
+        [
+          -0.165,
+          0.135
+        ],
+        [
+          -0.165,
+          0.105
+        ],
+        [
+          -0.195,
+          0.105
+        ]
+      ]
+    },
+    {
+      "id": 1,
+      "corner": "back-right",
+      "center_xy": [
+        0.18,
+        0.12
+      ],
+      "corners_xy": [
+        [
+          0.165,
+          0.135
+        ],
+        [
+          0.195,
+          0.135
+        ],
+        [
+          0.195,
+          0.105
+        ],
+        [
+          0.165,
+          0.105
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "corner": "front-right",
+      "center_xy": [
+        0.18,
+        -0.12
+      ],
+      "corners_xy": [
+        [
+          0.165,
+          -0.105
+        ],
+        [
+          0.195,
+          -0.105
+        ],
+        [
+          0.195,
+          -0.135
+        ],
+        [
+          0.165,
+          -0.135
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "corner": "front-left",
+      "center_xy": [
+        -0.18,
+        -0.12
+      ],
+      "corners_xy": [
+        [
+          -0.195,
+          -0.105
+        ],
+        [
+          -0.165,
+          -0.105
+        ],
+        [
+          -0.165,
+          -0.135
+        ],
+        [
+          -0.195,
+          -0.135
+        ]
+      ]
+    }
+  ],
+  "placement_area": {
+    "x_min": -0.155,
+    "y_min": -0.095,
+    "x_max": 0.155,
+    "y_max": 0.095
+  },
+  "keep_out": [
+    {
+      "x_min": -0.2,
+      "y_min": 0.1,
+      "x_max": -0.16,
+      "y_max": 0.14
+    },
+    {
+      "x_min": 0.16,
+      "y_min": 0.1,
+      "x_max": 0.2,
+      "y_max": 0.14
+    },
+    {
+      "x_min": 0.16,
+      "y_min": -0.14,
+      "x_max": 0.2,
+      "y_max": -0.1
+    },
+    {
+      "x_min": -0.2,
+      "y_min": -0.14,
+      "x_max": -0.16,
+      "y_max": -0.1
+    }
+  ],
+  "scale_bar_m": 0.1,
+  "marker_0_to_2_m": 0.432666,
+  "prints": [
+    {
+      "file": "mat_A3.pdf",
+      "paper": "A3 landscape",
+      "pages": 1,
+      "tiles": []
+    },
+    {
+      "file": "mat_A4_tiled.pdf",
+      "paper": "A4 landscape",
+      "pages": 4,
+      "tiles": [
+        {
+          "page": 1,
+          "name": "front-left",
+          "window": {
+            "x_min": -0.202,
+            "y_min": -0.142,
+            "x_max": 0.02,
+            "y_max": 0.02
+          },
+          "trim_left": false,
+          "trim_bottom": false
+        },
+        {
+          "page": 2,
+          "name": "front-right",
+          "window": {
+            "x_min": 0.005,
+            "y_min": -0.142,
+            "x_max": 0.202,
+            "y_max": 0.02
+          },
+          "trim_left": true,
+          "trim_bottom": false
+        },
+        {
+          "page": 3,
+          "name": "back-left",
+          "window": {
+            "x_min": -0.202,
+            "y_min": 0.005,
+            "x_max": 0.02,
+            "y_max": 0.142
+          },
+          "trim_left": false,
+          "trim_bottom": true
+        },
+        {
+          "page": 4,
+          "name": "back-right",
+          "window": {
+            "x_min": 0.005,
+            "y_min": 0.005,
+            "x_max": 0.202,
+            "y_max": 0.142
+          },
+          "trim_left": true,
+          "trim_bottom": true
+        }
+      ]
+    }
+  ]
+}
