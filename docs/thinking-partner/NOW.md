@@ -1,27 +1,46 @@
 # NOW
 
-**Updated:** 23 Nov 2026, 16:50 IST
-**Stage:** Stage 1, Setup, is **done** (P01 and P02 in PLAN.md). Next is stage 2, First scene, starting with **P03: scene spec v0**.
+**Updated:** 23 Nov 2026, 17:05 IST
+**Stage:** Setup is complete apart from the Hugging Face login, which waits on a token from the founder (P02a). Next item: **P03, scene spec v0**, which starts stage 2, First scene.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
 ## What exists
 
-- Public repo [Zugzwang-world/hrishikesh-visual-task-factory](https://github.com/Zugzwang-world/hrishikesh-visual-task-factory), `main` pushed, CI runs `uv sync`, ruff and pytest.
-- `CLAUDE.md` with the operating rules, and four subagents in `.claude/agents/`: builder (Opus 5.5, own worktree), expert (Opus 5.5), reviewer (Opus 5.5), scout (Haiku 5.5).
-- This folder: BRIEF (verbatim), NOW, OPEN, DECISIONS, DEMO, RESEARCH, plus the tracker: PLAN (work items P01 to P29) and CHECKLIST (every organizer requirement with its evidence; S1 ticked).
-- uv workspace on Python 3.12: `packages/vtf` (empty module tree from the brief, Typer CLI with seven stub commands) and `packages/vtf-blender` (scripts folder). Placeholders for `spec/`, `recipes/`, `configs/models.yaml` (model IDs unverified), `assets/manifest.yaml` and `web/`. Three smoke tests pass.
-- Blender 5.3.0 installed. Headless Cycles renders on the Metal GPU: about 1 s per 640x480 image at 64 samples once kernels are compiled, 5x faster than the CPU. The smoke render writes beauty, object-index and depth passes to `out/smoke/`.
+- Public repo [Zugzwang-world/hrishikesh-visual-task-factory](https://github.com/Zugzwang-world/hrishikesh-visual-task-factory), `main` pushed, CI green (`uv sync`, ruff, pytest).
+- `CLAUDE.md` with operating rules, the tracker rule and the new **Parallel work** lanes; four subagents in `.claude/agents/`.
+- This folder: BRIEF, NOW, OPEN, DECISIONS, DEMO, RESEARCH, PLAN and CHECKLIST.
+- uv workspace on Python 3.12. `packages/vtf` now carries the plan's libraries (pydantic, typer, numpy, OpenCV headless, pillow, pyyaml, jinja2, httpx, scikit-image, python-dotenv); hypothesis and pytest are in the dev group.
+- `packages/vtf-blender`: a shared GPU/CPU device module, the smoke render and the Poly Haven proof render.
+- Local `.env` (gitignored) with empty key entries.
 
-## What is next: P03, then the rest of stage 2
+## Tools and accounts
 
-Stage 2 is done when one task runs end to end. Items are in PLAN.md:
+| Tool | Version | Account | State |
+| --- | --- | --- | --- |
+| Blender | 5.3.0 | — | Renders headless on the Metal GPU |
+| uv / Python | 0.13.1 / 3.12 | — | Workspace synced |
+| GitHub CLI | 2.103.3 | Zugzwang-world | Logged in; repo public |
+| Node.js / npm | 26.13.1 LTS / 11.20.0 (pinned in `.node-version`) | — | Ready for the Task Explorer (P25) |
+| Vercel CLI | 66.6.0 | zugzwang-world | Logged in; no project yet (P25) |
+| Hugging Face CLI | `hf` 2.4.0 | — | Installed; **not logged in yet**, dataset repo not created |
+| Poly Haven API | public, no key | — | Proven: one model and one HDRI fetched and rendered |
 
-- **P03 (next):** scene spec v0, a pydantic SceneSpec with JSON Schema export.
-- P04 sampler v0, P05 Blender renderer v0, P06 question programs v0, P07 gates v0 and the task package writer, P08 eval v0, P09 first end-to-end run of about 20 tasks with a contact sheet.
-- Settle the GPU determinism question (OPEN.md item 6) during P05 and P07.
+## Poly Haven proof
+
+`out/smoke/polyhaven.png`: Poly Haven's Wooden Bowl 02 (glTF, 1k textures) lit by the studio_small_09 HDRI, Cycles on the Metal GPU, 800x600, 128 samples with denoising, 7.9 s warm. The imported bowl measures 130.7 x 124.5 x 73.1 mm, matching Poly Haven's published size, so real-world scale survives import.
+
+## Determinism: decided
+
+G7 checks scene files, answers, masks and depth exactly; images pass at SSIM 0.999 or above; GPU is the default and a CPU device option gives byte-identical images (for `vtf verify` on stage). BRIEF.md rule C and the G7 row are updated; OPEN item 6 is closed.
+
+## What is next
+
+1. As soon as the token arrives: log in to Hugging Face, create the empty public dataset repo `hrishikesh-visual-task-factory`, and mark P02a done.
+2. **P03:** scene spec v0, a pydantic SceneSpec with JSON Schema export to `spec/scene.schema.json`. It lands on main first; the parallel lanes start after it.
+3. Then P04 to P09, as listed in PLAN.md.
 
 ## Blockers and asks
 
-- No blockers.
-- Founder: add the GitHub sync in the claude.ai Project (this repo, the `docs/thinking-partner` folder plus `CLAUDE.md`) and tap Sync now.
-- API keys go in a local `.env` (names in `.env.example`) before the first model call in stage 2.
+- **Founder:** a Hugging Face write-access token (huggingface.co, Settings, Access Tokens, new token, Write).
+- **Founder:** add the GitHub sync in the claude.ai Project (this repo, `docs/thinking-partner` plus `CLAUDE.md`) and tap Sync now, if not done yet.
+- The Anthropic API key is needed at P08, not before.
