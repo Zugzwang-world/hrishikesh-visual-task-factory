@@ -49,16 +49,17 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
 | P22 | Eval harness v1: adapters for 3 closed and 2 open models (IDs verified on the web), async, rate limits, cost pilot | M | Pilot cost per task known | doing: Anthropic side done (Message Batches at half price, thinking tokens and call details per result, cost per model after its first 100); Google, OpenAI and open models wait for their keys |
-| P22a | Claude sweep on frozen v1 (brief 06): Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh on the same 1,567 tasks | M | Every model's results.jsonl in out/v1/sweep/ | doing |
-| P22b | Shortcut analysis (brief 06): accuracy with scene intervals, shortcut capture vs chance, confound check, thinking effect, headline chart, findings section in the dataset report | M | docs/reports/v1/findings.md and the chart in docs/media/ | doing |
-| P23 | Full evaluation and analyses: skill by model with intervals, breaking-point curves, real-photo gap, multi-view consistency, twins, vision gain, error attribution, paired tests, cost | L | Analysis tables and charts generated | todo |
+| P22a | Claude sweep on frozen v1 (brief 06): Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh on the same 1,567 tasks | M | Every model's results.jsonl in out/v1/sweep/ | done: 4 x 1,567 answers, 0 errors, $19.10 tonight (batched at half price) |
+| P22b | Shortcut analysis (brief 06): accuracy with scene intervals, shortcut capture vs chance, confound check, thinking effect, headline chart, findings section in the dataset report | M | docs/reports/v1/findings.md and the chart in docs/media/ | done; scripts/audit_vs_models.py waits for the founder's audit |
+| P23 | Full evaluation and analyses: skill by model with intervals, breaking-point curves, real-photo gap, multi-view consistency, twins, vision gain, error attribution, paired tests, cost | L | Analysis tables and charts generated | doing: the Claude shortcut analysis is done (P22b) |
+| P23a | v1.1: fold in the 36 tasks of scenes 0130, 0174 and 0229 (crash fixed 24 Nov; diff in docs/reports/v1/v1_1_check_diff.json) | S | Balance, twins for the three scenes and eval of the new tasks only | todo |
 | P24 | Findings report and one risk card per model (static HTML) | M | Report reads well on its own | todo |
 
 ## Stage 5: Demo pack
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P25 | Task Explorer on Vercel: glTF scene viewer, camera views, question, truth, every model's answer, gate evidence | L | Public URL works on a laptop and a phone | doing: v1 with every Claude model and a conflict gallery being built (brief 06) |
+| P25 | Task Explorer on Vercel: glTF scene viewer, camera views, question, truth, every model's answer, gate evidence | L | Public URL works on a laptop and a phone | done: v1 with every Claude model and a conflict gallery, https://vtf-task-explorer.vercel.app (re-export when other providers land) |
 | P26 | Hugging Face dataset release and data card | S | Public dataset page | todo |
 | P27 | README quickstart, Dockerfile, quick 20-image recipe, `vtf verify` showcase | M | A fresh clone runs the quickstart | todo |
 | P28 | Technical slides on the organizers' template, and a demo video script; then record the video | M | Slides and video ready | todo |

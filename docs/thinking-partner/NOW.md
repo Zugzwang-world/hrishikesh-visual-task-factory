@@ -1,64 +1,41 @@
 # NOW
 
-**Updated:** 24 Nov 2026, 01:00 IST (overnight, brief 06 running unattended)
-**Stage:** **Stage 4 starts on frozen v1: the Claude model sweep, the shortcut analysis and Explorer v1 (brief 06).** Dataset v1 stays frozen at 300 scenes and 3,181 tasks (docs/reports/v1/FROZEN.json, unchanged).
+**Updated:** 24 Nov 2026, 01:50 IST (end of the unattended overnight run, brief 06)
+**Stage:** **Stage 4 started on frozen v1: the Claude model sweep, the shortcut analysis and Task Explorer v1 are done (brief 06, phases A to E).** Dataset v1 stays frozen at 300 scenes and 3,181 tasks; FROZEN.json and the four frozen file hashes were checked unchanged at the end of the night.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
-## Tonight, in progress (brief 06)
+## Headline (docs/reports/v1/findings.md, chart in docs/media/shortcut_conflict_accuracy.png)
 
-- Every model answers the same 1,567 tasks: Sonnet's 1,500-task sample plus the 150 audit tasks (67 were new; Sonnet answered them tonight). Results go to out/v1/sweep/<model>/; out/v1/eval/ is untouched.
-- Phase A passed: smoke calls for claude-haiku-5-5, claude-opus-5-5 (high) and claude-opus-5-5 (xhigh, max_tokens 64,000) resolved, took the image and returned parseable JSON first time; a 5-task Message Batches proof came back 5 of 5 in 90 s with byte-identical request bodies. Disk 41 GB free (the restart cleared swap to 0).
-- Phase B running detached (out/v1/logs/sweep_run.log, state in out/v1/sweep/state.json): Sonnet's 67 done; Haiku's 100-task gate had 0 errors or truncations; its other 1,362 tasks are in batches; Opus high, then Opus xhigh follow, each gated on its first 100.
-- Phase C code is ready and tested on Sonnet: scripts/shortcut_findings.py (scene bootstrap, shortcut capture vs chance, matched strata, clustered logistic regression, headline chart), the findings section of the dataset report, and scripts/audit_vs_models.py for the founder's audit.
-- Phase D (Explorer v1 with every model and a conflict gallery) is being built in a separate worktree.
+- Four Claude settings answered the same 1,567 tasks (the 1,500-task eval sample plus the 150 audit tasks) with only the image and the question, through the API: same prompts, schema and scorer; effort set on every call. Overall: Haiku 5.5 high 50.3%, Sonnet 5.5 high 61.6%, Opus 5.5 high 65.5%, Opus 5.5 xhigh 66.4%.
+- **The 2D-shortcut gap is about 25 points for every model** (95% intervals from a scene bootstrap): Haiku 55% vs 30%, Sonnet 68% vs 44%, Opus high 72% vs 46%, Opus xhigh 74% vs 48% (shortcut agrees vs conflicts; 558 and 234 tasks).
+- **Shortcut capture vs chance:** of conflict tasks a model got wrong, the share answered with exactly the 2D-shortcut answer: Sonnet 64% vs 46% chance (1.39x, 1.18 to 1.67), Opus high 1.36x, Opus xhigh 1.48x (1.21 to 1.84); Haiku is at chance (0.95x; its misses are more random). The pull is strongest on nearest to gripper: 22 of 27 Opus xhigh misses name the object nearest in the image (chance 17%).
+- **Confound check: the gap survives.** Inside the same family and camera, conflict tasks score 25 to 28 points lower for every model; a logistic regression holding visible fraction, G4 margin, object count, camera quality and family fixed gives conflict odds ratios of 0.22 to 0.29 (all intervals well below 1; stable fits).
+- **More thinking does not close it:** Opus xhigh vs high changes the gap by +0 points (-5 to +5) and conflict accuracy by +2 (-3 to +7), although xhigh thinks twice as long on conflict tasks (550 vs 251 thinking tokens). Bigger models lift conflict accuracy (Haiku to Opus +16 points) but not the gap.
 
-## Running cost of model calls (tonight)
+## What changed tonight (all on main)
 
-- claude-sonnet-5-5 (67 batched): $0.15. claude-haiku-5-5: $0.016 after its first 106; projected total $0.23. claude-opus-5-5 high and xhigh: one smoke call each, under $0.01. Batches bill at half price.
-- Before tonight: about $9.65 (Sonnet's 1,500 answers were $6.80 of it).
+- **Sweep (P22a):** Message Batches path with the standard request body (byte-identical, tested), thinking tokens and call details on every result, a 100-task gate per model (error budget, cost projection), a resumable detached driver (scripts/model_sweep.py; state in out/v1/sweep/state.json). 4 x 1,567 answers (4,768 of them new tonight), 0 errors, 0 truncations; no fallback was needed. Results: out/v1/sweep/<model>/. The adapter refuses any Fable or Mythos model ID.
+- **Analysis (P22b):** scripts/shortcut_findings.py writes findings.json, findings.md and the chart; the dataset report (docs/reports/v1/index.html) has a findings section. scripts/audit_vs_models.py puts your blind audit beside every model on the same 150 tasks; it runs as soon as you export the audit.
+- **Task Explorer v1 (P25), live:** https://vtf-task-explorer.vercel.app with all four Claude settings and the blind baseline, and a conflict gallery (?view=gallery) of 12 scenes where every model took the shortcut, true answer in blue and the shortcut object in orange on the image and in 3D. 18 scenes, 10.6 MB (compressed images and glTF).
+- **Swap cause (OPEN 15, answered):** no Blender leak across scenes (resident size flat at 1.1 to 1.3 GB over a 5-scene batch). Each Cycles render takes about 6.6 GB (mostly GPU memory) on top of about 14 GB held by other apps, leaving 150 to 400 MB free on this 24 GB Mac; anything more pushes macOS into swap.
+- **Three-scene crash (OPEN 14, fixed):** the real crash was an empty point set in the lens undistort, reached from G2's support check. All 300 scenes re-validated into out/v1_1_check: the other 261 scenes give identical tasks and answers; 36 new tasks only in scenes 0130, 0174 and 0229 (diff in docs/reports/v1/v1_1_check_diff.json), kept for v1.1 in stage 4 (P23a).
+- 278 tests pass.
 
-## Dataset v1 candidate (out/v1, main checkout)
+## Running cost of model calls
 
-- 300 scenes x 3 cameras (front, overhead, wrist), recipe v1, seed 1, 0 render failures. Stopped before batch 13 of 20 by the disk floor (19.84 GB free at 22:10).
-- 7,013 candidate questions; 3,475 accepted plus 484 G6 twin tasks; after G5 rebalancing **3,181 tasks** in manifest.jsonl.
-- Gate pass rates over 3,653 gated candidates: G1 100%, G2 95.4%, G3 99.5%, G4 99.9%, G7 100%. G6: 872 tasks sampled, 484 valid twins, all 484 changed their answer (299 had no twin rule, 89 twins were invalid, mostly the twin's own settle).
-- G5: the prior-only baseline (most common answer per family) scores 25%; Claude Sonnet 5.5 with no image scores 15% (27 of 180), so the image is needed.
-- Dataset report: docs/reports/v1/index.html (gate rates, rejection reasons, coverage, answer distributions, shortcut_conflict share, model splits). Rejections are mostly occlusion that is too weak, no candidate, hidden evidence and near-ties.
-
-## Attempt to finish the last 200 scenes (23:58, founder's request): stopped at the floor
-
-- Resumed at batch 13 with 23.0 GB free (same frozen code). Within three minutes swap grew from 14 to 17 GB and free space fell to 19.9 GB, under the 20 GB floor; our batch writes only about 0.26 GB. Stopped the run and its post-run chain at once, per the rule. 4 scenes of batch 13 rendered, none validated; they resume later at no cost.
-- The resume's collect steps had rebuilt the manifest; balance was re-run and gives the same 3,181 tasks, all 1,500 eval tasks included, so the eval and the report stand.
-- **To finish:** restart the Mac (swap is 17 GB and is the cause; a restart clears it), then run the resume command below and the gated chain `zsh out/v1/logs/after_scale_run_2.sh` (it re-runs balance, the blind baseline, the eval with cached replies free, the report and the audit set, and the Explorer export only with 20 GB free).
-- 3 of the 300 scenes (0130, 0174, 0229) failed validation on an empty-projection crash (an object wholly behind the wrist camera) and contribute no tasks; fix noted in OPEN.md item 14.
-
-## Headline finding (Claude Sonnet 5.5, 1,500 stratified tasks, $6.80)
-
-- 61.9% overall (95% interval 60 to 64%). By camera: front 65%, wrist 66.5%, overhead 54%.
-- **shortcut_conflict:** 68.2% when the 2D shortcut agrees with the 3D truth, 45.1% when it does not (96 of 213). Nearest to gripper 59% vs 15%; front-to-back 93% vs 68%; free space 81% vs 50%. 65 of the 117 misses on conflict tasks are exactly the 2D-shortcut answer.
-- By family: front-to-back 86%, count 76%, count by colour 74%, free space 71%, support 67%, gripper view 65%, reachability 60%, containment 60%, relation 51%, occlusion 47%, nearest to gripper 47%, distance in cm 27%.
-- Nearest-to-gripper re-run (40 primitive scenes, key light, low gripper; out/nearest_v1): 68% vs 42% in stage 2; 0 of 7 on conflict tasks, every miss the shortcut object.
-
-## What exists (all on main)
-
-- Contracts v0.2 and spec/families.md; 40 Poly Haven objects and 4 exact references; sampler v1; three cameras with a quality dial; all 12 families with the naming rule, shortcut_conflict and twin rules; gates G1 to G7; incremental validation and the resumable scale driver with the disk floor; G5 balance and blind baseline; eval sampling with splits; the audit page; the dataset report; 262 tests pass.
-- Task Explorer, public, now showing the v1 run (8 scenes, three cameras, 3D, Sonnet's answers, gates): https://vtf-task-explorer.vercel.app
-- Physical twins: docs/twins/ (mat PDFs, 15-item shopping list, 30 layout sheets).
-
-## Running cost of model calls (before tonight)
-
-- Stage 2: $0.25. Tonight: $9.40 (20-scene check $1.31, nearest re-run $0.30, blind baseline $0.17, v1 eval $6.80, smoke test under $0.01). Total so far about $9.65.
+- Tonight, all batched at half price: Haiku 5.5 $0.23 (projected $0.23 after its first 100), Sonnet 5.5 $0.15 (67 new audit tasks), Opus 5.5 high $7.20 (projected $6.98), Opus 5.5 xhigh $11.52 (projected $11.83). Tonight $19.10.
+- Before tonight about $9.65. Total so far about $28.75.
 
 ## Asks
 
-- **Commit signing:** the SSH agent was empty after the restart, so tonight's commits are unsigned (signing switched off per command only; your git config is unchanged). To sign future commits again, run `ssh-add ~/.ssh/id_ed25519_github` once after a restart (tonight's pushed commits stay unsigned; rewriting main's history is not worth it).
-
-- **Blind audit, 150 tasks (46 of them shortcut-conflict tasks, all three cameras):** open out/v1/audit/index.html on the laptop (main checkout), answer, export the JSON, and say where it is; I score it with `vtf audit score`. The 12 stage-2 nearest-to-gripper tasks are ready at out/audit_s2/index.html.
+- **Blind audit first, then the Explorer:** the Explorer and the findings now show true answers, so please do the 150-task blind audit (out/v1/audit/index.html in the main checkout) before opening them. Export the JSON and say where it is; I score it and put you beside every model.
+- **Commit signing:** the SSH agent was empty after the restart, so tonight's commits are unsigned (signing switched off per command only; your git config is unchanged). To sign again, run `ssh-add ~/.ssh/id_ed25519_github` once after a restart.
 - **Shopping list:** 15 items, 23 pieces, in DEMO.md; print docs/twins/mat_A3.pdf at 100%.
-- **Disk:** 23 GB free at 23:55. Docker Desktop's VM disk holds 41 GB and was written tonight; trimming it (Docker Desktop, Troubleshoot, Clean / Purge data) or freeing about 3 GB more lets the last 200 scenes run. Resume (re-renders nothing): `cd .claude/worktrees/run-v1 && uv run python scripts/scale_run.py --recipe recipes/v1.yaml --n 500 --seed 1 --out /Users/hrishikesh/code/hrishikesh-visual-task-factory/out/v1 --batch 25 --gltf --twin-fraction 0.2`, then `vtf balance`, eval and report again.
+- **Before the last 200 scenes:** restart, quit Docker Desktop and Chrome (memory, see OPEN 15), keep the 20 GB disk floor (39 GB free now). Resume, which re-renders nothing: `cd .claude/worktrees/run-v1 && uv run python scripts/scale_run.py --recipe recipes/v1.yaml --n 500 --seed 1 --out ../../../out/v1 --batch 25 --gltf --twin-fraction 0.2`, then balance, eval and report again.
 - Turn on two-factor authentication for Vercel: https://vercel.com/account/settings/authentication?setup=authenticator
 
 ## Next
 
-1. Founder audit; fix every miss at its source.
-2. Stage 4 (P22): pin the frontier and open model IDs, a 50-task cost pilot, then the full evaluation.
+1. Your blind audit; then `scripts/audit_vs_models.py`, and fix every miss at its source.
+2. Stage 4: Google, OpenAI and open models on the same 1,567 tasks once their keys are confirmed (same harness, a 100-task gate each); risk cards (P24).
+3. v1.1: fold in the 36 tasks of the three fixed scenes (P23a); decide on the last 200 scenes.
