@@ -32,9 +32,9 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 | P13 | Cameras: overhead, front and gripper rigs with jitter; post-render camera-quality dial (noise, blur, distortion, CCTV look) | M | Same scene renders from all three cameras at three quality levels | done |
 | P14 | All 12 question families from BRIEF.md, each with a twin rule | L | Every family produces valid tasks and twins | done |
 | P15 | Gates G2 (answer recomputed from mask and depth pixels), G4 (no near-ties), G5 (prior-only and question-only baselines), G6 (twins) | L | Gate report shows pass rates and rejection reasons | done |
-| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | done |
+| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | done (v1 set ready: 150 tasks, 46 shortcut-conflict; waiting on the founder) |
 | P17 | Dataset report: gate pass rates, rejection reasons, coverage matrix, answer distributions | M | Static HTML report | done |
-| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | done: 300 of 500 scenes (stopped at the 20 GB disk floor), 3,181 tasks, report in docs/reports/v1; the last 200 scenes resume with one command |
+| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | done: v1 frozen at 300 of 500 scenes (20 GB disk floor), 3,181 tasks, report and freeze record in docs/reports/v1; the last 200 scenes resume with one command |
 
 ## Physical twins (alongside stages 3 and 4)
 

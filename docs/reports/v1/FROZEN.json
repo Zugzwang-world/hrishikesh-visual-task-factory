@@ -1,0 +1,97 @@
+{
+  "frozen_at": "2026-11-24T00:15:00+05:30",
+  "decision": "Founder, 23-24 Nov night: freeze v1 at 300 scenes; the last 200 scenes, the three-scene crash fix and the swap cause wait for the morning.",
+  "run": "out/v1",
+  "recipe": "recipes/v1.yaml",
+  "run_seed": 1,
+  "scenes_in_v1": "scene_0000 to scene_0299 (300 of 500 generated)",
+  "scene_status": {
+    "validated": 261,
+    "settle": 36,
+    "validation_failed": 3
+  },
+  "not_in_v1": "scene_0300 to scene_0499 (4 of them rendered, none validated)",
+  "code_commit": "c3e8ae2 (frozen worktree .claude/worktrees/run-v1)",
+  "versions": {
+    "spec": "0.2.0",
+    "task": "0.2.0",
+    "programs": "0.2.2",
+    "validate": "0.2.1",
+    "blender": "5.3.0"
+  },
+  "tasks": {
+    "manifest": 3181,
+    "by_shortcut_conflict": {
+      "None": 1686,
+      "False": 1071,
+      "True": 424
+    },
+    "by_rig": {
+      "front": 1253,
+      "overhead": 1235,
+      "gripper": 693
+    },
+    "by_family": {
+      "containment": 232,
+      "count": 309,
+      "count_attribute": 486,
+      "distance": 297,
+      "free_space": 308,
+      "front_to_back": 334,
+      "gripper_view": 87,
+      "nearest_to_gripper": 274,
+      "occlusion": 94,
+      "reachability": 181,
+      "relation": 304,
+      "support": 275
+    }
+  },
+  "gates": {
+    "G1": {
+      "run": 3653,
+      "pass": 3653,
+      "pass_rate": 1.0
+    },
+    "G2": {
+      "run": 3653,
+      "pass": 3486,
+      "pass_rate": 0.9543
+    },
+    "G3": {
+      "run": 3653,
+      "pass": 3633,
+      "pass_rate": 0.9945
+    },
+    "G4": {
+      "run": 3653,
+      "pass": 3649,
+      "pass_rate": 0.9989
+    },
+    "G6": {
+      "run": 484,
+      "pass": 484,
+      "pass_rate": 1.0
+    },
+    "G7": {
+      "run": 3653,
+      "pass": 3653,
+      "pass_rate": 1.0
+    }
+  },
+  "sha256": {
+    "manifest.jsonl": "70843c15df64b39a08db4118fdd8cd3ee2f3e1dfdcb35784ee13aae8fd8c272b",
+    "rejected.jsonl": "a969be12ddbb2df0d623f7b2e6aa0b57d491fd2bb9f37c236758420d4ee8d046",
+    "eval/claude-sonnet-5-5/results.jsonl": "980bf82174b10d008d8c42d3de35314526375d029a5133e55b51e72a35fde121",
+    "audit/sample.json": "f1819aaea6f3a25ef032bf1c026f0ee119089ff2ff1b73a4e2bf012ad04bff39"
+  },
+  "eval": {
+    "model": "claude-sonnet-5-5",
+    "n": 1500,
+    "sample": "stratified family x rig, seed 0"
+  },
+  "audit": {
+    "tasks": 150,
+    "shortcut_conflict_true": 46,
+    "page": "out/v1/audit/index.html"
+  }
+}

@@ -1,7 +1,7 @@
 # NOW
 
-**Updated:** 24 Nov 2026, 00:05 IST
-**Stage:** **Stage 3, Core factory: built, integrated and run (brief 05).** The scale run stopped at the founder's 20 GB disk floor after 300 of 500 scenes; eval, baselines, report and audit set are done on those.
+**Updated:** 24 Nov 2026, 00:15 IST
+**Stage:** **Stage 3, Core factory: built, integrated and run (brief 05). Dataset v1 is frozen at 300 scenes** (founder, 24 Nov 00:15): 3,181 tasks, freeze record in docs/reports/v1/FROZEN.json. The last 200 scenes, the three-scene crash fix and the swap cause wait for the morning.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
 ## Dataset v1 candidate (out/v1, main checkout)
@@ -38,7 +38,7 @@
 
 ## Asks
 
-- **Blind audit, 150 tasks:** open out/v1/audit/index.html on the laptop (main checkout), answer, export the JSON, and say where it is; I score it with `vtf audit score`. The 12 stage-2 nearest-to-gripper tasks are ready at out/audit_s2/index.html.
+- **Blind audit, 150 tasks (46 of them shortcut-conflict tasks, all three cameras):** open out/v1/audit/index.html on the laptop (main checkout), answer, export the JSON, and say where it is; I score it with `vtf audit score`. The 12 stage-2 nearest-to-gripper tasks are ready at out/audit_s2/index.html.
 - **Shopping list:** 15 items, 23 pieces, in DEMO.md; print docs/twins/mat_A3.pdf at 100%.
 - **Disk:** 23 GB free at 23:55. Docker Desktop's VM disk holds 41 GB and was written tonight; trimming it (Docker Desktop, Troubleshoot, Clean / Purge data) or freeing about 3 GB more lets the last 200 scenes run. Resume (re-renders nothing): `cd .claude/worktrees/run-v1 && uv run python scripts/scale_run.py --recipe recipes/v1.yaml --n 500 --seed 1 --out /Users/hrishikesh/code/hrishikesh-visual-task-factory/out/v1 --batch 25 --gltf --twin-fraction 0.2`, then `vtf balance`, eval and report again.
 - Turn on two-factor authentication for Vercel: https://vercel.com/account/settings/authentication?setup=authenticator
