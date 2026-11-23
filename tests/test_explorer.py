@@ -123,7 +123,7 @@ def test_key_evidence_puts_decision_first() -> None:
         "scene_sha256": "a" * 64,
     }
     key = key_evidence(evidence)
-    assert key[0] == ["gap_m", "0.1614"] and key[1] == ["closer", "obj_02"]
-    assert ["rerun_matches", "yes"] in key
-    assert ["scene_sha256", "aaaaaaaaaaaa…"] in key
+    assert key[0] == ["gap m", "0.1614"] and key[1] == ["closer", "obj_02"]
+    assert ["rerun matches", "yes"] in key
+    assert ["scene sha256", "aaaaaaaaaaaa…"] in key
     assert all(k != "program" for k, _ in key)

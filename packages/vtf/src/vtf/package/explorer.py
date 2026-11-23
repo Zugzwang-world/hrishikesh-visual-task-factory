@@ -146,13 +146,18 @@ def key_evidence(evidence: dict) -> list[list[str]]:
                     rows, key=lambda kv: kv[1].get(frac_key, math.inf)
                     if isinstance(kv[1].get(frac_key), int | float) else math.inf
                 )  # fmt: skip
-                parts = [f"{frac_key} {_scalar_text(weakest.get(frac_key))}"]
+                parts = [f"{_human(frac_key)} {_scalar_text(weakest.get(frac_key))}"]
                 for extra in ("visible_pixels", "pixels"):
                     if extra in weakest:
                         parts.append(f"{_scalar_text(weakest[extra])} px")
-                objects.append([f"weakest of {len(rows)} ({weakest_id})", ", ".join(parts)])
+                objects.append([f"weakest of {len(rows)}: {weakest_id}", ", ".join(parts)])
     items = decision + objects + bools + numbers + flats + strings
-    return items[:MAX_KEY_ITEMS]
+    return [[_human(k), v] for k, v in items[:MAX_KEY_ITEMS]]
+
+
+def _human(key: str) -> str:
+    """Evidence keys read as words (gap_m -> gap m); object ids (obj_03) stay as they are."""
+    return " ".join(w if w.startswith("obj_") else w.replace("_", " ") for w in key.split(" "))
 
 
 def _gates(task: dict) -> dict:
