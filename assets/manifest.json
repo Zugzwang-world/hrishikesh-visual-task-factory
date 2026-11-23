@@ -75,13 +75,13 @@
     0.253,
     0.011
    ],
-   "file": "lemon/lemon_1k.gltf",
+   "file": "lemon/lemon_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0687,
-    0.0683,
-    0.0954
+    0.0954,
+    0.0683
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -93,7 +93,7 @@
    "triangles": 4012,
    "license": "CC0",
    "url": "https://polyhaven.com/a/lemon",
-   "notes": ""
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "food_lime_01",
@@ -131,19 +131,19 @@
    "source": "polyhaven",
    "category": "avocado",
    "plural": "avocados",
-   "color_name": "green",
+   "color_name": "black",
    "rgb": [
     0.011,
     0.007,
     0.007
    ],
-   "file": "food_avocado_01/food_avocado_01_1k.gltf",
+   "file": "food_avocado_01/food_avocado_01_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0952,
-    0.0946,
-    0.1432
+    0.1432,
+    0.0946
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -155,7 +155,7 @@
    "triangles": 7743,
    "license": "CC0",
    "url": "https://polyhaven.com/a/food_avocado_01",
-   "notes": ""
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "food_kiwi_01",
@@ -168,13 +168,13 @@
     0.109,
     0.041
    ],
-   "file": "food_kiwi_01/food_kiwi_01_1k.gltf",
+   "file": "food_kiwi_01/food_kiwi_01_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0695,
-    0.0686,
-    0.0901
+    0.0901,
+    0.0686
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -186,7 +186,7 @@
    "triangles": 7748,
    "license": "CC0",
    "url": "https://polyhaven.com/a/food_kiwi_01",
-   "notes": ""
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "yellow_onion",
@@ -255,7 +255,7 @@
    "source": "polyhaven",
    "category": "lychee",
    "plural": "lychees",
-   "color_name": "red",
+   "color_name": "pink",
    "rgb": [
     0.347,
     0.082,
@@ -286,7 +286,7 @@
    "source": "polyhaven",
    "category": "bottle",
    "plural": "bottles",
-   "color_name": "white",
+   "color_name": "purple",
    "rgb": [
     0.093,
     0.048,
@@ -317,7 +317,7 @@
    "source": "polyhaven",
    "category": "bottle",
    "plural": "bottles",
-   "color_name": "grey",
+   "color_name": "white",
    "rgb": [
     0.273,
     0.287,
@@ -348,7 +348,7 @@
    "source": "polyhaven",
    "category": "can",
    "plural": "cans",
-   "color_name": "black",
+   "color_name": "blue",
    "rgb": [
     0.096,
     0.097,
@@ -379,7 +379,7 @@
    "source": "polyhaven",
    "category": "can",
    "plural": "cans",
-   "color_name": "grey",
+   "color_name": null,
    "rgb": [
     0.423,
     0.327,
@@ -403,7 +403,7 @@
    "triangles": 5476,
    "license": "CC0",
    "url": "https://polyhaven.com/a/lubricant_spray",
-   "notes": "aerosol can"
+   "notes": "aerosol can; no single dominant colour word (multi-coloured or metallic)"
   },
   {
    "id": "cleaner_tin_01",
@@ -472,7 +472,7 @@
    "source": "polyhaven",
    "category": "vase",
    "plural": "vases",
-   "color_name": "yellow",
+   "color_name": null,
    "rgb": [
     0.482,
     0.256,
@@ -496,7 +496,7 @@
    "triangles": 2616,
    "license": "CC0",
    "url": "https://polyhaven.com/a/brass_vase_03",
-   "notes": "brass"
+   "notes": "brass; no single dominant colour word (multi-coloured or metallic)"
   },
   {
    "id": "jug_01",
@@ -534,7 +534,7 @@
    "source": "polyhaven",
    "category": "jug",
    "plural": "jugs",
-   "color_name": "grey",
+   "color_name": null,
    "rgb": [
     0.337,
     0.364,
@@ -558,7 +558,7 @@
    "triangles": 6040,
    "license": "CC0",
    "url": "https://polyhaven.com/a/metal_jug",
-   "notes": "metal"
+   "notes": "metal; no single dominant colour word (multi-coloured or metallic)"
   },
   {
    "id": "CheeseBox_01",
@@ -602,13 +602,13 @@
     0.163,
     0.133
    ],
-   "file": "screwdriver/screwdriver_1k.gltf",
+   "file": "screwdriver/screwdriver_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0271,
-    0.0267,
-    0.209
+    0.209,
+    0.0267
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -620,7 +620,7 @@
    "triangles": 3412,
    "license": "CC0",
    "url": "https://polyhaven.com/a/screwdriver",
-   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "flathead_screwdriver",
@@ -633,13 +633,13 @@
     0.104,
     0.084
    ],
-   "file": "flathead_screwdriver/flathead_screwdriver_1k.gltf",
+   "file": "flathead_screwdriver/flathead_screwdriver_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.03,
-    0.03,
-    0.2613
+    0.2613,
+    0.03
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -651,7 +651,7 @@
    "triangles": 2300,
    "license": "CC0",
    "url": "https://polyhaven.com/a/flathead_screwdriver",
-   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "cross_pein_hammer",
@@ -664,13 +664,13 @@
     0.104,
     0.062
    ],
-   "file": "cross_pein_hammer/cross_pein_hammer_1k.gltf",
+   "file": "cross_pein_hammer/cross_pein_hammer_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0991,
-    0.0243,
-    0.3002
+    0.3002,
+    0.0243
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -678,30 +678,30 @@
    "can_support": false,
    "stackable": false,
    "can_go_in_container": false,
-   "lookalike_group": null,
+   "lookalike_group": "hammer",
    "triangles": 2124,
    "license": "CC0",
    "url": "https://polyhaven.com/a/cross_pein_hammer",
-   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "wooden_hammer_01",
    "source": "polyhaven",
-   "category": "mallet",
-   "plural": "mallets",
+   "category": "hammer",
+   "plural": "hammers",
    "color_name": "brown",
    "rgb": [
     0.147,
     0.088,
     0.055
    ],
-   "file": "wooden_hammer_01/wooden_hammer_01_1k.gltf",
+   "file": "wooden_hammer_01/wooden_hammer_01_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.1118,
-    0.0234,
-    0.2792
+    0.2792,
+    0.0234
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -709,11 +709,11 @@
    "can_support": false,
    "stackable": false,
    "can_go_in_container": false,
-   "lookalike_group": null,
+   "lookalike_group": "hammer",
    "triangles": 3617,
    "license": "CC0",
    "url": "https://polyhaven.com/a/wooden_hammer_01",
-   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "combination_wrench",
@@ -757,13 +757,13 @@
     0.118,
     0.106
    ],
-   "file": "adjustable_wrench/adjustable_wrench_1k.gltf",
+   "file": "adjustable_wrench/adjustable_wrench_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0683,
-    0.0306,
-    0.2541
+    0.2541,
+    0.0306
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -775,7 +775,7 @@
    "triangles": 5390,
    "license": "CC0",
    "url": "https://polyhaven.com/a/adjustable_wrench",
-   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "tongue_groove_pliers",
@@ -819,13 +819,13 @@
     0.257,
     0.1
    ],
-   "file": "pliers/pliers_1k.gltf",
+   "file": "pliers/pliers_1k_rest.gltf",
    "shape": null,
    "scale": 1.0,
    "size_m": [
     0.0553,
-    0.018,
-    0.1798
+    0.1798,
+    0.018
    ],
    "collision": "convex_hull",
    "passive": false,
@@ -837,14 +837,14 @@
    "triangles": 4540,
    "license": "CC0",
    "url": "https://polyhaven.com/a/pliers",
-   "notes": "modelled standing on end; lay it on its side (90 degrees about local x or y)"
+   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
   },
   {
    "id": "vintage_stapler",
    "source": "polyhaven",
    "category": "stapler",
    "plural": "staplers",
-   "color_name": "green",
+   "color_name": null,
    "rgb": [
     0.165,
     0.293,
@@ -868,7 +868,7 @@
    "triangles": 4370,
    "license": "CC0",
    "url": "https://polyhaven.com/a/vintage_stapler",
-   "notes": ""
+   "notes": "no single dominant colour word (multi-coloured or metallic)"
   },
   {
    "id": "wooden_spoon",
@@ -889,7 +889,7 @@
     0.2776,
     0.0251
    ],
-   "collision": "convex_hull",
+   "collision": "box",
    "passive": false,
    "container": null,
    "can_support": false,
@@ -992,7 +992,7 @@
    "triangles": 4288,
    "license": "CC0",
    "url": "https://polyhaven.com/a/rubber_duck_toy",
-   "notes": "toy rubber duck"
+   "notes": "toy rubber duck (the Poly Haven model is 30 cm long); scaled to 0.4 of the Poly Haven size"
   },
   {
    "id": "carved_wooden_elephant",
@@ -1013,7 +1013,7 @@
     0.0576,
     0.0962
    ],
-   "collision": "convex_hull",
+   "collision": "box",
    "passive": false,
    "container": null,
    "can_support": false,
@@ -1161,7 +1161,7 @@
    "triangles": 14122,
    "license": "CC0",
    "url": "https://polyhaven.com/a/wooden_bowl_01",
-   "notes": ""
+   "notes": "scaled to 0.7 of the Poly Haven size"
   },
   {
    "id": "wicker_basket_01",
@@ -1202,14 +1202,14 @@
    "triangles": 22276,
    "license": "CC0",
    "url": "https://polyhaven.com/a/wicker_basket_01",
-   "notes": ""
+   "notes": "scaled to 0.7 of the Poly Haven size"
   },
   {
    "id": "carved_wooden_plate",
    "source": "polyhaven",
    "category": "plate",
    "plural": "plates",
-   "color_name": "brown",
+   "color_name": null,
    "rgb": [
     0.295,
     0.212,
@@ -1240,14 +1240,14 @@
    "triangles": 2112,
    "license": "CC0",
    "url": "https://polyhaven.com/a/carved_wooden_plate",
-   "notes": ""
+   "notes": "no single dominant colour word (multi-coloured or metallic)"
   },
   {
    "id": "brass_pot_02",
    "source": "polyhaven",
-   "category": "tray",
-   "plural": "trays",
-   "color_name": "yellow",
+   "category": "pot",
+   "plural": "pots",
+   "color_name": null,
    "rgb": [
     0.521,
     0.279,
@@ -1265,10 +1265,10 @@
    "passive": true,
    "container": {
     "shape": "circle",
-    "inner_radius_m": 0.1,
+    "inner_radius_m": 0.097,
     "inner_size_xy": null,
     "floor_z_m": 0.0031,
-    "rim_z_m": 0.014,
+    "rim_z_m": 0.07,
     "capacity": 3
    },
    "can_support": false,
@@ -1278,7 +1278,7 @@
    "triangles": 3344,
    "license": "CC0",
    "url": "https://polyhaven.com/a/brass_pot_02",
-   "notes": "round brass tray with handles"
+   "notes": "brass pot with two handles; scaled to 0.7 of the Poly Haven size; no single dominant colour word (multi-coloured or metallic)"
   },
   {
    "id": "proc_box_5cm",

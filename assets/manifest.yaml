@@ -1,9 +1,10 @@
 # Asset manifest (contract: vtf.core.assets.AssetManifest, version 0.1.0).
 #
 # Every object the sampler may place. Poly Haven models are CC0 and fetched as glTF (1k textures)
-# into the asset cache (assets/cache/<id>/, gitignored; $VTF_ASSET_CACHE overrides the folder)
-# with `uv run python assets/fetch_polyhaven.py <id> --kind model`. Procedural primitives of exact
-# size are scale references.
+# into the asset cache (assets/cache/<id>/, gitignored; $VTF_ASSET_CACHE overrides the folder).
+# `uv run python assets/fetch_manifest.py` fills the cache for every entry below (it calls
+# fetch_polyhaven.py and derives the rest-pose files of rest_pose.py). Procedural primitives of
+# exact size are scale references.
 #
 # Mesh convention: glTF +Y up becomes +Z up, times `scale`, centred on the bounding box (see
 # vtf.core.assets). size_m is the real extent x, y, z after that, in metres, measured from the
@@ -16,8 +17,10 @@
 # never move in the settle and rest on the table top). Container interiors are in the asset's
 # centred local frame, heights above its lowest point.
 #
-# Some tools are modelled standing on end (their notes say so): spawn them lying on their side,
-# or the settle tips them over.
+# Models made standing on end (a screwdriver on its handle, a lemon on its tip) point `file` at a
+# rest-pose variant lying on its side (assets/rest_pose.py), so the modelled orientation plus a
+# yaw is always a stable resting pose. colour_name is the word a person would use for the whole
+# object; null when there is none (multi-coloured or metallic).
 #
 # Blender has no YAML reader: after editing, run `uv run python assets/export_manifest_json.py`
 # to refresh assets/manifest.json (a test checks it is current).
@@ -65,9 +68,9 @@ assets:
     plural: lemons
     color_name: yellow
     rgb: [0.421, 0.253, 0.011]
-    file: lemon/lemon_1k.gltf
+    file: lemon/lemon_1k_rest.gltf
     scale: 1
-    size_m: [0.0687, 0.0683, 0.0954]
+    size_m: [0.0687, 0.0954, 0.0683]
     collision: convex_hull
     can_support: false
     stackable: true
@@ -75,6 +78,7 @@ assets:
     lookalike_group: citrus
     triangles: 4012
     url: https://polyhaven.com/a/lemon
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: food_lime_01
     source: polyhaven
@@ -97,17 +101,18 @@ assets:
     source: polyhaven
     category: avocado
     plural: avocados
-    color_name: green
+    color_name: black
     rgb: [0.011, 0.007, 0.007]
-    file: food_avocado_01/food_avocado_01_1k.gltf
+    file: food_avocado_01/food_avocado_01_1k_rest.gltf
     scale: 1
-    size_m: [0.0952, 0.0946, 0.1432]
+    size_m: [0.0952, 0.1432, 0.0946]
     collision: convex_hull
     can_support: false
     stackable: false
     can_go_in_container: true
     triangles: 7743
     url: https://polyhaven.com/a/food_avocado_01
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: food_kiwi_01
     source: polyhaven
@@ -115,15 +120,16 @@ assets:
     plural: kiwis
     color_name: brown
     rgb: [0.226, 0.109, 0.041]
-    file: food_kiwi_01/food_kiwi_01_1k.gltf
+    file: food_kiwi_01/food_kiwi_01_1k_rest.gltf
     scale: 1
-    size_m: [0.0695, 0.0686, 0.0901]
+    size_m: [0.0695, 0.0901, 0.0686]
     collision: convex_hull
     can_support: false
     stackable: true
     can_go_in_container: true
     triangles: 7748
     url: https://polyhaven.com/a/food_kiwi_01
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: yellow_onion
     source: polyhaven
@@ -161,7 +167,7 @@ assets:
     source: polyhaven
     category: lychee
     plural: lychees
-    color_name: red
+    color_name: pink
     rgb: [0.347, 0.082, 0.081]
     file: food_lychee_01/food_lychee_01_1k.gltf
     scale: 1
@@ -177,7 +183,7 @@ assets:
     source: polyhaven
     category: bottle
     plural: bottles
-    color_name: white
+    color_name: purple
     rgb: [0.093, 0.048, 0.103]
     file: bleach_bottle/bleach_bottle_1k.gltf
     scale: 1
@@ -194,7 +200,7 @@ assets:
     source: polyhaven
     category: bottle
     plural: bottles
-    color_name: grey
+    color_name: white
     rgb: [0.273, 0.287, 0.278]
     file: multi_cleaner_bottle/multi_cleaner_bottle_1k.gltf
     scale: 1
@@ -212,7 +218,7 @@ assets:
     source: polyhaven
     category: can
     plural: cans
-    color_name: black
+    color_name: blue
     rgb: [0.096, 0.097, 0.117]
     file: leather_cleaner_can/leather_cleaner_can_1k.gltf
     scale: 1
@@ -230,7 +236,7 @@ assets:
     source: polyhaven
     category: can
     plural: cans
-    color_name: grey
+    color_name: null
     rgb: [0.423, 0.327, 0.437]
     file: lubricant_spray/lubricant_spray_1k.gltf
     scale: 1
@@ -242,7 +248,7 @@ assets:
     lookalike_group: can
     triangles: 5476
     url: https://polyhaven.com/a/lubricant_spray
-    notes: aerosol can
+    notes: aerosol can; no single dominant colour word (multi-coloured or metallic)
 
   - id: cleaner_tin_01
     source: polyhaven
@@ -283,7 +289,7 @@ assets:
     source: polyhaven
     category: vase
     plural: vases
-    color_name: yellow
+    color_name: null
     rgb: [0.482, 0.256, 0.126]
     file: brass_vase_03/brass_vase_03_1k.gltf
     scale: 1
@@ -294,7 +300,7 @@ assets:
     can_go_in_container: false
     triangles: 2616
     url: https://polyhaven.com/a/brass_vase_03
-    notes: brass
+    notes: brass; no single dominant colour word (multi-coloured or metallic)
 
   - id: jug_01
     source: polyhaven
@@ -318,7 +324,7 @@ assets:
     source: polyhaven
     category: jug
     plural: jugs
-    color_name: grey
+    color_name: null
     rgb: [0.337, 0.364, 0.315]
     file: metal_jug/metal_jug_1k.gltf
     scale: 1
@@ -330,7 +336,7 @@ assets:
     lookalike_group: jug
     triangles: 6040
     url: https://polyhaven.com/a/metal_jug
-    notes: metal
+    notes: metal; no single dominant colour word (multi-coloured or metallic)
 
   - id: CheeseBox_01
     source: polyhaven
@@ -355,9 +361,9 @@ assets:
     plural: screwdrivers
     color_name: red
     rgb: [0.59, 0.163, 0.133]
-    file: screwdriver/screwdriver_1k.gltf
+    file: screwdriver/screwdriver_1k_rest.gltf
     scale: 1
-    size_m: [0.0271, 0.0267, 0.209]
+    size_m: [0.0271, 0.209, 0.0267]
     collision: convex_hull
     can_support: false
     stackable: false
@@ -365,7 +371,7 @@ assets:
     lookalike_group: screwdriver
     triangles: 3412
     url: https://polyhaven.com/a/screwdriver
-    notes: modelled standing on end; lay it on its side (90 degrees about local x or y)
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: flathead_screwdriver
     source: polyhaven
@@ -373,9 +379,9 @@ assets:
     plural: screwdrivers
     color_name: brown
     rgb: [0.171, 0.104, 0.084]
-    file: flathead_screwdriver/flathead_screwdriver_1k.gltf
+    file: flathead_screwdriver/flathead_screwdriver_1k_rest.gltf
     scale: 1
-    size_m: [0.03, 0.03, 0.2613]
+    size_m: [0.03, 0.2613, 0.03]
     collision: convex_hull
     can_support: false
     stackable: false
@@ -383,7 +389,7 @@ assets:
     lookalike_group: screwdriver
     triangles: 2300
     url: https://polyhaven.com/a/flathead_screwdriver
-    notes: modelled standing on end; lay it on its side (90 degrees about local x or y)
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: cross_pein_hammer
     source: polyhaven
@@ -391,33 +397,35 @@ assets:
     plural: hammers
     color_name: brown
     rgb: [0.17, 0.104, 0.062]
-    file: cross_pein_hammer/cross_pein_hammer_1k.gltf
+    file: cross_pein_hammer/cross_pein_hammer_1k_rest.gltf
     scale: 1
-    size_m: [0.0991, 0.0243, 0.3002]
+    size_m: [0.0991, 0.3002, 0.0243]
     collision: convex_hull
     can_support: false
     stackable: false
     can_go_in_container: false
+    lookalike_group: hammer
     triangles: 2124
     url: https://polyhaven.com/a/cross_pein_hammer
-    notes: modelled standing on end; lay it on its side (90 degrees about local x or y)
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: wooden_hammer_01
     source: polyhaven
-    category: mallet
-    plural: mallets
+    category: hammer
+    plural: hammers
     color_name: brown
     rgb: [0.147, 0.088, 0.055]
-    file: wooden_hammer_01/wooden_hammer_01_1k.gltf
+    file: wooden_hammer_01/wooden_hammer_01_1k_rest.gltf
     scale: 1
-    size_m: [0.1118, 0.0234, 0.2792]
+    size_m: [0.1118, 0.2792, 0.0234]
     collision: convex_hull
     can_support: false
     stackable: false
     can_go_in_container: false
+    lookalike_group: hammer
     triangles: 3617
     url: https://polyhaven.com/a/wooden_hammer_01
-    notes: modelled standing on end; lay it on its side (90 degrees about local x or y)
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: combination_wrench
     source: polyhaven
@@ -442,9 +450,9 @@ assets:
     plural: wrenches
     color_name: grey
     rgb: [0.136, 0.118, 0.106]
-    file: adjustable_wrench/adjustable_wrench_1k.gltf
+    file: adjustable_wrench/adjustable_wrench_1k_rest.gltf
     scale: 1
-    size_m: [0.0683, 0.0306, 0.2541]
+    size_m: [0.0683, 0.2541, 0.0306]
     collision: convex_hull
     can_support: false
     stackable: false
@@ -452,7 +460,7 @@ assets:
     lookalike_group: wrench
     triangles: 5390
     url: https://polyhaven.com/a/adjustable_wrench
-    notes: modelled standing on end; lay it on its side (90 degrees about local x or y)
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: tongue_groove_pliers
     source: polyhaven
@@ -477,9 +485,9 @@ assets:
     plural: pliers
     color_name: orange
     rgb: [0.63, 0.257, 0.1]
-    file: pliers/pliers_1k.gltf
+    file: pliers/pliers_1k_rest.gltf
     scale: 1
-    size_m: [0.0553, 0.018, 0.1798]
+    size_m: [0.0553, 0.1798, 0.018]
     collision: convex_hull
     can_support: false
     stackable: false
@@ -487,13 +495,13 @@ assets:
     lookalike_group: pliers
     triangles: 4540
     url: https://polyhaven.com/a/pliers
-    notes: modelled standing on end; lay it on its side (90 degrees about local x or y)
+    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
 
   - id: vintage_stapler
     source: polyhaven
     category: stapler
     plural: staplers
-    color_name: green
+    color_name: null
     rgb: [0.165, 0.293, 0.279]
     file: vintage_stapler/vintage_stapler_1k.gltf
     scale: 1
@@ -504,6 +512,7 @@ assets:
     can_go_in_container: false
     triangles: 4370
     url: https://polyhaven.com/a/vintage_stapler
+    notes: no single dominant colour word (multi-coloured or metallic)
 
   - id: wooden_spoon
     source: polyhaven
@@ -514,7 +523,7 @@ assets:
     file: wooden_spoon/wooden_spoon_1k.gltf
     scale: 1
     size_m: [0.0867, 0.2776, 0.0251]
-    collision: convex_hull
+    collision: box
     can_support: false
     stackable: true
     can_go_in_container: true
@@ -569,7 +578,7 @@ assets:
     can_go_in_container: true
     triangles: 4288
     url: https://polyhaven.com/a/rubber_duck_toy
-    notes: toy rubber duck
+    notes: toy rubber duck (the Poly Haven model is 30 cm long); scaled to 0.4 of the Poly Haven size
 
   - id: carved_wooden_elephant
     source: polyhaven
@@ -580,7 +589,7 @@ assets:
     file: carved_wooden_elephant/carved_wooden_elephant_1k.gltf
     scale: 1
     size_m: [0.1092, 0.0576, 0.0962]
-    collision: convex_hull
+    collision: box
     can_support: false
     stackable: true
     can_go_in_container: true
@@ -669,6 +678,7 @@ assets:
     lookalike_group: bowl
     triangles: 14122
     url: https://polyhaven.com/a/wooden_bowl_01
+    notes: scaled to 0.7 of the Poly Haven size
 
   - id: wicker_basket_01
     source: polyhaven
@@ -692,12 +702,13 @@ assets:
     can_go_in_container: false
     triangles: 22276
     url: https://polyhaven.com/a/wicker_basket_01
+    notes: scaled to 0.7 of the Poly Haven size
 
   - id: carved_wooden_plate
     source: polyhaven
     category: plate
     plural: plates
-    color_name: brown
+    color_name: null
     rgb: [0.295, 0.212, 0.155]
     file: carved_wooden_plate/carved_wooden_plate_1k.gltf
     scale: 1
@@ -715,12 +726,13 @@ assets:
     can_go_in_container: false
     triangles: 2112
     url: https://polyhaven.com/a/carved_wooden_plate
+    notes: no single dominant colour word (multi-coloured or metallic)
 
   - id: brass_pot_02
     source: polyhaven
-    category: tray
-    plural: trays
-    color_name: yellow
+    category: pot
+    plural: pots
+    color_name: null
     rgb: [0.521, 0.279, 0.134]
     file: brass_pot_02/brass_pot_02_1k.gltf
     scale: 0.7
@@ -729,16 +741,16 @@ assets:
     passive: true
     container:
       shape: circle
-      inner_radius_m: 0.1
+      inner_radius_m: 0.097
       floor_z_m: 0.0031
-      rim_z_m: 0.014
+      rim_z_m: 0.07
       capacity: 3
     can_support: false
     stackable: false
     can_go_in_container: false
     triangles: 3344
     url: https://polyhaven.com/a/brass_pot_02
-    notes: round brass tray with handles
+    notes: brass pot with two handles; scaled to 0.7 of the Poly Haven size; no single dominant colour word (multi-coloured or metallic)
 
   # Procedural scale references (exact sizes; the sampler colours them).
   - id: proc_box_5cm
