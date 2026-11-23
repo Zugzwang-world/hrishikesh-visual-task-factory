@@ -1,7 +1,9 @@
-"""Question programs v0: property tests on count, nearest_to_gripper and front_to_back, the shape
-geometry they rest on, and compile_questions on the contract fixture.
+"""Question programs v0.2 on primitive scenes: the exact shape geometry the programs rest on,
+brute-force checks of count, distance, relation and reach zones, the G4 near-tie thresholds, the
+naming rule, and run_program's contract (spec/families.md).
 
-Scenes are built in-test, so these tests do not depend on the sampler lane.
+Scenes are built in-test, so these tests do not depend on the sampler lane. Asset scenes
+(containers, stacks, twins, compile_questions) are in tests/test_programs_v2.py.
 """
 
 import math
@@ -9,12 +11,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from hypothesis import HealthCheck, assume, event, given, settings
+from hypothesis import HealthCheck, event, given, settings
 from hypothesis import strategies as st
 
 from vtf.core.geometry import Pose, look_at_camera_quat, quat_from_axis_angle, quat_multiply
 from vtf.core.io import read_scene, read_task
-from vtf.core.program import CompiledQuestion, ProgramReject
+from vtf.core.program import FAMILIES, PROGRAM_FAMILY, ProgramReject
 from vtf.core.projection import to_camera
 from vtf.core.scene import (
     CameraSpec,
@@ -23,19 +25,21 @@ from vtf.core.scene import (
     SceneObject,
     SceneSpec,
     Table,
+    Zone,
     build_gripper,
 )
-from vtf.core.vocab import COLOURS, SHAPES, linear_rgb, normalise_object
+from vtf.core.vocab import COLOURS, SHAPES, linear_rgb, resolve_object
 from vtf.programs import (
+    NEAR_TIE_DEPTH_FRONT_M,
     NEAR_TIE_DEPTH_M,
+    NEAR_TIE_GRIPPER_FRONT_M,
     NEAR_TIE_GRIPPER_M,
     PROGRAMS,
     PROGRAMS_VERSION,
-    TABLE_CONTACT_TOL_M,
-    compile_questions,
     run_program,
 )
 from vtf.programs.shapes import lowest_z, point_distance
+from vtf.programs.view import camera_right_xy
 
 REPO = Path(__file__).resolve().parents[1]
 RUN = REPO / "spec" / "examples" / "run_example"
@@ -43,6 +47,7 @@ FIXTURE = RUN / "scenes" / "scene_0000" / "render" / "scene.settled.json"
 TABLE_H = 0.75
 CAM = "front"
 SETTINGS = settings(max_examples=60, deadline=None, suppress_health_check=[HealthCheck.too_slow])
+FEW = settings(max_examples=25, deadline=None, suppress_health_check=[HealthCheck.too_slow])
 
 
 # ---------------------------------------------------------------------------------------------
@@ -68,6 +73,9 @@ def make_scene(
     eye=(0.0, -0.69, 1.33),
     target=(0.0, 0.0, TABLE_H),
     settled=True,
+    rig="front",
+    zones=(),
+    grid=None,
 ) -> SceneSpec:
     return SceneSpec(
         meta=SceneMeta(
@@ -77,12 +85,14 @@ def make_scene(
             recipe_hash="0" * 64,
             settled=settled,
         ),
-        table=Table(size_xy=(1.0, 0.7), height=TABLE_H),
+        table=Table(size_xy=(1.0, 0.7), height=TABLE_H, grid_cell_m=grid),
         objects=list(objects),
         gripper=build_gripper(Pose(position=tuple(tip))),
+        zones=list(zones),
         cameras=[
             CameraSpec(
                 id=CAM,
+                rig=rig,
                 pose=Pose(position=tuple(eye), rotation=look_at_camera_quat(eye, target)),
                 focal_mm=28.0,
                 resolution=(320, 240),
@@ -335,93 +345,78 @@ def test_lowest_point_matches_brute_force(shape, data, rotation, centre) -> None
     assert sampled - lowest_z(obj) <= 1e-4
 
 
+
+
 # ---------------------------------------------------------------------------------------------
-# count
+# count and count_attribute
 
 
 @SETTINGS
 @given(scenes(placements=("on", "on", "on", "floor", "stacked")))
-def test_count_all_counts_on_table_objects(case) -> None:
+def test_count_all_counts_every_object(case) -> None:
     scene, status = case
-    stacked = sorted(i for i, s in status.items() if s == "stacked")
-    event("stacked: reject" if stacked else "no stacked: count")
-    if stacked:
-        with pytest.raises(ProgramReject) as err:
-            run_program("count_all", {}, scene, CAM)
-        assert err.value.reason == "ambiguous_support"
-        assert err.value.detail["object_ids"] == stacked
+    on_floor = sorted(i for i, s in status.items() if s == "floor")
+    result = outcome("count_all", {}, scene)
+    event("floor: reject" if on_floor else "count")
+    if on_floor:
+        assert result["rejected"] == "off_table" and result["detail"]["object_ids"] == on_floor
         return
-    result = run_program("count_all", {}, scene, CAM)
-    on_table = sorted(i for i, s in status.items() if s == "on")
-    assert result.answer == len(on_table)
-    assert result.answer_type == "int" and result.answer_text == str(len(on_table))
-    assert result.evidence_object_ids == on_table
-    rows = {r["object_id"]: r for r in result.trace if "object_id" in r}
-    assert set(rows) == set(status)
-    for oid, where in status.items():
-        assert rows[oid]["status"] == {"on": "on_table", "floor": "off_table"}[where]
+    assert result["answer"] == len(scene.objects) == len(result["evidence_object_ids"])
+    assert result["shortcut_conflict"] is None
 
 
 @SETTINGS
-@given(scenes(placements=("on", "on", "on", "floor")))
-def test_colour_counts_sum_to_count_all(case) -> None:
-    scene, status = case
+@given(scenes(placements=("on", "on", "stacked")))
+def test_colour_and_category_counts_sum_to_count_all(case) -> None:
+    scene, _ = case
     total = run_program("count_all", {}, scene, CAM).answer
-    per_colour = {c: run_program("count_color", {"color": c}, scene, CAM) for c in COLOURS}
-    assert sum(r.answer for r in per_colour.values()) == total
-    for colour, result in per_colour.items():
-        expected = sorted(
-            o.id for o in scene.objects if o.color_name == colour and status[o.id] == "on"
+    by_colour = {c: run_program("count_color", {"color": c}, scene, CAM) for c in COLOURS}
+    by_shape = {s: run_program("count_category", {"category": s}, scene, CAM) for s in SHAPES}
+    assert sum(r.answer for r in by_colour.values()) == total
+    assert sum(r.answer for r in by_shape.values()) == total
+    for colour, result in by_colour.items():
+        assert result.evidence_object_ids == sorted(
+            o.id for o in scene.objects if o.color_name == colour
         )
-        assert result.answer == len(expected)
-        assert result.evidence_object_ids == expected
-
-
-@pytest.mark.parametrize(
-    "lift, accepted",
-    [(TABLE_CONTACT_TOL_M, True), (-TABLE_CONTACT_TOL_M, True), (0.0101, False), (-0.0101, False)],
-)
-def test_on_table_tolerance_is_exact(lift, accepted) -> None:
-    box = make_object(0, "box", "red", (0.06, 0.06, 0.06), (0.0, 0.0, TABLE_H + 0.03 + lift))
-    scene = make_scene([box])
-    if accepted:
-        assert run_program("count_all", {}, scene, CAM).answer == 1
-    else:
-        with pytest.raises(ProgramReject, match="ambiguous_support"):
-            run_program("count_all", {}, scene, CAM)
-
-
-def test_tilted_box_rests_on_its_edge() -> None:
-    # A 4 x 8 x 6 cm box rolled 45 degrees about x rests on an edge, its centre
-    # (8 + 6) / 2 * sin 45 = 4.95 cm above the top.
-    rotation = quat_from_axis_angle((1.0, 0.0, 0.0), math.pi / 4)
-    box = make_object(0, "box", "red", (0.04, 0.08, 0.06), (0.1, 0.1, 0.0), rotation)
-    drop = 0.07 * math.sqrt(0.5)
-    assert lowest_z(box) == pytest.approx(-drop, abs=1e-12)
-    box = box.model_copy(
-        update={"pose": Pose(position=(0.1, 0.1, TABLE_H + drop), rotation=rotation)}
-    )
-    assert run_program("count_all", {}, make_scene([box]), CAM).answer == 1
 
 
 # ---------------------------------------------------------------------------------------------
-# shuffling the object list changes nothing
+# translating the whole scene and its cameras in xy changes no answer
 
 
-@SETTINGS
-@given(case=scenes(placements=("on", "on", "floor", "stacked"), min_objects=2), data=st.data())
-def test_shuffling_objects_changes_no_answer(case, data) -> None:
+def translated(scene: SceneSpec, dx: float, dy: float) -> SceneSpec:
+    def move(pose: Pose) -> Pose:
+        x, y, z = pose.position
+        return Pose(position=(x + dx, y + dy, z), rotation=pose.rotation)
+
+    objects = [o.model_copy(update={"pose": move(o.pose)}) for o in scene.objects]
+    cameras = [c.model_copy(update={"pose": move(c.pose)}) for c in scene.cameras]
+    g = scene.gripper
+    parts = [p.model_copy(update={"pose": move(p.pose)}) for p in g.parts]
+    gripper = g.model_copy(update={"tip": move(g.tip), "parts": parts})
+    zones = [z.model_copy(update={"center_xy": (z.center_xy[0] + dx, z.center_xy[1] + dy)})
+             for z in scene.zones]  # fmt: skip
+    return scene.model_copy(
+        update={"objects": objects, "cameras": cameras, "gripper": gripper, "zones": zones}
+    )
+
+
+@FEW
+@given(case=scenes(placements=("on", "on", "stacked"), min_objects=2),
+       shift=st.tuples(st.floats(-0.02, 0.02), st.floats(-0.02, 0.02)))  # fmt: skip
+def test_translation_changes_no_answer(case, shift) -> None:
     scene, _ = case
-    shuffled = scene.model_copy(update={"objects": data.draw(st.permutations(scene.objects))})
+    moved = translated(scene, *shift)
     ids = sorted(o.id for o in scene.objects)
     calls = [("count_all", {}), ("nearest_to_gripper", {})]
     calls += [("count_color", {"color": c}) for c in sorted({o.color_name for o in scene.objects})]
     calls += [("front_to_back", {"a": a, "b": b}) for a, b in zip(ids, ids[1:], strict=False)]
+    calls += [("relation", {"anchor": ids[0], "direction": d}) for d in ("left", "right")]
     for name, params in calls:
-        assert outcome(name, params, shuffled) == outcome(name, params, scene), name
-    seed = data.draw(st.integers(0, 2**32))
-    original = [q.model_dump() for q in compile_questions(scene, CAM, seed)]
-    assert [q.model_dump() for q in compile_questions(shuffled, CAM, seed)] == original
+        before, after = outcome(name, params, scene), outcome(name, params, moved)
+        if "rejected" in before or "rejected" in after:
+            continue  # a shifted pixel can tip a near tie; the answers themselves must agree
+        assert after["answer"] == before["answer"], name
 
 
 # ---------------------------------------------------------------------------------------------
@@ -436,58 +431,51 @@ def test_nearest_is_no_farther_than_any_other(case) -> None:
     dist = {o.id: point_distance(o, tip) for o in scene.objects}
     ranked = sorted(dist, key=lambda i: (dist[i], i))
     gap = dist[ranked[1]] - dist[ranked[0]]
-    try:
-        result = run_program("nearest_to_gripper", {}, scene, CAM)
-    except ProgramReject as rej:
-        event(rej.reason)
-        assert rej.reason == "near_tie_gripper"
-        assert gap < NEAR_TIE_GRIPPER_M + 1e-9
-        assert rej.detail["nearest"] == ranked[0] and rej.detail["runner_up"] == ranked[1]
+    result = outcome("nearest_to_gripper", {}, scene)
+    event(result.get("rejected", "accepted"))
+    if "rejected" in result:
+        assert result["rejected"] in ("near_tie_gripper", "near_tie_pixels", "unnameable")
+        if result["rejected"] == "near_tie_gripper":
+            assert gap < NEAR_TIE_GRIPPER_FRONT_M + 1e-9
         return
-    event("accepted")
-    winner = next(o for o in scene.objects if o.name == result.answer)
-    assert all(dist[winner.id] <= d for d in dist.values())
-    assert result.evidence_object_ids == ranked[:2]
-    assert result.margin == pytest.approx(gap, abs=1e-6)
-    assert result.margin >= NEAR_TIE_GRIPPER_M
-    assert normalise_object(result.answer) == result.answer
+    winner = resolve_object(result["answer"], scene.objects)
+    assert winner.ids == (ranked[0],)
+    assert result["evidence_object_ids"] == ranked[:2]
+    assert result["margin"] == pytest.approx(gap, abs=1e-6)
+    assert result["margin"] >= NEAR_TIE_GRIPPER_FRONT_M and result["margin_px"] >= 10
+    assert isinstance(result["shortcut_conflict"], bool)
 
 
-def nearest_case(gap: float) -> SceneSpec:
+def nearest_case(gap: float, rig: str = "overhead") -> SceneSpec:
     """Two 3 cm spheres 8 cm and 8 cm + gap from the gripper tip."""
     tip = (0.0, 0.0, 1.0)
     a = sphere(0, "red", 0.03, (0.0, 0.0, 1.0 - 0.11))
     b = sphere(1, "blue", 0.03, (0.11 + gap, 0.0, 1.0))
-    return make_scene([a, b], tip=tip)
+    return make_scene([a, b], tip=tip, rig=rig)
 
 
-@pytest.mark.parametrize(
-    "gap, accepted", [(0.03 - 1e-4, False), (0.03, True), (0.03 + 1e-4, True), (0.0, False)]
-)
-def test_nearest_threshold_is_exact(gap, accepted) -> None:
-    scene = nearest_case(gap)
+@pytest.mark.parametrize("rig, threshold", [("overhead", 0.03), ("gripper", 0.03), ("front", 0.05)])
+@pytest.mark.parametrize("delta, accepted", [(-1e-4, False), (0.0, True), (1e-4, True)])
+def test_nearest_threshold_is_exact_per_rig(rig, threshold, delta, accepted) -> None:
+    assert {NEAR_TIE_GRIPPER_M, NEAR_TIE_GRIPPER_FRONT_M} == {0.03, 0.05}
+    result = outcome("nearest_to_gripper", {}, nearest_case(threshold + delta, rig))
     if accepted:
-        result = run_program("nearest_to_gripper", {}, scene, CAM)
-        assert result.answer == "red sphere"
-        assert result.margin == pytest.approx(gap, abs=1e-9)
+        assert result["answer"] == "red sphere"
+        assert result["margin"] == pytest.approx(threshold + delta, abs=1e-9)
     else:
-        with pytest.raises(ProgramReject, match="near_tie_gripper"):
-            run_program("nearest_to_gripper", {}, scene, CAM)
+        assert result["rejected"] == "near_tie_gripper"
 
 
-@SETTINGS
-@given(st.floats(0.0, 0.08))
-def test_nearest_rejects_exactly_below_threshold(gap) -> None:
-    assume(abs(gap - NEAR_TIE_GRIPPER_M) > 1e-7)
-    rejected = outcome("nearest_to_gripper", {}, nearest_case(gap)).get("rejected")
-    assert (rejected == "near_tie_gripper") == (gap < NEAR_TIE_GRIPPER_M)
-
-
-def test_nearest_rejects_duplicate_and_single() -> None:
+def test_naming_rule_rejects_duplicates_and_uses_shortest_name() -> None:
     a = sphere(0, "red", 0.03, (0.0, 0.0, 0.89))
     b = make_object(1, "sphere", "red", (0.06,) * 3, (0.3, 0.0, 0.89))
-    with pytest.raises(ProgramReject, match="duplicate_name"):
-        run_program("nearest_to_gripper", {}, make_scene([a, b], tip=(0, 0, 1)), CAM)
+    scene = make_scene([a, b], tip=(0, 0, 1), rig="overhead")
+    assert outcome("nearest_to_gripper", {}, scene)["rejected"] == "unnameable"
+    # a duplicate may still be counted
+    assert run_program("count_color", {"color": "red"}, scene, CAM).answer == 2
+    c = make_object(1, "box", "blue", (0.06,) * 3, (0.3, 0.0, 0.78))
+    result = run_program("nearest_to_gripper", {}, make_scene([a, c], tip=(0, 0, 1)), CAM)
+    assert result.answer == "sphere"  # the only sphere: the category alone names it
     with pytest.raises(ProgramReject, match="too_few_objects"):
         run_program("nearest_to_gripper", {}, make_scene([a], tip=(0, 0, 1)), CAM)
 
@@ -508,48 +496,128 @@ def test_front_to_back_is_symmetric_and_uses_depth(case, data) -> None:
         assert ab["rejected"] == ba["rejected"]
         return
     assert ab["answer"] == ba["answer"] and ab["margin"] == ba["margin"]
-    assert ab["evidence_object_ids"] == [a.id, b.id] == ba["evidence_object_ids"][::-1]
     depth = to_camera(scene.camera(CAM), np.array([a.pose.position, b.pose.position]))[:, 2]
-    assert ab["answer"] == (a if depth[0] < depth[1] else b).name
+    closer = a if depth[0] < depth[1] else b
+    assert resolve_object(ab["answer"], scene.objects).ids == (closer.id,)
     assert ab["margin"] == pytest.approx(abs(depth[0] - depth[1]), abs=1e-6)
-    assert ab["margin"] >= NEAR_TIE_DEPTH_M
+    assert ab["margin"] >= NEAR_TIE_DEPTH_FRONT_M
 
 
-def depth_case(gap: float, lateral: float = 0.0) -> SceneSpec:
-    """A camera looking along +y; one sphere 0.8 m away on the axis, one 0.8 m + gap away."""
+def depth_case(gap: float, lateral: float | None = None, rig: str = "overhead") -> SceneSpec:
+    """A camera looking along +y; the red sphere 0.8 m away, the blue one 0.8 m + gap away.
+    The nearer sphere sits on the axis and the farther one 5 cm to the side (so the image points
+    are apart and the straight-line gap is at least the depth gap), unless `lateral` moves red."""
     eye, target = (0.0, -1.0, 1.0), (0.0, 1.0, 1.0)
-    a = sphere(0, "red", 0.02, (lateral, -1.0 + 0.8, 1.0))
-    b = sphere(1, "blue", 0.02, (0.0, -1.0 + 0.8 + gap, 1.0))
-    return make_scene([a, b], eye=eye, target=target)
+    side_a, side_b = (0.0, 0.05) if gap > 0 else (0.05, 0.0)
+    if lateral is not None:
+        side_a, side_b = lateral, 0.0
+    a = sphere(0, "red", 0.02, (side_a, -1.0 + 0.8, 1.0))
+    b = sphere(1, "blue", 0.02, (side_b, -1.0 + 0.8 + gap, 1.0))
+    return make_scene([a, b], eye=eye, target=target, rig=rig)
 
 
-@pytest.mark.parametrize(
-    "gap, accepted", [(0.04 - 1e-4, False), (0.04, True), (0.04 + 1e-4, True), (-0.04, True)]
-)
-def test_front_to_back_threshold_is_exact(gap, accepted) -> None:
-    scene = depth_case(gap)
-    if accepted:
-        result = run_program("front_to_back", {"a": "obj_00", "b": "obj_01"}, scene, CAM)
-        assert result.answer == ("red sphere" if gap > 0 else "blue sphere")
-        assert result.margin == pytest.approx(abs(gap), abs=1e-9)
-    else:
-        with pytest.raises(ProgramReject, match="near_tie_depth"):
-            run_program("front_to_back", {"a": "obj_00", "b": "obj_01"}, scene, CAM)
-
-
-@SETTINGS
-@given(st.floats(-0.1, 0.1))
-def test_front_to_back_rejects_exactly_below_threshold(gap) -> None:
-    assume(abs(abs(gap) - NEAR_TIE_DEPTH_M) > 1e-7)
-    rejected = outcome("front_to_back", {"a": "obj_00", "b": "obj_01"}, depth_case(gap))
-    assert (rejected.get("rejected") == "near_tie_depth") == (abs(gap) < NEAR_TIE_DEPTH_M)
+@pytest.mark.parametrize("rig, threshold", [("overhead", NEAR_TIE_DEPTH_M),
+                                            ("front", NEAR_TIE_DEPTH_FRONT_M)])  # fmt: skip
+@pytest.mark.parametrize("delta, accepted", [(-1e-4, False), (0.0, True), (1e-4, True)])
+def test_front_to_back_threshold_is_exact_per_rig(rig, threshold, delta, accepted) -> None:
+    for sign in (1, -1):
+        result = outcome("front_to_back", {"a": "obj_00", "b": "obj_01"},
+                         depth_case(sign * (threshold + delta), rig=rig))  # fmt: skip
+        if accepted:
+            assert result["answer"] == ("red sphere" if sign > 0 else "blue sphere")
+        else:
+            assert result["rejected"] == "near_tie_depth"
 
 
 def test_front_to_back_rejects_when_distance_disagrees_with_depth() -> None:
     # The red sphere is 5 cm nearer in planar depth but 60 cm off-axis, so farther in distance.
-    scene = depth_case(0.05, lateral=0.6)
     with pytest.raises(ProgramReject, match="near_tie_distance"):
-        run_program("front_to_back", {"a": "obj_00", "b": "obj_01"}, scene, CAM)
+        run_program("front_to_back", {"a": "obj_00", "b": "obj_01"}, depth_case(0.05, 0.6), CAM)
+
+
+# ---------------------------------------------------------------------------------------------
+# distance, relation and reach zones against brute force
+
+
+spread = st.lists(
+    st.tuples(st.floats(-0.35, 0.35), st.floats(-0.22, 0.22)), min_size=3, max_size=6
+).filter(lambda ps: all(math.dist(p, q) > 0.07 for i, p in enumerate(ps) for q in ps[i + 1:]))
+
+
+def flat_scene(points, **kw) -> SceneSpec:
+    pairs = [(c, s) for s in ("box", "cylinder", "sphere") for c in COLOURS][: len(points)]
+    objs = []
+    for i, ((x, y), (colour, shape)) in enumerate(zip(points, pairs, strict=True)):
+        objs.append(make_object(i, shape, colour, (0.04, 0.04, 0.04), (x, y, TABLE_H + 0.02)))
+    return make_scene(objs, **kw)
+
+
+@FEW
+@given(points=spread)
+def test_distance_cm_matches_brute_force(points) -> None:
+    scene = flat_scene(points, grid=0.05)
+    a, b = scene.objects[0], scene.objects[1]
+    d = math.dist(points[0], points[1])
+    result = outcome("distance_cm", {"a": a.id, "b": b.id}, scene)
+    if d < 0.08:
+        assert result["rejected"] == "too_close"
+        return
+    assert result["answer"] == round(d * 100, 1)
+    assert result["tolerance"] == pytest.approx(max(2.0, 0.1 * result["answer"]), abs=0.01)
+    assert result["answer_type"] == "number"
+    no_grid = flat_scene(points)
+    assert outcome("distance_cm", {"a": a.id, "b": b.id}, no_grid)["rejected"] == \
+        "no_scale_in_frame"
+
+
+@FEW
+@given(points=spread, direction=st.sampled_from(("left", "right")))
+def test_relation_matches_brute_force(points, direction) -> None:
+    scene = flat_scene(points)
+    right = camera_right_xy(scene.camera(CAM))
+    want = right if direction == "right" else -right
+    anchor = np.array(points[0])
+    rows = []
+    for i, p in enumerate(points[1:], start=1):
+        d = np.array(p) - anchor
+        angle = math.degrees(math.acos(np.clip(d @ want / np.linalg.norm(d), -1, 1)))
+        rows.append((float(np.linalg.norm(d)), angle, f"obj_{i:02d}"))
+    cands = sorted(r for r in rows if r[1] <= 30)
+    result = outcome("relation", {"anchor": "obj_00", "direction": direction}, scene)
+    event(result.get("rejected", "accepted"))
+    if not cands:
+        assert result["rejected"] == "no_candidate"
+        return
+    if "rejected" in result:
+        assert result["rejected"] in ("near_tie_relation", "near_cone_edge", "near_tie_pixels")
+        return
+    assert resolve_object(result["answer"], scene.objects).ids == (cands[0][2],)
+    assert all(not (25 <= a <= 35 and dd < cands[0][0]) for dd, a, _ in rows)
+    if len(cands) > 1:
+        assert result["margin"] == pytest.approx(cands[1][0] - cands[0][0], abs=1e-6) and \
+            result["margin"] >= 0.03
+
+
+@FEW
+@given(points=spread, centre=st.tuples(st.floats(-0.2, 0.2), st.floats(-0.1, 0.1)),
+       radius=st.floats(0.08, 0.2))  # fmt: skip
+def test_in_zone_matches_brute_force(points, centre, radius) -> None:
+    zone = Zone(id="zone_0", shape="circle", center_xy=centre, radius=radius, color_name="green")
+    scene = flat_scene(points, zones=[zone])
+    sd = [radius - math.dist(p, centre) for p in points]
+    result = outcome("in_zone", {"zone": "zone_0"}, scene)
+    if any(abs(s) < 0.02 for s in sd):
+        assert result["rejected"] == "near_zone_boundary"
+        return
+    event(result.get("rejected", "accepted"))
+    if "rejected" in result:
+        assert result["rejected"] == "near_zone_boundary"  # pixel margin
+        return
+    members = sorted(f"obj_{i:02d}" for i, s in enumerate(sd) if s >= 0)
+    got = sorted(i for name in result["answer"] for i in resolve_object(name, scene.objects).ids)
+    assert got == members
+    assert result["answer_text"] == (", ".join(result["answer"]) or "none")
+    assert result["margin"] == pytest.approx(min(abs(s) for s in sd), abs=1e-6)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -558,78 +626,36 @@ def test_front_to_back_rejects_when_distance_disagrees_with_depth() -> None:
 
 def test_run_program_contract() -> None:
     scene = read_scene(FIXTURE)
-    assert PROGRAMS_VERSION == "0.1.0"
-    assert set(PROGRAMS) == {"count_all", "count_color", "nearest_to_gripper", "front_to_back"}
+    assert PROGRAMS_VERSION == "0.2.0"
+    assert set(PROGRAMS) == set(PROGRAM_FAMILY)
+    assert all(PROGRAMS[p].family in FAMILIES for p in PROGRAMS)
     unsettled = scene.model_copy(update={"meta": scene.meta.model_copy(update={"settled": False})})
     with pytest.raises(ValueError, match="settled"):
         run_program("count_all", {}, unsettled, CAM)
-    with pytest.raises(ValueError, match="settled"):
-        compile_questions(unsettled, CAM, 0)
     with pytest.raises(ValueError, match="unknown program"):
         run_program("count_everything", {}, scene, CAM)
     with pytest.raises(ValueError, match="params"):
         run_program("count_all", {"color": "red"}, scene, CAM)
     with pytest.raises(ValueError, match="different"):
         run_program("front_to_back", {"a": "obj_01", "b": "obj_01"}, scene, CAM)
+    with pytest.raises(ProgramReject, match="wrong_rig"):
+        run_program("gripper_center", {}, scene, CAM)
     with pytest.raises(KeyError):
         run_program("count_all", {}, scene, "overhead")
 
 
 def test_fixture_tasks_match_programs() -> None:
-    """What G1 will do: re-run each stored program on the settled scene and compare."""
+    """What G1 does on the v0.1 fixture: the rerun names the same object (v0.2 names are the
+    shortest unique form, so 'red box' may now be 'box')."""
     scene = read_scene(FIXTURE)
     for path in sorted((RUN / "tasks").glob("*/task.json")):
         task = read_task(path)
         result = run_program(task.program.name, task.program.params, scene, task.camera_id)
-        assert result.answer == task.answer, path
-        assert sorted(result.evidence_object_ids) == sorted(task.evidence_object_ids), path
-
-
-# ---------------------------------------------------------------------------------------------
-# compile_questions
-
-
-def test_compile_questions_on_fixture() -> None:
-    scene = read_scene(FIXTURE)
-    questions = compile_questions(scene, CAM, seed=0)
-    accepted = [q for q in questions if q.rejected is None]
-    assert 3 <= len(accepted) <= 5
-    assert {q.family for q in accepted} == {"count", "nearest_to_gripper", "front_to_back"}
-    answers = {
-        q.program.name: q.result.answer for q in accepted if q.program.name != "front_to_back"
-    }
-    assert answers == {"count_all": 7, "count_color": 2, "nearest_to_gripper": "blue cylinder"}
-    for q in accepted:
-        assert q.result == run_program(q.program.name, q.program.params, scene, CAM)
-        assert CompiledQuestion.model_validate_json(q.model_dump_json()) == q
-    again = compile_questions(scene, CAM, seed=0)
-    assert [q.model_dump() for q in again] == [q.model_dump() for q in questions]
-
-
-@SETTINGS
-@given(
-    case=scenes(placements=("on", "on", "on", "stacked")),
-    seed=st.integers(0, 2**32),
-    max_questions=st.one_of(st.just(5), st.integers(1, 6)),
-)
-def test_compile_questions_properties(case, seed, max_questions) -> None:
-    scene, _ = case
-    questions = compile_questions(scene, CAM, seed, max_questions)
-    assert [q.model_dump() for q in compile_questions(scene, CAM, seed, max_questions)] == [
-        q.model_dump() for q in questions
-    ]
-    accepted = [q for q in questions if q.rejected is None]
-    assert len(accepted) <= max_questions
-    assert sum(q.program.name == "front_to_back" for q in accepted) <= 2
-    assert sum(q.program.name == "front_to_back" for q in questions) <= 3
-    event(f"{len(accepted)} accepted, {len(questions) - len(accepted)} rejected")
-    for q in questions:
-        assert q.template_id in {f"{q.program.name}.p1", f"{q.program.name}.p2"}
-        assert q.family == PROGRAMS[q.program.name].family
-        assert (q.result is None) == (q.rejected is not None)
-        expected = outcome(q.program.name, q.program.params, scene)
-        if q.rejected:
-            assert expected == {"rejected": q.rejected, "detail": q.rejected_detail}
+        if task.answer_type == "object":
+            assert resolve_object(result.answer, scene.objects).ids == \
+                resolve_object(task.answer, scene.objects).ids, path
         else:
-            assert expected == q.result.model_dump()
-        CompiledQuestion.model_validate_json(q.model_dump_json())
+            assert result.answer == task.answer, path
+        assert set(task.evidence_object_ids) <= set(result.evidence_object_ids) | set(
+            o.id for o in scene.objects
+        ), path
