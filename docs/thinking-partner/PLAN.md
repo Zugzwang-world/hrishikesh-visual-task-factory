@@ -26,21 +26,21 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P10 | Assets: about 40 Poly Haven objects via their API, scale-normalised, real-world sizes in assets/manifest.yaml; procedural scale references; cm-grid table texture | M | Manifest lists every asset; each loads and renders | doing |
-| P11 | Sampler v1: clutter levels, stacks, containers, reach zones, look-alikes; difficulty controls in recipes | M | Recipe sliders change scenes as expected | doing |
-| P12 | Look: Poly Haven HDRI lighting, PBR materials, denoising, sample count tuned for speed | S | Hero renders saved for DEMO.md | doing |
-| P13 | Cameras: overhead, front and gripper rigs with jitter; post-render camera-quality dial (noise, blur, distortion, CCTV look) | M | Same scene renders from all three cameras at three quality levels | doing |
-| P14 | All 12 question families from BRIEF.md, each with a twin rule | L | Every family produces valid tasks and twins | doing |
-| P15 | Gates G2 (answer recomputed from mask and depth pixels), G4 (no near-ties), G5 (prior-only and question-only baselines), G6 (twins) | L | Gate report shows pass rates and rejection reasons | doing |
-| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | doing |
-| P17 | Dataset report: gate pass rates, rejection reasons, coverage matrix, answer distributions | M | Static HTML report | doing |
-| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | todo |
+| P10 | Assets: about 40 Poly Haven objects via their API, scale-normalised, real-world sizes in assets/manifest.yaml; procedural scale references; cm-grid table texture | M | Manifest lists every asset; each loads and renders | done |
+| P11 | Sampler v1: clutter levels, stacks, containers, reach zones, look-alikes; difficulty controls in recipes | M | Recipe sliders change scenes as expected | done |
+| P12 | Look: Poly Haven HDRI lighting, PBR materials, denoising, sample count tuned for speed | S | Hero renders saved for DEMO.md | done |
+| P13 | Cameras: overhead, front and gripper rigs with jitter; post-render camera-quality dial (noise, blur, distortion, CCTV look) | M | Same scene renders from all three cameras at three quality levels | done |
+| P14 | All 12 question families from BRIEF.md, each with a twin rule | L | Every family produces valid tasks and twins | done |
+| P15 | Gates G2 (answer recomputed from mask and depth pixels), G4 (no near-ties), G5 (prior-only and question-only baselines), G6 (twins) | L | Gate report shows pass rates and rejection reasons | done |
+| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | done |
+| P17 | Dataset report: gate pass rates, rejection reasons, coverage matrix, answer distributions | M | Static HTML report | done |
+| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | doing |
 
 ## Physical twins (alongside stages 3 and 4)
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P19 | Placement mat PDF (cm grid, ArUco corner markers) and printable layout sheets for about 30 twin scenes built from real-object stand-ins | S | PDFs ready to print | doing |
+| P19 | Placement mat PDF (cm grid, ArUco corner markers) and printable layout sheets for about 30 twin scenes built from real-object stand-ins | S | PDFs ready to print | done |
 | P20 | Founder photo session: about 150 photos from marked spots | Founder | Photos in the repo's twin folder | todo |
 | P21 | G8: register each photo to its layout; package twin tasks | M | Twin tasks pass G8 and join the dataset | todo |
 
