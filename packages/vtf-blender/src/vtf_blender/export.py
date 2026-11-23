@@ -10,8 +10,9 @@ named *zone* or *grid* are left out so they are not drawn twice.
 
 Size: every material becomes a plain Principled BSDF (base colour from its image texture, else its
 viewport colour), textures shrink to TEXTURE_PX, heavy meshes get a Decimate modifier from a
-triangle budget, and the budget halves until the file is under max_bytes. glTF is Y-up: world z
-becomes glTF y and world y becomes glTF -z (the exporter's standard conversion).
+triangle budget, and the budget halves until the file is under target_bytes (1 MB; disk is
+tight at scale). A file still over max_bytes (3 MB) at the smallest budget is not kept. glTF is
+Y-up: world z becomes glTF y and world y becomes glTF -z (the exporter's standard conversion).
 """
 
 import os
@@ -23,8 +24,9 @@ import numpy as np
 
 from vtf_blender.build import BuiltScene
 
+TARGET_BYTES = 1_000_000
 MAX_BYTES = 3_000_000
-TRIANGLE_BUDGETS = (60_000, 30_000, 15_000, 6_000)
+TRIANGLE_BUDGETS = (40_000, 20_000, 10_000, 5_000)
 MIN_TRIANGLES = 64  # never decimate an object below this
 TEXTURE_PX = 256
 TOP_TEXTURE_PX = 1024
@@ -241,7 +243,13 @@ def _decimate(objects: list[bpy.types.Object], budget: int) -> int:
     return total
 
 
-def export_glb(built: BuiltScene, spec: dict, path: Path, max_bytes: int = MAX_BYTES) -> dict:
+def export_glb(
+    built: BuiltScene,
+    spec: dict,
+    path: Path,
+    target_bytes: int = TARGET_BYTES,
+    max_bytes: int = MAX_BYTES,
+) -> dict:
     """Write path (GLB) from the built, settled scene; return bytes, triangles and seconds."""
     start = time.perf_counter()
     path = Path(path)
@@ -278,7 +286,7 @@ def export_glb(built: BuiltScene, spec: dict, path: Path, max_bytes: int = MAX_B
             export_jpeg_quality=80,
         )
         size = os.path.getsize(path)
-        if size <= max_bytes:
+        if size <= target_bytes:
             break
     if size > max_bytes:
         path.unlink(missing_ok=True)

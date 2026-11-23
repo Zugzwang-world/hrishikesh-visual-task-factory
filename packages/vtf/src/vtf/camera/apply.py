@@ -47,7 +47,9 @@ def dial_applied(manifest: RenderManifest, scene: SceneSpec) -> bool:
         return False
 
 
-def _apply_camera(out_dir: Path, cam: CameraOutputs, q: CameraQuality) -> CameraOutputs:
+def _apply_camera(
+    out_dir: Path, cam: CameraOutputs, q: CameraQuality, keep_raw: bool
+) -> CameraOutputs:
     k = np.asarray(cam.K, dtype=np.float64)
     beauty = out_dir / cam.beauty
     raw = beauty.with_name(BEAUTY_RAW)
@@ -61,17 +63,20 @@ def _apply_camera(out_dir: Path, cam: CameraOutputs, q: CameraQuality) -> Camera
         write_depth(depth_path, warp_nearest(read_depth(depth_path), q, k, fill=0.0))
         for rel in cam.amodal.values():
             write_mask_png(out_dir / rel, warp_nearest(read_mask_png(out_dir / rel), q, k, False))
-    beauty_raw = str(Path(cam.beauty).with_name(BEAUTY_RAW).as_posix())
+    beauty_raw = str(Path(cam.beauty).with_name(BEAUTY_RAW).as_posix()) if keep_raw else None
     return cam.model_copy(update={"beauty_raw": beauty_raw, "quality": applied_quality(q)})
 
 
 def apply_render_dir(
-    out_dir: Path | str, scene: SceneSpec | None = None
+    out_dir: Path | str, scene: SceneSpec | None = None, keep_raw: bool = True
 ) -> tuple[RenderManifest, float]:
     """Apply the dial of every camera in `scene` (default: the settled scene) to out_dir.
 
     Returns the rewritten manifest and the seconds spent. Cameras already recorded as dialled
-    with the same quality are left alone, so a repeated call is a no-op.
+    with the same quality are left alone, so a repeated call is a no-op. With keep_raw False
+    (saves disk at scale) beauty_raw.png is deleted once the manifest is rewritten and
+    CameraOutputs.beauty_raw stays None; until then it exists, so a crash never leaves a beauty
+    that could be degraded twice.
     """
     start = time.perf_counter()
     out_dir = Path(out_dir)
@@ -90,9 +95,13 @@ def apply_render_dir(
                 f"{out_dir}: camera {cam_out.camera_id} already carries a different dial; "
                 "re-render it"
             )
-        cameras.append(_apply_camera(out_dir, cam_out, q))
+        cameras.append(_apply_camera(out_dir, cam_out, q, keep_raw))
         changed = True
     if changed:
         manifest = manifest.model_copy(update={"cameras": cameras})
         write_model(manifest_path, manifest)
+    if not keep_raw:
+        for cam_out in manifest.cameras:
+            if cam_out.beauty_raw is None:
+                (out_dir / cam_out.beauty).with_name(BEAUTY_RAW).unlink(missing_ok=True)
     return manifest, time.perf_counter() - start

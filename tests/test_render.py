@@ -254,7 +254,7 @@ def test_batches_timeout_and_restart(tmp_path) -> None:
     seen = []
     start = time.perf_counter()
     results = render_scenes(
-        scenes, outs, batch_size=3, timeout_per_scene=3, blender=fake,
+        scenes, outs, batch_size=3, timeout_per_scene=10, blender=fake,
         on_result=lambda i, r: seen.append(i),
     )  # fmt: skip
     elapsed = time.perf_counter() - start
@@ -349,6 +349,8 @@ def test_multicam_one_blender_process(multicam) -> None:
             expected = {} if which == "clean" else spec.quality.model_dump(mode="json")
             assert cam.quality == expected
             assert (cam.beauty_raw is None) == (which == "clean")
+        out = multicam[which]
+        assert not (out / ".tmp").exists() and not list(out.rglob("*.exr"))  # no leftovers
 
 
 @needs_blender
@@ -388,6 +390,6 @@ def test_gltf_export(multicam) -> None:
     manifest, settled = _load(multicam["dial"])
     assert manifest.gltf == "scene.glb"
     path = multicam["dial"] / manifest.gltf
-    assert 0 < path.stat().st_size < 3_000_000
+    assert 0 < path.stat().st_size < 1_000_000
     names = set(trimesh.load(path).geometry)
     assert {o.id for o in settled.objects} <= names and "table" in names

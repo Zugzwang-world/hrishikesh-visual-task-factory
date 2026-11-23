@@ -123,3 +123,21 @@ def test_apply_render_dir(tmp_path) -> None:
     again, _ = apply_render_dir(out, scene)  # idempotent: no double warp
     assert np.array_equal(read_index_png(out / cam.index), index1)
     assert again == manifest
+
+
+def test_apply_render_dir_without_raw(tmp_path) -> None:
+    """keep_raw False (scale runs): same dialled image, no beauty_raw.png left behind."""
+    out = tmp_path / "render"
+    shutil.copytree(FIXTURE / "render", out)
+    scene = read_scene(FIXTURE / "scene.json")
+    cams = [c.model_copy(update={"quality": preset("cctv", 2)}) for c in scene.cameras]
+    scene = scene.model_copy(update={"cameras": cams})
+    cam = read_manifest(out / "render_manifest.json").cameras[0]
+    beauty0 = read_rgb_png(out / cam.beauty)
+    manifest, _ = apply_render_dir(out, scene, keep_raw=False)
+    after = manifest.camera(cam.camera_id)
+    assert after.beauty_raw is None and after.quality["level"] == "cctv"
+    assert not (out / "front" / "beauty_raw.png").exists()
+    expected = apply_to_beauty(beauty0, cams[0].quality, np.asarray(cam.K))
+    assert np.array_equal(read_rgb_png(out / after.beauty), expected)
+    assert dial_applied(read_manifest(out / "render_manifest.json"), scene)

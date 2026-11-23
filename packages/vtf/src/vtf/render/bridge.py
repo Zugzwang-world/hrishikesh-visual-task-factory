@@ -31,6 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 RENDER_SCRIPT = REPO_ROOT / "packages" / "vtf-blender" / "scripts" / "render_scene.py"
 MAC_BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender"
 LOG_FILE = "render.log"
+TMP_DIR = ".tmp"  # render_scene.py's scratch folder for EXRs
 ERROR_MARKER = "VTF_RENDER_ERROR"
 START_MARKER = "VTF_SCENE_START"
 DONE_MARKER = "VTF_SCENE_DONE"
@@ -147,14 +148,14 @@ def _kill(proc: subprocess.Popen) -> None:
         pass
 
 
-def _finish(job: _Job, scene: Path) -> tuple[Path, float]:
+def _finish(job: _Job, scene: Path, keep_raw: bool) -> tuple[Path, float]:
     """Check the manifest and settled scene Blender wrote, then apply the camera dial."""
     manifest_path = job.out / RENDER_MANIFEST
     if not manifest_path.exists():
         raise RuntimeError(f"no {RENDER_MANIFEST} written")
     manifest = read_manifest(manifest_path)
     read_scene(job.out / manifest.settled_scene_file)
-    _, dial_s = apply_render_dir(job.out, read_scene(scene))
+    _, dial_s = apply_render_dir(job.out, read_scene(scene), keep_raw=keep_raw)
     return manifest_path, dial_s
 
 
@@ -165,6 +166,7 @@ def _run_batch(
     gltf: bool,
     timeout: float,
     on_result: Callable[[_Job, RenderResult], None],
+    keep_raw: bool = True,
 ) -> list[_Job]:
     """Run one Blender process on `batch`. Returns the jobs that never started (to retry)."""
     for job in batch:
@@ -200,6 +202,7 @@ def _run_batch(
         def fail(i: int, error: str, timed_out: bool = False) -> None:
             job = batch[i]
             (job.out / RENDER_MANIFEST).unlink(missing_ok=True)
+            shutil.rmtree(job.out / TMP_DIR, ignore_errors=True)  # EXRs of a killed render
             seconds = time.perf_counter() - started_at
             job.log.write_text("".join(logs.get(i, [])) + f"\n{error}\n", encoding="utf-8")
             finished.add(i)
@@ -244,7 +247,7 @@ def _run_batch(
                 job = batch[current]
                 job.log.write_text("".join(logs[current]), encoding="utf-8")
                 try:
-                    manifest_path, dial_s = _finish(job, job.scene)
+                    manifest_path, dial_s = _finish(job, job.scene, keep_raw)
                 except Exception as exc:
                     fail(current, f"{type(exc).__name__}: {exc}")
                 else:
@@ -288,6 +291,7 @@ def render_scenes(
     blender: str | Path | None = None,
     on_result: Callable[[int, RenderResult], None] | None = None,
     job_extras: Sequence[dict] | None = None,
+    keep_raw: bool = True,
 ) -> list[RenderResult]:
     """Render scene_files[i] into out_dirs[i], `batch_size` scenes per Blender process.
 
@@ -295,6 +299,7 @@ def render_scenes(
     start-up) is killed and marked failed, and Blender restarts for the rest. Every failure is
     recorded in the result, never raised, and leaves no manifest. `on_result(i, result)` is called
     as each scene finishes. `job_extras[i]` adds fields to scene i's job (test hooks).
+    keep_raw False deletes beauty_raw.png after the dial (saves disk at scale).
     """
     if len(scene_files) != len(out_dirs):
         raise ValueError("scene_files and out_dirs differ in length")
@@ -324,7 +329,7 @@ def render_scenes(
     pending = list(jobs)
     while pending:
         batch, pending = pending[:batch_size], pending[batch_size:]
-        retry = _run_batch(blender_path, batch, device, gltf, timeout_per_scene, record)
+        retry = _run_batch(blender_path, batch, device, gltf, timeout_per_scene, record, keep_raw)
         pending = retry + pending
     return results  # type: ignore[return-value]
 
@@ -336,9 +341,12 @@ def render_scene(
     blender: str | Path | None = None,
     timeout: float = DEFAULT_TIMEOUT_S,
     gltf: bool = True,
+    keep_raw: bool = True,
 ) -> RenderResult:
     """Render one scene file into out_dir with Blender (a batch of one)."""
-    return render_scenes([scene_file], [out_dir], device, 1, timeout, gltf=gltf, blender=blender)[0]
+    return render_scenes(
+        [scene_file], [out_dir], device, 1, timeout, gltf=gltf, blender=blender, keep_raw=keep_raw
+    )[0]
 
 
 def rendered_from(manifest_path: Path, scene_file: Path) -> bool:
@@ -373,6 +381,7 @@ def render_run(
     batch_size: int = DEFAULT_BATCH_SIZE,
     timeout_per_scene: float = DEFAULT_TIMEOUT_S,
     gltf: bool = True,
+    keep_raw: bool = True,
 ) -> dict:
     """Render every <run>/scenes/<id>/scene.json into <run>/scenes/<id>/render/.
 
@@ -453,6 +462,7 @@ def render_run(
             gltf=gltf,
             blender=blender_path,
             on_result=on_result,
+            keep_raw=keep_raw,
         )
     total = time.perf_counter() - start
     report["seconds"] = round(total, 3)

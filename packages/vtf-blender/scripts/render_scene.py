@@ -241,7 +241,8 @@ def render_one(scene_path: Path, out: Path, device_arg, assets: Path, gltf: bool
     (out / MANIFEST).unlink(missing_ok=True)  # its presence means success
     (out / GLTF).unlink(missing_ok=True)
     tmp = out / ".tmp"
-    tmp.mkdir(exist_ok=True)
+    shutil.rmtree(tmp, ignore_errors=True)  # leftovers of a killed render
+    tmp.mkdir()
 
     built = build_scene(spec, assets)
     timings = {"build": time.perf_counter() - t_start}
@@ -257,12 +258,14 @@ def render_one(scene_path: Path, out: Path, device_arg, assets: Path, gltf: bool
     cameras = []
     for key in ("render", "data_passes", "amodal"):
         timings[key] = 0.0
-    for cam in spec["cameras"]:
-        outputs, cam_timings = render_camera(built, spec, cam, device, out, tmp)
-        cameras.append(outputs)
-        for key, seconds in cam_timings.items():
-            timings[key] += seconds
-    shutil.rmtree(tmp, ignore_errors=True)
+    try:
+        for cam in spec["cameras"]:
+            outputs, cam_timings = render_camera(built, spec, cam, device, out, tmp)
+            cameras.append(outputs)
+            for key, seconds in cam_timings.items():
+                timings[key] += seconds
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)  # never leave EXRs behind
 
     gltf_rel = None
     if gltf:
@@ -317,6 +320,7 @@ def run_batch(jobs: list[dict], args) -> int:
         except Exception as exc:
             failures += 1
             (out / MANIFEST).unlink(missing_ok=True)
+            shutil.rmtree(out / ".tmp", ignore_errors=True)
             traceback.print_exc()
             sys.stdout.flush()
             message = f"{type(exc).__name__}: {exc}".replace("\n", " ")
