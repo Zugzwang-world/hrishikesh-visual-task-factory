@@ -536,11 +536,11 @@ def _warp_index_fn():
     return None
 
 
-def _call_warp(fn, index: np.ndarray, cam, k: np.ndarray):
+def _call_warp(fn, index: np.ndarray, cam, k: np.ndarray, k1: float):
     """Call the render lane's warp function, mapping its parameter names to our values."""
     values = {
         "index": index, "image": index, "array": index, "img": index, "mask": index,
-        "k1": cam.quality.distortion_k1, "distortion_k1": cam.quality.distortion_k1,
+        "k1": k1, "distortion_k1": k1,
         "quality": cam.quality, "cam": cam, "camera": cam, "camera_spec": cam,
         "K": k, "k": k, "intrinsics": k,
     }  # fmt: skip
@@ -575,7 +575,7 @@ def render_vs_scene(scene: SceneSpec, passes: CameraPasses, do_raycast: bool = T
         out["raycast"] = "not_sampled"
         return out
     warp = None
-    if cam.quality.distortion_k1:
+    if passes.k1:  # the distortion the render applied (manifest), not the scene's request
         warp = _warp_index_fn()
         if warp is None:
             out["raycast"] = "skipped:distortion_warp_unavailable"
@@ -586,8 +586,9 @@ def render_vs_scene(scene: SceneSpec, passes: CameraPasses, do_raycast: bool = T
         rc = raycast(scene, cam.id)
         index = rc.index
         if warp is not None:
-            index = _call_warp(warp, index, cam, passes.K)
-    except (ValueError, TypeError, NotImplementedError) as exc:
+            index = _call_warp(warp, index, cam, passes.K, passes.k1)
+    except (FileNotFoundError, KeyError, TypeError, ValueError) as exc:
+        # a missing cached asset, or a warp function whose signature we cannot map: record it
         out["raycast"] = f"skipped:{type(exc).__name__}: {str(exc)[:120]}"
         return out
     iou = {}

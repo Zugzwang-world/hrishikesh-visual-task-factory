@@ -56,9 +56,10 @@ G6_FILE = "g6.json"
 # A scene is used only if the settle came to rest (expert, 23 Nov 2026).
 MAX_SETTLE_DRIFT_M = 0.03
 MAX_SUPPORT_GAP_M = 0.002
-# Render-vs-scene ray cast: every scene when all objects are primitives (about 0.8 s per camera
-# at 1024x768); a seeded 20% of scenes once asset meshes are in (brief 05 fallback).
-RAYCAST_FRACTION_ASSETS = 0.2
+# Render-vs-scene ray cast on every scene: about 0.8 s per camera for primitives at 1024x768 and
+# 0.1 to 0.5 s per camera for asset meshes (sampler lane, 1f312f0). Set below 1 to sample a
+# seeded fraction of scenes (the brief 05 fallback) if it ever becomes the bottleneck.
+RAYCAST_FRACTION = 1.0
 
 
 # ---------------------------------------------------------------------------------------------
@@ -215,10 +216,9 @@ def is_rendered(scene_file: Path, render_dir: Path) -> bool:
 
 
 def raycast_selected(scene_id: str, settled: SceneSpec, fraction: float | None = None) -> bool:
-    if fraction is None:
-        if all(o.source == "primitive" for o in settled.objects):
-            return True
-        fraction = RAYCAST_FRACTION_ASSETS
+    fraction = RAYCAST_FRACTION if fraction is None else fraction
+    if fraction >= 1.0:
+        return True
     u = int(sha256_bytes(f"raycast/{scene_id}".encode())[:8], 16) / 0xFFFFFFFF
     return u < fraction
 
