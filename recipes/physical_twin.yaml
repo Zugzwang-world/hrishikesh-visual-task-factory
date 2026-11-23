@@ -1,82 +1,131 @@
 # Physical twins (P19): layouts the founder rebuilds with real objects on the printed mat.
 #
-#   uv run vtf generate --recipe recipes/physical_twin.yaml --n 30 --seed 19 --out out/twins
-#   uv run vtf twin layouts out/twins --out docs/twins/layouts.pdf
+#   uv run vtf generate --recipe recipes/physical_twin.yaml --n 45 --seed 19 --out out/twins
+#   uv run vtf twin layouts out/twins --out docs/twins/layouts.pdf --limit 30
 #
 # The table is the mat: 40 x 28 cm, centred on the world origin, so mat coordinates are world
-# x, y (docs/twins/mat_spec.json). A 4.5 cm margin keeps every object inside the mat's placement
-# area (31 x 19 cm), clear of the ArUco markers in the corners and of the text strips. Objects
-# keep a 1.5 cm gap, so a hand placement within a few millimetres never makes two touch.
+# x, y (docs/twins/mat_spec.json), and every scene uses the printed 1 cm grid. A 4.5 cm margin
+# keeps every footprint inside the mat's placement area (31 x 19 cm), clear of the ArUco markers
+# in the corners and of the text strips. Objects keep a 1.5 cm gap, so a hand placement within a
+# few millimetres never makes two touch.
 #
-# The camera is a fixed spot, the same for every scene, so the phone stand stays put for a whole
-# session: lens 41.8 cm in front of the mat centre (27.8 cm in front of the front edge), 49.8 cm
-# above the table, aimed at the mat centre, tilted down 50 degrees, landscape. 26 mm on a 36 mm
-# sensor is about a phone's 1x main camera.
+# Objects: only the 15 shopping-list assets (docs/twins/shopping_list.json). Sampler v1 names
+# every object uniquely, so an asset appears once per scene, except in a duplicate group (2 or 3
+# copies of one asset). v1 has no per-asset copy limit, so `vtf twin layouts` keeps only scenes
+# the shopping quantities can build and lists the rest as skipped; generate about half as many
+# scenes again as you need. No size pairs (a 70 % lemon cannot be bought), no stacks, no zones
+# (the mat prints none); the small bowl may hold up to two items.
 #
-# PLACEHOLDER (sampler v0, the only sampler on main on 23 Nov 2026): v0 places coloured
-# primitives only, one camera per scene and always a gripper, and it redraws the object count
-# when a layout fails, so crowded counts (7, 8) come up rarely. When sampler v1 lands, this
-# recipe should:
-#   - draw objects only from the shopping list (docs/twins/shopping_list.json), at most
-#     `quantity` copies of each, so every layout can be built from what was bought:
-#       food_apple_01 x2, food_pomegranate_01 x1, lemon x3, food_lime_01 x3,
-#       food_avocado_01 x1, food_kiwi_01 x2, yellow_onion x2, wooden_bowl_02 x1,
-#       cleaner_tin_01 x2, leather_cleaner_can x1, lubricant_spray x1,
-#       multi_cleaner_bottle x1, bleach_bottle x1, medical_tape x1, rubber_duck_toy x1;
-#   - allow `in` placements in wooden_bowl_02 (optional container use) and no `on` stacks;
-#   - add an overhead camera spot (rig overhead): lens 60 cm above the mat centre, looking
-#     straight down, top of the phone toward the back edge;
-#   - drop the gripper (there is no physical one) and use the cm_grid table material with
-#     grid_cell_m 0.01 so renders look like the printed mat.
+# Cameras: two fixed phone spots, the same for every scene, so the stand stays put for a
+# session. 26 mm on a 36 mm sensor is about a phone's 1x camera; landscape 4:3.
+#   front:    lens 41.8 cm in front of the mat centre (27.8 cm in front of the front edge),
+#             49.8 cm above the table, aimed at the mat centre, tilted down 50 degrees;
+#   overhead: lens 60 cm above the mat centre, straight down, top of the phone toward the back.
+# The scene contract always has a gripper; here it is virtual (not built, not photographed),
+# so the question mix leaves out the gripper and reach-zone families.
 
-recipe_version: "0.1.0"
+recipe_version: "0.2.0"
+sampler: v1
 name: physical_twin
-description: Twin layouts on the 40 x 28 cm placement mat, one fixed front phone spot.
+description: Shopping-list objects on the 40 x 28 cm placement mat; fixed front and overhead phone spots.
 
 table:
   size_xy: [0.40, 0.28]
   height: 0.75
   thickness: 0.03
   material_id: wood_simple
+  grid_fraction: 1.0
+  grid_material_id: cm_grid
+  grid_cell_m: 0.01
 
 objects:
-  count: [3, 8]
-  shapes: [box, cylinder, sphere]
+  clutter:
+    low: {count: [3, 8], weight: 1.0}
+  pool_weights: {assets: 1.0, primitives: 0.0}
+  assets:
+    categories: null
+    ids: [food_apple_01, food_pomegranate_01, lemon, food_lime_01, food_avocado_01,
+          food_kiwi_01, yellow_onion, wooden_bowl_02, cleaner_tin_01, leather_cleaner_can,
+          lubricant_spray, multi_cleaner_bottle, bleach_bottle, medical_tape, rubber_duck_toy]
+    exclude_ids: []
+    source_weights: {polyhaven: 1.0, procedural: 0.0}
   colours: [red, green, blue, yellow, orange, white]
-  size_m: [0.045, 0.075]
-  box_yaw_deg: [-90, 90]
+  yaw_deg: [-180, 180]
   drop_m: 0.005
-  roughness: 0.45
-  metallic: 0.0
+  fill_ratio: 0.42
 
 placement:
   table_margin_m: 0.045
   gap_m: 0.015
   tries_per_object: 300
 
+stacks:
+  count: [0, 0]
+
+containers:
+  count: [0, 1]
+  items: [0, 2]
+  wall_margin_m: 0.005
+  max_height_ratio: 1.5
+  max_fill: 0.5
+
+lookalikes:
+  colour_pairs: [0, 2]
+  size_pairs: [0, 0]
+
+duplicates:
+  probability: 0.4
+  copies: [2, 3]
+
+zones:
+  count: [0, 0]
+
 gripper:
-  tip_height_m: [0.12, 0.22]
+  clearance_m: [0.05, 0.12]
+  neighbourhood_m: 0.15
+  over_object_probability: 0.5
+  over_object_offset_m: 0.05
   xy_margin_m: 0.05
   yaw_deg: [-90, 90]
-  min_clearance_m: 0.02
-  tries: 200
+  min_part_gap_m: 0.008
+  tries: 300
 
-camera:
-  id: front
-  rig: front
-  target_jitter_m: 0.0
-  distance_m: [0.65, 0.65]
-  elevation_deg: [50, 50]
-  azimuth_deg: [0, 0]
-  focal_mm: [26, 26]
-  sensor_width_mm: 36.0
+cameras:
+  rigs: [front, overhead]
   resolution: [1024, 768]
-  view_margin_px: 16
+  sensor_width_mm: 36.0
+  view_margin_px: 12
+  front:
+    target_jitter_m: 0.0
+    distance_m: [0.65, 0.65]
+    elevation_deg: [50, 50]
+    azimuth_deg: [0, 0]
+    focal_mm: [26, 26]
+  overhead:
+    height_m: [0.60, 0.60]
+    focal_mm: [26, 26]
+    xy_jitter_m: 0.0
+    tilt_deg: [0, 0]
+    roll_deg: [0, 0]
+  quality:
+    weights: {clean: 1.0}
 
 lighting:
-  hdri_id: studio_small_09
-  strength: 1.0
+  hdri_ids: [studio_small_09]
   rotation_deg: [0, 360]
+  key_azimuth_deg: [0, 360]
+  conditions:
+    normal:
+      weight: 1.0
+      hdri_strength: [0.6, 1.0]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [45, 70]
+      key_angle_deg: [1.0, 3.0]
+
+questions:
+  families: [count, count_attribute, distance, front_to_back, relation, support, containment,
+             occlusion, free_space]
+  max_per_camera: 5
 
 render:
   samples: 128
