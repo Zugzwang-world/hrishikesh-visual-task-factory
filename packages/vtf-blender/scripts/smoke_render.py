@@ -20,7 +20,6 @@ Run with Blender in background mode (arguments after "--" are optional):
 
 import argparse
 import json
-import platform
 import sys
 import time
 from pathlib import Path
@@ -31,6 +30,9 @@ import OpenImageIO as oiio
 from mathutils import Vector
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT / "packages" / "vtf-blender" / "src"))
+from vtf_blender.device import configure_device  # noqa: E402
+
 WIDTH, HEIGHT = 640, 480
 SEED = 0
 
@@ -52,33 +54,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--samples", type=int, default=64)
     parser.add_argument("--out", type=Path, default=REPO_ROOT / "out" / "smoke")
     return parser.parse_args(argv)
-
-
-def configure_device(want_gpu: bool) -> dict:
-    """Enable Metal GPU devices (and nothing else) when asked; report what Cycles will use."""
-    prefs = bpy.context.preferences.addons["cycles"].preferences
-    info = {"requested": "GPU" if want_gpu else "CPU", "compute_device_type": "NONE", "devices": []}
-    if want_gpu:
-        try:
-            prefs.compute_device_type = "METAL"
-            prefs.refresh_devices()
-        except TypeError as err:  # Metal not offered by this build
-            info["error"] = str(err)
-        gpus = [d for d in prefs.devices if d.type == "METAL"]
-        for d in prefs.devices:
-            d.use = d.type == "METAL"
-        if gpus:
-            info["compute_device_type"] = "METAL"
-            info["devices"] = [d.name for d in gpus]
-            bpy.context.scene.cycles.device = "GPU"
-            info["used"] = "GPU"
-            return info
-        info["fallback"] = "No Metal device found; rendering on CPU"
-    prefs.compute_device_type = "NONE"
-    bpy.context.scene.cycles.device = "CPU"
-    info["devices"] = [platform.processor() or platform.machine()]
-    info["used"] = "CPU"
-    return info
 
 
 def make_material(name: str, color: tuple, roughness: float) -> bpy.types.Material:
@@ -239,7 +214,7 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
 
     scene = build_scene()
-    device = configure_device(args.device == "GPU")
+    device = configure_device(args.device)
     exr_path = out / "passes.exr"
     configure_render(scene, args.samples, exr_path)
 
