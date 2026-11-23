@@ -1,0 +1,411 @@
+{
+  "shopping_version": "0.2.0",
+  "tolerance": 0.2,
+  "items": [
+    {
+      "asset_id": "food_apple_01",
+      "item": "Apples",
+      "hint": "large red apples",
+      "quantity": 2,
+      "category": "apple",
+      "colour": "red",
+      "size_m": [
+        0.0976,
+        0.0959,
+        0.0854
+      ],
+      "range_m": [
+        [
+          0.0781,
+          0.1171
+        ],
+        [
+          0.0767,
+          0.1151
+        ],
+        [
+          0.0683,
+          0.1025
+        ]
+      ]
+    },
+    {
+      "asset_id": "food_pomegranate_01",
+      "item": "Pomegranate",
+      "hint": "a pomegranate",
+      "quantity": 1,
+      "category": "pomegranate",
+      "colour": "red",
+      "size_m": [
+        0.1143,
+        0.1154,
+        0.115
+      ],
+      "range_m": [
+        [
+          0.0914,
+          0.1372
+        ],
+        [
+          0.0923,
+          0.1385
+        ],
+        [
+          0.092,
+          0.138
+        ]
+      ]
+    },
+    {
+      "asset_id": "lemon",
+      "item": "Lemons",
+      "hint": "lemons",
+      "quantity": 3,
+      "category": "lemon",
+      "colour": "yellow",
+      "size_m": [
+        0.0687,
+        0.0683,
+        0.0954
+      ],
+      "range_m": [
+        [
+          0.055,
+          0.0824
+        ],
+        [
+          0.0546,
+          0.082
+        ],
+        [
+          0.0763,
+          0.1145
+        ]
+      ]
+    },
+    {
+      "asset_id": "food_lime_01",
+      "item": "Limes",
+      "hint": "limes",
+      "quantity": 3,
+      "category": "lime",
+      "colour": "green",
+      "size_m": [
+        0.0601,
+        0.0613,
+        0.0754
+      ],
+      "range_m": [
+        [
+          0.0481,
+          0.0721
+        ],
+        [
+          0.049,
+          0.0736
+        ],
+        [
+          0.0603,
+          0.0905
+        ]
+      ]
+    },
+    {
+      "asset_id": "food_avocado_01",
+      "item": "Avocado",
+      "hint": "a large avocado",
+      "quantity": 1,
+      "category": "avocado",
+      "colour": "green",
+      "size_m": [
+        0.0952,
+        0.0946,
+        0.1432
+      ],
+      "range_m": [
+        [
+          0.0762,
+          0.1142
+        ],
+        [
+          0.0757,
+          0.1135
+        ],
+        [
+          0.1146,
+          0.1718
+        ]
+      ]
+    },
+    {
+      "asset_id": "food_kiwi_01",
+      "item": "Kiwis",
+      "hint": "large kiwi fruit",
+      "quantity": 2,
+      "category": "kiwi",
+      "colour": "brown",
+      "size_m": [
+        0.0695,
+        0.0686,
+        0.0901
+      ],
+      "range_m": [
+        [
+          0.0556,
+          0.0834
+        ],
+        [
+          0.0549,
+          0.0823
+        ],
+        [
+          0.0721,
+          0.1081
+        ]
+      ]
+    },
+    {
+      "asset_id": "yellow_onion",
+      "item": "Onions",
+      "hint": "brown onions",
+      "quantity": 2,
+      "category": "onion",
+      "colour": "brown",
+      "size_m": [
+        0.0725,
+        0.0686,
+        0.0864
+      ],
+      "range_m": [
+        [
+          0.058,
+          0.087
+        ],
+        [
+          0.0549,
+          0.0823
+        ],
+        [
+          0.0691,
+          0.1037
+        ]
+      ]
+    },
+    {
+      "asset_id": "wooden_bowl_02",
+      "item": "Small bowl",
+      "hint": "a small bowl, wooden if possible",
+      "quantity": 1,
+      "category": "bowl",
+      "colour": "brown",
+      "size_m": [
+        0.1307,
+        0.1245,
+        0.0731
+      ],
+      "range_m": [
+        [
+          0.1046,
+          0.1568
+        ],
+        [
+          0.0996,
+          0.1494
+        ],
+        [
+          0.0585,
+          0.0877
+        ]
+      ]
+    },
+    {
+      "asset_id": "cleaner_tin_01",
+      "item": "Tins",
+      "hint": "food tins with a red label and a flat lid",
+      "quantity": 2,
+      "category": "tin",
+      "colour": "red",
+      "size_m": [
+        0.0876,
+        0.0875,
+        0.1304
+      ],
+      "range_m": [
+        [
+          0.0701,
+          0.1051
+        ],
+        [
+          0.07,
+          0.105
+        ],
+        [
+          0.1043,
+          0.1565
+        ]
+      ]
+    },
+    {
+      "asset_id": "leather_cleaner_can",
+      "item": "Black aerosol can",
+      "hint": "a black spray can (deodorant, cooking spray)",
+      "quantity": 1,
+      "category": "can",
+      "colour": "black",
+      "size_m": [
+        0.0704,
+        0.0704,
+        0.1697
+      ],
+      "range_m": [
+        [
+          0.0563,
+          0.0845
+        ],
+        [
+          0.0563,
+          0.0845
+        ],
+        [
+          0.1358,
+          0.2036
+        ]
+      ]
+    },
+    {
+      "asset_id": "lubricant_spray",
+      "item": "Grey aerosol can",
+      "hint": "a silver or grey spray can",
+      "quantity": 1,
+      "category": "can",
+      "colour": "grey",
+      "size_m": [
+        0.067,
+        0.0646,
+        0.1649
+      ],
+      "range_m": [
+        [
+          0.0536,
+          0.0804
+        ],
+        [
+          0.0517,
+          0.0775
+        ],
+        [
+          0.1319,
+          0.1979
+        ]
+      ]
+    },
+    {
+      "asset_id": "multi_cleaner_bottle",
+      "item": "Spray bottle",
+      "hint": "a grey or clear trigger spray bottle (kitchen cleaner)",
+      "quantity": 1,
+      "category": "bottle",
+      "colour": "grey",
+      "size_m": [
+        0.0885,
+        0.0898,
+        0.2286
+      ],
+      "range_m": [
+        [
+          0.0708,
+          0.1062
+        ],
+        [
+          0.0718,
+          0.1078
+        ],
+        [
+          0.1829,
+          0.2743
+        ]
+      ]
+    },
+    {
+      "asset_id": "bleach_bottle",
+      "item": "Bleach bottle",
+      "hint": "a white bleach or detergent bottle",
+      "quantity": 1,
+      "category": "bottle",
+      "colour": "white",
+      "size_m": [
+        0.0884,
+        0.0612,
+        0.2937
+      ],
+      "range_m": [
+        [
+          0.0707,
+          0.1061
+        ],
+        [
+          0.049,
+          0.0734
+        ],
+        [
+          0.235,
+          0.3524
+        ]
+      ]
+    },
+    {
+      "asset_id": "medical_tape",
+      "item": "Tape roll",
+      "hint": "a small white roll of medical or masking tape",
+      "quantity": 1,
+      "category": "tape",
+      "colour": "white",
+      "size_m": [
+        0.0453,
+        0.0452,
+        0.025
+      ],
+      "range_m": [
+        [
+          0.0362,
+          0.0544
+        ],
+        [
+          0.0362,
+          0.0542
+        ],
+        [
+          0.02,
+          0.03
+        ]
+      ]
+    },
+    {
+      "asset_id": "rubber_duck_toy",
+      "item": "Rubber duck",
+      "hint": "a yellow rubber duck (baby aisle)",
+      "quantity": 1,
+      "category": "duck",
+      "colour": "yellow",
+      "size_m": [
+        0.0854,
+        0.12,
+        0.1142
+      ],
+      "range_m": [
+        [
+          0.0683,
+          0.1025
+        ],
+        [
+          0.096,
+          0.144
+        ],
+        [
+          0.0914,
+          0.137
+        ]
+      ]
+    }
+  ]
+}

@@ -140,5 +140,18 @@ def export(
     _stub("export")
 
 
+@app.command()
+def twin(
+    action: str = typer.Argument(..., help="mat, shopping or layouts."),
+    path: Path = typer.Argument(None, help="Run folder (layouts only), e.g. out/twins."),
+    out: Path = typer.Option(
+        Path("docs/twins"), help="Output folder, or the PDF path for layouts."
+    ),
+    limit: int = typer.Option(None, help="Layouts: at most this many scenes."),
+) -> None:
+    """Physical twins: placement mat PDFs, shopping list, printable layout sheets."""
+    _lane("twin", "vtf.twin.commands", "run_twin")(action=action, path=path, out=out, limit=limit)
+
+
 if __name__ == "__main__":
     app()
