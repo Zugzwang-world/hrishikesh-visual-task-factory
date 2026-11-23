@@ -174,11 +174,16 @@ def _record(
     cached: bool,
     prompt_version: str = PROMPT_VERSION,
     with_image: bool = True,
+    call_defaults: dict[str, Any] | None = None,
 ) -> EvalRecord:
+    """One EvalRecord. Call details (model ID, API and SDK version, effort, max_tokens, thinking
+    tokens, standard or batch) come from the reply's meta; `call_defaults` fills the ones an older
+    cached reply did not record."""
     score = score_task(task, response.raw_text)
     error = response.error
     if error is None and response.stop_reason not in FINAL_STOPS:
         error = f"stop_reason: {response.stop_reason}"
+    call = {**(call_defaults or {}), **{k: v for k, v in response.meta.items() if v is not None}}
     return EvalRecord(
         task_id=task.task_id,
         model=model,
@@ -199,6 +204,13 @@ def _record(
         input_tokens=response.input_tokens,
         output_tokens=response.output_tokens,
         error=error,
+        thinking_tokens=call.get("thinking_tokens"),
+        model_id=call.get("model_id"),
+        api_version=call.get("api_version"),
+        sdk=call.get("sdk"),
+        effort=call.get("effort"),
+        max_tokens=call.get("max_tokens"),
+        via=call.get("via"),
     )
 
 
@@ -267,8 +279,10 @@ def eval_run(
                     pending.cancel()
                 raise SystemExit(f"vtf eval: {exc}") from exc
 
+    call_defaults = adapter.call_meta() if hasattr(adapter, "call_meta") else {}
     records = [
-        _record(task, key, *responses[task.task_id], prompt_version, not blind) for task, _ in tasks
+        _record(task, key, *responses[task.task_id], prompt_version, not blind, call_defaults)
+        for task, _ in tasks
     ]
     output_modes = Counter(
         str(responses[t.task_id][0].meta.get("output_mode", "unknown"))

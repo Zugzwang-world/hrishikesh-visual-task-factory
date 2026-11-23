@@ -138,3 +138,14 @@ class EvalRecord(_Model):
     input_tokens: int | None = None
     output_tokens: int | None = None
     error: str | None = None
+    thinking_tokens: int | None = Field(
+        default=None, description="Output tokens spent on thinking (included in output_tokens)."
+    )
+    model_id: str | None = Field(default=None, description="The model ID sent in the request.")
+    api_version: str | None = Field(default=None, description="anthropic-version (or similar).")
+    sdk: str | None = Field(default=None, description="Client SDK and version.")
+    effort: str | None = Field(default=None, description="Reasoning effort sent.")
+    max_tokens: int | None = Field(default=None, description="max_tokens sent.")
+    via: str | None = Field(
+        default=None, description="standard (one Messages call) or batch (Message Batches API)."
+    )

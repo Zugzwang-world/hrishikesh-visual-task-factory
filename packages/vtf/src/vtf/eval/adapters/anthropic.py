@@ -27,6 +27,9 @@ from vtf.core.program import AnswerType
 from vtf.eval.adapters.base import Adapter, AdapterResponse, FatalAdapterError
 from vtf.eval.prompt import response_schema, system_prompt, user_text
 
+# Founder rule (24 Nov 2026): never call a Fable or Mythos model, for anything.
+BLOCKED_MODEL_WORDS = ("fable", "mythos")
+
 _MEDIA_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
 _FATAL = (
     anthropic.AuthenticationError,
@@ -57,6 +60,8 @@ class AnthropicAdapter(Adapter):
         max_retries: int = 6,
         client: Any = None,
     ) -> None:
+        if any(word in model_id.lower() for word in BLOCKED_MODEL_WORDS):
+            raise FatalAdapterError(f"{model_id}: Fable and Mythos models are never called")
         self.model_id = model_id
         self.max_tokens = max_tokens
         self.thinking = thinking
@@ -154,17 +159,52 @@ class AnthropicAdapter(Adapter):
                 raw_text="", latency_s=round(time.perf_counter() - start, 3), error=_describe(exc)
             )
         latency = round(time.perf_counter() - start, 3)
+        return self.response_from_message(
+            message,
+            structured=structured,
+            latency_s=latency,
+            via="standard",
+            extra_meta={"request_id": getattr(message, "_request_id", None)},
+        )
+
+    def call_meta(self) -> dict[str, Any]:
+        """What every reply records about the call: model ID, API and SDK version, effort and
+        max_tokens (cached with the reply, so a reused reply keeps the settings it had)."""
+        return {
+            "model_id": self.model_id,
+            "api_version": self.api_version,
+            "sdk": f"anthropic {anthropic.__version__}",
+            "effort": self.effort,
+            "max_tokens": self.max_tokens,
+        }
+
+    def response_from_message(
+        self,
+        message: Any,
+        *,
+        structured: bool,
+        latency_s: float | None,
+        via: str,
+        extra_meta: dict[str, Any] | None = None,
+    ) -> AdapterResponse:
+        """Turn a Message (from messages.create or a batch result) into an AdapterResponse."""
         text = "".join(block.text for block in message.content if block.type == "text")
         usage = message.usage
+        details = getattr(usage, "output_tokens_details", None)
+        thinking = getattr(details, "thinking_tokens", None) if details is not None else None
         return AdapterResponse(
             raw_text=text,
-            latency_s=latency,
+            latency_s=latency_s,
             input_tokens=usage.input_tokens,
             output_tokens=usage.output_tokens,
             stop_reason=message.stop_reason,
             meta={
                 "output_mode": "json_schema" if structured else "text",
                 "served_model": message.model,
-                "request_id": getattr(message, "_request_id", None),
+                "thinking_tokens": thinking,
+                "service_tier": getattr(usage, "service_tier", None),
+                "via": via,
+                **self.call_meta(),
+                **(extra_meta or {}),
             },
         )

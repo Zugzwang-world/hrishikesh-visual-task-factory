@@ -28,12 +28,46 @@ models:
       thinking: adaptive  # the model's default; it cannot be disabled, only cut to between_tools
       effort: high        # the model's default, pinned so it is recorded and stays fixed
 
+  # Claude sweep on frozen v1 (brief 06, 24 Nov 2026). Same prompts, scorer and settings as
+  # Sonnet; only the model ID and effort change (xhigh also gets max_tokens 64000 and a longer
+  # timeout, per the brief). Effort is always sent: Opus 5.5 and Haiku 5.5 default to medium.
+  # IDs and prices from the claude-api skill reference (cached 3 Nov 2026); each ID is confirmed
+  # by a smoke call before the sweep. Batched replies bill at half these prices.
+  - key: claude-haiku-5-5
+    provider: anthropic
+    model_id: claude-haiku-5-5
+    verified: true
+    price_usd_per_mtok: {input: 0.10, output: 0.50}
+    settings:
+      thinking: adaptive
+      effort: high
+
+  - key: claude-opus-5-5
+    provider: anthropic
+    model_id: claude-opus-5-5
+    verified: true
+    price_usd_per_mtok: {input: 4.0, output: 20.0}
+    settings:
+      thinking: adaptive  # cannot be disabled on Opus 5.5 (400 at every effort)
+      effort: high
+
+  - key: claude-opus-5-5-xhigh
+    provider: anthropic
+    model_id: claude-opus-5-5
+    verified: true
+    price_usd_per_mtok: {input: 4.0, output: 20.0}
+    settings:
+      thinking: adaptive
+      effort: xhigh
+      max_tokens: 64000
+      timeout_s: 1200
+
   # Frontier and open models for the stage 4 evaluation.
   # PLACEHOLDER: every model_id below is UNVERIFIED. Pin the real IDs on the day the
   # evaluation runs (see docs/thinking-partner/OPEN.md, item 1) and set verified: true.
   - key: anthropic-flagship
     provider: anthropic
-    model_id: TBD   # unverified: current Anthropic flagship vision model
+    model_id: TBD   # unverified. Founder rule: never a Fable or Mythos model (the adapter refuses them)
     verified: false
   - key: google-flagship
     provider: google
