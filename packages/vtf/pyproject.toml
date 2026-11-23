@@ -4,6 +4,7 @@ version = "0.0.1"
 description = "Visual Task Factory core: scene spec, question programs, validation gates, evaluation. Never imports bpy."
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "anthropic>=2.12.0",
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
     "numpy>=2.5.5",
