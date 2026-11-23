@@ -1,0 +1,87 @@
+# Physical twins (P19): layouts the founder rebuilds with real objects on the printed mat.
+#
+#   uv run vtf generate --recipe recipes/physical_twin.yaml --n 30 --seed 19 --out out/twins
+#   uv run vtf twin layouts out/twins --out docs/twins/layouts.pdf
+#
+# The table is the mat: 40 x 28 cm, centred on the world origin, so mat coordinates are world
+# x, y (docs/twins/mat_spec.json). A 4.5 cm margin keeps every object inside the mat's placement
+# area (31 x 19 cm), clear of the ArUco markers in the corners and of the text strips. Objects
+# keep a 1.5 cm gap, so a hand placement within a few millimetres never makes two touch.
+#
+# The camera is a fixed spot, the same for every scene, so the phone stand stays put for a whole
+# session: lens 41.8 cm in front of the mat centre (27.8 cm in front of the front edge), 49.8 cm
+# above the table, aimed at the mat centre, tilted down 50 degrees, landscape. 26 mm on a 36 mm
+# sensor is about a phone's 1x main camera.
+#
+# PLACEHOLDER (sampler v0, the only sampler on main on 23 Nov 2026): v0 places coloured
+# primitives only, one camera per scene and always a gripper, and it redraws the object count
+# when a layout fails, so crowded counts (7, 8) come up rarely. When sampler v1 lands, this
+# recipe should:
+#   - draw objects only from the shopping list (docs/twins/shopping_list.json), at most
+#     `quantity` copies of each, so every layout can be built from what was bought:
+#       food_apple_01 x2, food_pomegranate_01 x1, lemon x3, food_lime_01 x3,
+#       food_avocado_01 x1, food_kiwi_01 x2, yellow_onion x2, wooden_bowl_02 x1,
+#       cleaner_tin_01 x2, leather_cleaner_can x1, lubricant_spray x1,
+#       multi_cleaner_bottle x1, bleach_bottle x1, medical_tape x1, rubber_duck_toy x1;
+#   - allow `in` placements in wooden_bowl_02 (optional container use) and no `on` stacks;
+#   - add an overhead camera spot (rig overhead): lens 60 cm above the mat centre, looking
+#     straight down, top of the phone toward the back edge;
+#   - drop the gripper (there is no physical one) and use the cm_grid table material with
+#     grid_cell_m 0.01 so renders look like the printed mat.
+
+recipe_version: "0.1.0"
+name: physical_twin
+description: Twin layouts on the 40 x 28 cm placement mat, one fixed front phone spot.
+
+table:
+  size_xy: [0.40, 0.28]
+  height: 0.75
+  thickness: 0.03
+  material_id: wood_simple
+
+objects:
+  count: [3, 8]
+  shapes: [box, cylinder, sphere]
+  colours: [red, green, blue, yellow, orange, white]
+  size_m: [0.045, 0.075]
+  box_yaw_deg: [-90, 90]
+  drop_m: 0.005
+  roughness: 0.45
+  metallic: 0.0
+
+placement:
+  table_margin_m: 0.045
+  gap_m: 0.015
+  tries_per_object: 300
+
+gripper:
+  tip_height_m: [0.12, 0.22]
+  xy_margin_m: 0.05
+  yaw_deg: [-90, 90]
+  min_clearance_m: 0.02
+  tries: 200
+
+camera:
+  id: front
+  rig: front
+  target_jitter_m: 0.0
+  distance_m: [0.65, 0.65]
+  elevation_deg: [50, 50]
+  azimuth_deg: [0, 0]
+  focal_mm: [26, 26]
+  sensor_width_mm: 36.0
+  resolution: [1024, 768]
+  view_margin_px: 16
+
+lighting:
+  hdri_id: studio_small_09
+  strength: 1.0
+  rotation_deg: [0, 360]
+
+render:
+  samples: 128
+  seed: 0
+  device: GPU
+  denoise: true
+
+max_layout_attempts: 200

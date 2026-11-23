@@ -1,5 +1,8 @@
 """`vtf verify <run> --sample N`: rebuild sampled scenes from their seeds and check G7.
 
+G6 twin scenes are rebuilt from the original's settled scene and the twin rule instead of the
+recipe, then checked the same way.
+
 For each sampled scene that produced tasks:
 
 1. re-sample the scene file from the recipe and seed: bytes must be identical;
@@ -34,6 +37,26 @@ from vtf.core.scene import RunInfo
 from vtf.validate.pipeline import regenerate_scene_bytes
 
 MIN_SSIM = 0.999
+
+
+def _scene_source(lay: layout.RunLayout, run_info, sid: str, tasks: list) -> tuple:
+    """(scene file, render dir, regenerated scene bytes or None) for a scene or a G6 twin."""
+    if lay.scene_file(sid).exists():
+        return (
+            lay.scene_file(sid),
+            lay.render_dir(sid),
+            regenerate_scene_bytes(run_info, lay.root, sid),
+        )
+    tl = lay.twin_layout()
+    regenerated = None
+    original_id = next((t.twin_of for t in tasks if t.twin_of), None)
+    if original_id and (lay.task_dir(original_id) / layout.TASK_FILE).exists():
+        from vtf.validate.gates.g6_counterfactual_twin import make_twin_scene, scene_bytes
+
+        original = read_task(lay.task_dir(original_id) / layout.TASK_FILE)
+        twin, _, _ = make_twin_scene(read_scene(lay.settled_scene(original.scene_id)), original)
+        regenerated = scene_bytes(twin) if twin is not None else None
+    return tl.scene_file(sid), tl.render_dir(sid), regenerated
 
 
 def _compare_render(orig_dir: Path, new_dir: Path) -> dict:
@@ -87,18 +110,18 @@ def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
     results = {}
     for sid in picked:
         res: dict = {}
-        regenerated = regenerate_scene_bytes(run_info, run_dir, sid)
+        scene_file, render_dir, regenerated = _scene_source(lay, run_info, sid, tasks_by_scene[sid])
         res["scene_identical"] = (
-            None if regenerated is None else regenerated == lay.scene_file(sid).read_bytes()
+            None if regenerated is None else regenerated == scene_file.read_bytes()
         )
         vdir = lay.verify_dir / sid
-        rr = render_scene(lay.scene_file(sid), vdir, device=device)
+        rr = render_scene(scene_file, vdir, device=device)
         res["render_seconds"] = round(rr.seconds, 2)
         if not rr.ok:
             res.update(ok=False, error=rr.error)
             results[sid] = res
             continue
-        res.update(_compare_render(lay.render_dir(sid), vdir))
+        res.update(_compare_render(render_dir, vdir))
         settled = read_scene(vdir / layout.SETTLED_SCENE)
         answers_ok, hashes_ok = True, True
         for task in tasks_by_scene[sid]:

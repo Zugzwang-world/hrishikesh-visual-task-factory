@@ -26,21 +26,21 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P10 | Assets: about 40 Poly Haven objects via their API, scale-normalised, real-world sizes in assets/manifest.yaml; procedural scale references; cm-grid table texture | M | Manifest lists every asset; each loads and renders | todo |
-| P11 | Sampler v1: clutter levels, stacks, containers, reach zones, look-alikes; difficulty controls in recipes | M | Recipe sliders change scenes as expected | todo |
-| P12 | Look: Poly Haven HDRI lighting, PBR materials, denoising, sample count tuned for speed | S | Hero renders saved for DEMO.md | todo |
-| P13 | Cameras: overhead, front and gripper rigs with jitter; post-render camera-quality dial (noise, blur, distortion, CCTV look) | M | Same scene renders from all three cameras at three quality levels | todo |
-| P14 | All 12 question families from BRIEF.md, each with a twin rule | L | Every family produces valid tasks and twins | todo |
-| P15 | Gates G2 (answer recomputed from mask and depth pixels), G4 (no near-ties), G5 (prior-only and question-only baselines), G6 (twins) | L | Gate report shows pass rates and rejection reasons | todo |
-| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | todo |
-| P17 | Dataset report: gate pass rates, rejection reasons, coverage matrix, answer distributions | M | Static HTML report | todo |
-| P18 | Scale run: about 800 scenes and 3,000 tasks (Mac overnight; DGX Spark or cloud GPU if needed) | M | Dataset v1 candidate on disk with its report | todo |
+| P10 | Assets: about 40 Poly Haven objects via their API, scale-normalised, real-world sizes in assets/manifest.yaml; procedural scale references; cm-grid table texture | M | Manifest lists every asset; each loads and renders | doing |
+| P11 | Sampler v1: clutter levels, stacks, containers, reach zones, look-alikes; difficulty controls in recipes | M | Recipe sliders change scenes as expected | doing |
+| P12 | Look: Poly Haven HDRI lighting, PBR materials, denoising, sample count tuned for speed | S | Hero renders saved for DEMO.md | doing |
+| P13 | Cameras: overhead, front and gripper rigs with jitter; post-render camera-quality dial (noise, blur, distortion, CCTV look) | M | Same scene renders from all three cameras at three quality levels | doing |
+| P14 | All 12 question families from BRIEF.md, each with a twin rule | L | Every family produces valid tasks and twins | doing |
+| P15 | Gates G2 (answer recomputed from mask and depth pixels), G4 (no near-ties), G5 (prior-only and question-only baselines), G6 (twins) | L | Gate report shows pass rates and rejection reasons | doing |
+| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | doing |
+| P17 | Dataset report: gate pass rates, rejection reasons, coverage matrix, answer distributions | M | Static HTML report | doing |
+| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | todo |
 
 ## Physical twins (alongside stages 3 and 4)
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P19 | Placement mat PDF (cm grid, ArUco corner markers) and printable layout sheets for about 30 twin scenes built from real-object stand-ins | S | PDFs ready to print | todo |
+| P19 | Placement mat PDF (cm grid, ArUco corner markers) and printable layout sheets for about 30 twin scenes built from real-object stand-ins | S | PDFs ready to print | doing |
 | P20 | Founder photo session: about 150 photos from marked spots | Founder | Photos in the repo's twin folder | todo |
 | P21 | G8: register each photo to its layout; package twin tasks | M | Twin tasks pass G8 and join the dataset | todo |
 
@@ -56,7 +56,7 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P25 | Task Explorer on Vercel: glTF scene viewer, camera views, question, truth, every model's answer, gate evidence | L | Public URL works on a laptop and a phone | todo |
+| P25 | Task Explorer on Vercel: glTF scene viewer, camera views, question, truth, every model's answer, gate evidence | L | Public URL works on a laptop and a phone | doing |
 | P26 | Hugging Face dataset release and data card | S | Public dataset page | todo |
 | P27 | README quickstart, Dockerfile, quick 20-image recipe, `vtf verify` showcase | M | A fresh clone runs the quickstart | todo |
 | P28 | Technical slides on the organizers' template, and a demo video script; then record the video | M | Slides and video ready | todo |

@@ -1,0 +1,6 @@
+# Upload the sample data (public/data is gitignored but must deploy).
+node_modules
+.next
+out
+.env*
+*.tsbuildinfo
