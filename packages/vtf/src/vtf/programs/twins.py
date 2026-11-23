@@ -87,6 +87,9 @@ class _Twin:
 
     # -- placement ------------------------------------------------------------------------
 
+    def shuffled(self, items: list) -> list:
+        return [items[int(i)] for i in self.rng.permutation(len(items))] if items else []
+
     def movable(self, oid: str) -> bool:
         """Objects that carry or hold others stay put (moving them would move a whole stack)."""
         if self.sg.supported_by(oid):
@@ -338,7 +341,7 @@ class _Twin:
         want = -opposite
         others = [o.id for o in self.sg.objects if o.id not in (anchor, ans)
                   and self.movable(o.id) and self.sg.name(o.id)]
-        for oid in [others[int(i)] for i in self.rng.permutation(len(others))][:3] if others else []:
+        for oid in self.shuffled(others)[:3]:
             def closer(p):
                 d = p - ga.xy
                 n = float(np.linalg.norm(d))
@@ -385,9 +388,10 @@ class _Twin:
     def rule_occlusion(self) -> Iterator[Edit]:
         occ, x = self.params["occluder"], self.original.evidence_object_ids[1]
         go = self.sg.geom[occ]
+        away = OCCLUSION_AWAY_M
         if self.movable(x):
             for spot in self.table_spots(x, limit=4,
-                                         keep=lambda p: np.linalg.norm(p - go.xy) >= OCCLUSION_AWAY_M):
+                                         keep=lambda p: np.linalg.norm(p - go.xy) >= away):
                 yield Edit(x, spot, "move the hidden object away from the occluder")
         # fallback: hide another object behind the occluder instead
         from vtf.programs.view import image_point
@@ -399,7 +403,7 @@ class _Twin:
         r_occ = diameter(image_footprint(self.cam, go)) / 2
         others = [o.id for o in self.sg.objects
                   if o.id not in (occ, x) and self.movable(o.id) and self.sg.name(o.id)]
-        for oid in [others[int(i)] for i in self.rng.permutation(len(others))][:3] if others else []:
+        for oid in self.shuffled(others)[:3]:
             g = self.sg.geom[oid]
             z = self.rest_z_on_table(g)
 

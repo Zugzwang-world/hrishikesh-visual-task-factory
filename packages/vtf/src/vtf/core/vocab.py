@@ -1,4 +1,4 @@
-"""Answer vocabulary, the naming rule and the normalisers shared by question programs and the scorer.
+"""Answer vocabulary, the naming rule and the normalisers shared by programs and the scorer.
 
 v0 (stage 2): objects were named by colour plus shape ("red box"); `normalise_object` turns a
 free-text answer into that canonical form, and v0.1 tasks are still scored that way.

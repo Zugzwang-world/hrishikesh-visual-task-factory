@@ -398,7 +398,8 @@ class SceneGeom:
                 boundary = min(-dx, -dy)
             else:
                 boundary = -math.hypot(max(dx, 0.0), max(dy, 0.0))
-        rel_low = g.lowest_z - cg.lowest_z
+        boundary = float(boundary)
+        rel_low = float(g.lowest_z - cg.lowest_z)
         z_in = info.floor_z_m * s - CONTAINER_FLOOR_TOL_M <= rel_low <= info.rim_z_m * s
         xy_in = boundary >= 0
         return Inside(object_id, container_id, xy_in and z_in, float(boundary), float(rel_low),

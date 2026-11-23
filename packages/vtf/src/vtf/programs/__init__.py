@@ -1,4 +1,4 @@
-"""Question programs v0.2: every answer is computed from a settled SceneSpec, never typed or guessed.
+"""Question programs v0.2: every answer is computed from a settled SceneSpec, never guessed.
 
 Implements the contract in `vtf.core.program` for the 12 families of spec/families.md:
 

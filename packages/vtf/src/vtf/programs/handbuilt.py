@@ -193,6 +193,33 @@ def tabletop() -> SceneSpec:
     return b.build(tip_xy=(-0.05, 0.02 - 0.035), tip_height=0.15, front_eye=(0.25, -0.70, 1.22))
 
 
+def rest_copy(scene: SceneSpec) -> SceneSpec:
+    """A sampled (unsettled) scene with every object dropped straight down onto its intended
+    support (Placement), marked settled: a stand-in for the physics settle in program tests."""
+    by_id = {o.id: o for o in scene.objects}
+    done: dict[str, SceneObject] = {}
+
+    def drop(oid: str) -> SceneObject:
+        if oid in done:
+            return done[oid]
+        o = by_id[oid]
+        x, y, z = o.pose.position
+        low = obj_geom(o).lowest_z
+        if o.placement.parent_id in by_id:
+            g = obj_geom(drop(o.placement.parent_id))
+            surface = g.surface_below(x, y, g.top_z + 0.01)
+            surface = scene.table.height if surface is None else surface
+        else:
+            surface = scene.table.height
+        pose = Pose(position=round_vec((x, y, z - (low - surface))), rotation=o.pose.rotation)  # type: ignore[arg-type]
+        done[oid] = o.model_copy(update={"pose": pose})
+        return done[oid]
+
+    objects = [drop(o.id) for o in scene.objects]
+    meta = scene.meta.model_copy(update={"settled": True})
+    return scene.model_copy(update={"objects": objects, "meta": meta})
+
+
 SCENES = {"kitchen": kitchen, "workshop": workshop, "pantry": pantry, "tabletop": tabletop}
 
 

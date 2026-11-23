@@ -231,8 +231,8 @@ def _count_result(ctx: Ctx, counted: list[str], rows: list[dict], rule: dict,
     evidence = sorted(set(counted) | set(extra_evidence))
     diff = ctx.difficulty(evidence, **difficulty)
     diff["n_counted"] = len(counted)
-    diff["n_stacked_or_contained"] = sum(r.get("placement") in ("stacked", "contained")
-                                         for r in rows if r.get("object_id") in counted)  # fmt: skip
+    raised = [r for r in rows if r.get("placement") in ("stacked", "contained")]
+    diff["n_stacked_or_contained"] = sum(r["object_id"] in counted for r in raised)
     return _result("int", len(counted), evidence, trace, diff)
 
 
@@ -918,11 +918,30 @@ def run_program(name: str, params: dict, scene: SceneSpec, camera_id: str) -> Pr
     if camera.rig not in family.rigs:
         raise ProgramReject("wrong_rig", program=name, rig=camera.rig, rigs=list(family.rigs))
     ctx = Ctx(scene, camera)
-    result = PROGRAMS[name].fn(ctx, dict(params))
+    try:
+        result = PROGRAMS[name].fn(ctx, dict(params))
+    except ProgramReject as rej:
+        rej.detail = plain(rej.detail)
+        raise
     if family.spatial and result.shortcut_conflict is None:
         raise AssertionError(f"{name}: spatial families must set shortcut_conflict")
     if result.evidence_object_ids:  # occlusion level of the evidence in this camera
         result.difficulty["evidence_min_visible"] = _r(
             min(ctx.view.fraction(i) for i in result.evidence_object_ids), 4
         )
+    result.trace = plain(result.trace)
+    result.difficulty = plain(result.difficulty)
     return result
+
+
+def plain(value: Any) -> Any:
+    """JSON-safe copy: numpy scalars and arrays become Python numbers, bools and lists."""
+    if isinstance(value, dict):
+        return {k: plain(v) for k, v in value.items()}
+    if isinstance(value, list | tuple):
+        return [plain(v) for v in value]
+    if isinstance(value, np.ndarray):
+        return plain(value.tolist())
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
