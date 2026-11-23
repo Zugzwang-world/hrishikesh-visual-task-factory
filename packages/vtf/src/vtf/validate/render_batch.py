@@ -80,7 +80,7 @@ def _render(scene_files, out_dirs, device, batch_size, timeout, gltf, log) -> li
         results, error = None, None
         try:
             results = batched(scene_files, out_dirs, device=device, batch_size=batch_size,
-                              timeout_per_scene=timeout, gltf=gltf)  # fmt: skip
+                              timeout_per_scene=timeout, gltf=gltf, keep_raw=False)  # fmt: skip
         except TypeError:
             try:
                 results = batched(scene_files, out_dirs, device=device, batch_size=batch_size)
