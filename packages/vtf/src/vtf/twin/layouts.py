@@ -458,7 +458,7 @@ COVER_STEPS = (
     "For each page: place every object with its centre on the given (x, y) in cm and its red "
     "arrow pointing as drawn. Colours and names match the shopping list.",
     "Take one photo per camera spot. Name it <scene_id>_<camera_id>.jpg (for example "
-    "scene_0007_front.jpg) and drop it in twins/photos/ of this run.",
+    "scene_0007_front.jpg) and drop it in the photos/ folder of this run.",
     "Clear the mat and go to the next page. Each photo is registered onto the mat by the "
     "markers (gate G8), so small phone movements are fine.",
 )
