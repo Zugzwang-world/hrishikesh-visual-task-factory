@@ -598,7 +598,7 @@ def chart(models: list[dict], out_png: Path, n_tasks: int) -> None:
     )
     for h in leg.legend_handles:
         h.set_sizes([70])
-    fig.tight_layout(rect=(0.0, 0, 1, 0.86))
+    fig.tight_layout(rect=(0.0, 0, 1, 0.9))
     out_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_png, facecolor=fig.get_facecolor())
     fig.savefig(out_png.with_suffix(".svg"), facecolor=fig.get_facecolor())

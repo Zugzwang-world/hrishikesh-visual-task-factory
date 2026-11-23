@@ -1,0 +1,3762 @@
+{
+  "run": "/Users/hrishikesh/code/hrishikesh-visual-task-factory/out/v1",
+  "tasks_in_set": 1567,
+  "tasks_common": 1567,
+  "scenes": 261,
+  "bootstrap": {
+    "resamples": 2000,
+    "unit": "scene",
+    "seed": 20261124
+  },
+  "models": {
+    "claude-haiku-5-5": {
+      "key": "claude-haiku-5-5",
+      "label": "Haiku 5.5",
+      "effort": "high",
+      "acc": {
+        "overall": {
+          "n": 1567,
+          "correct": 788,
+          "accuracy": 0.5029,
+          "ci95": [
+            0.477,
+            0.5292
+          ]
+        },
+        "by_conflict": {
+          "conflict": {
+            "n": 234,
+            "correct": 71,
+            "accuracy": 0.3034,
+            "ci95": [
+              0.25,
+              0.3609
+            ]
+          },
+          "no_conflict": {
+            "n": 558,
+            "correct": 308,
+            "accuracy": 0.552,
+            "ci95": [
+              0.5125,
+              0.5937
+            ]
+          },
+          "n/a": {
+            "n": 775,
+            "correct": 409,
+            "accuracy": 0.5277,
+            "ci95": [
+              0.4894,
+              0.565
+            ]
+          }
+        },
+        "by_family": {
+          "containment": {
+            "n": 149,
+            "correct": 78,
+            "accuracy": 0.5235,
+            "ci95": [
+              0.4361,
+              0.612
+            ]
+          },
+          "count": {
+            "n": 151,
+            "correct": 96,
+            "accuracy": 0.6358,
+            "ci95": [
+              0.5468,
+              0.7212
+            ]
+          },
+          "count_attribute": {
+            "n": 156,
+            "correct": 109,
+            "accuracy": 0.6987,
+            "ci95": [
+              0.6212,
+              0.777
+            ]
+          },
+          "distance": {
+            "n": 124,
+            "correct": 20,
+            "accuracy": 0.1613,
+            "ci95": [
+              0.0968,
+              0.2258
+            ]
+          },
+          "free_space": {
+            "n": 148,
+            "correct": 102,
+            "accuracy": 0.6892,
+            "ci95": [
+              0.6096,
+              0.7583
+            ]
+          },
+          "front_to_back": {
+            "n": 153,
+            "correct": 114,
+            "accuracy": 0.7451,
+            "ci95": [
+              0.6788,
+              0.8095
+            ]
+          },
+          "gripper_view": {
+            "n": 49,
+            "correct": 22,
+            "accuracy": 0.449,
+            "ci95": [
+              0.3125,
+              0.5833
+            ]
+          },
+          "nearest_to_gripper": {
+            "n": 151,
+            "correct": 40,
+            "accuracy": 0.2649,
+            "ci95": [
+              0.1842,
+              0.3462
+            ]
+          },
+          "occlusion": {
+            "n": 77,
+            "correct": 21,
+            "accuracy": 0.2727,
+            "ci95": [
+              0.1818,
+              0.3676
+            ]
+          },
+          "reachability": {
+            "n": 110,
+            "correct": 51,
+            "accuracy": 0.4636,
+            "ci95": [
+              0.3652,
+              0.561
+            ]
+          },
+          "relation": {
+            "n": 153,
+            "correct": 51,
+            "accuracy": 0.3333,
+            "ci95": [
+              0.26,
+              0.4118
+            ]
+          },
+          "support": {
+            "n": 146,
+            "correct": 84,
+            "accuracy": 0.5753,
+            "ci95": [
+              0.4891,
+              0.6603
+            ]
+          }
+        },
+        "by_camera": {
+          "front": {
+            "n": 561,
+            "correct": 277,
+            "accuracy": 0.4938,
+            "ci95": [
+              0.455,
+              0.5352
+            ]
+          },
+          "gripper": {
+            "n": 476,
+            "correct": 273,
+            "accuracy": 0.5735,
+            "ci95": [
+              0.5275,
+              0.622
+            ]
+          },
+          "overhead": {
+            "n": 530,
+            "correct": 238,
+            "accuracy": 0.4491,
+            "ci95": [
+              0.4064,
+              0.4908
+            ]
+          }
+        },
+        "by_family_conflict": {
+          "free_space|conflict": {
+            "n": 46,
+            "correct": 21,
+            "accuracy": 0.4565,
+            "ci95": [
+              0.3023,
+              0.6
+            ]
+          },
+          "free_space|no_conflict": {
+            "n": 102,
+            "correct": 81,
+            "accuracy": 0.7941,
+            "ci95": [
+              0.7117,
+              0.8701
+            ]
+          },
+          "front_to_back|conflict": {
+            "n": 46,
+            "correct": 26,
+            "accuracy": 0.5652,
+            "ci95": [
+              0.425,
+              0.7073
+            ]
+          },
+          "front_to_back|no_conflict": {
+            "n": 107,
+            "correct": 88,
+            "accuracy": 0.8224,
+            "ci95": [
+              0.7524,
+              0.8868
+            ]
+          },
+          "nearest_to_gripper|conflict": {
+            "n": 43,
+            "correct": 1,
+            "accuracy": 0.0233,
+            "ci95": [
+              0.0,
+              0.0769
+            ]
+          },
+          "nearest_to_gripper|no_conflict": {
+            "n": 108,
+            "correct": 39,
+            "accuracy": 0.3611,
+            "ci95": [
+              0.2631,
+              0.4571
+            ]
+          },
+          "occlusion|conflict": {
+            "n": 13,
+            "correct": 3,
+            "accuracy": 0.2308,
+            "ci95": [
+              0.0,
+              0.5
+            ]
+          },
+          "occlusion|no_conflict": {
+            "n": 64,
+            "correct": 18,
+            "accuracy": 0.2812,
+            "ci95": [
+              0.1774,
+              0.3889
+            ]
+          },
+          "reachability|conflict": {
+            "n": 10,
+            "correct": 1,
+            "accuracy": 0.1,
+            "ci95": [
+              0.0,
+              0.4
+            ]
+          },
+          "reachability|no_conflict": {
+            "n": 100,
+            "correct": 50,
+            "accuracy": 0.5,
+            "ci95": [
+              0.3936,
+              0.6068
+            ]
+          },
+          "relation|conflict": {
+            "n": 76,
+            "correct": 19,
+            "accuracy": 0.25,
+            "ci95": [
+              0.1548,
+              0.35
+            ]
+          },
+          "relation|no_conflict": {
+            "n": 77,
+            "correct": 32,
+            "accuracy": 0.4156,
+            "ci95": [
+              0.3108,
+              0.5278
+            ]
+          }
+        },
+        "gap": {
+          "points": 0.2486,
+          "ci95": [
+            0.1821,
+            0.3174
+          ]
+        },
+        "errors": 0,
+        "unparseable": 66
+      },
+      "capture": {
+        "conflict_tasks": 234,
+        "answered_misses": 154,
+        "unparseable_on_conflict": 9,
+        "shortcut_picks": 67,
+        "capture_share": 0.4351,
+        "capture_ci95": [
+          0.3546,
+          0.5164
+        ],
+        "chance_share": 0.4582,
+        "chance_ci95": [
+          0.3921,
+          0.5269
+        ],
+        "ratio": 0.949,
+        "ratio_ci95": [
+          0.794,
+          1.1238
+        ]
+      },
+      "capture_object_choice": {
+        "conflict_tasks": 132,
+        "answered_misses": 100,
+        "unparseable_on_conflict": 9,
+        "shortcut_picks": 22,
+        "capture_share": 0.22,
+        "capture_ci95": [
+          0.1402,
+          0.3023
+        ],
+        "chance_share": 0.2451,
+        "chance_ci95": [
+          0.1915,
+          0.3008
+        ],
+        "ratio": 0.898,
+        "ratio_ci95": [
+          0.5487,
+          1.3614
+        ]
+      },
+      "capture_by_family": {
+        "free_space": {
+          "conflict_tasks": 46,
+          "answered_misses": 25,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 25,
+          "capture_share": 1.0,
+          "capture_ci95": [
+            1.0,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 1.0,
+          "ratio_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "front_to_back": {
+          "conflict_tasks": 46,
+          "answered_misses": 20,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 16,
+          "capture_share": 0.8,
+          "capture_ci95": [
+            0.5882,
+            0.9583
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 0.8,
+          "ratio_ci95": [
+            0.5882,
+            0.9583
+          ]
+        },
+        "nearest_to_gripper": {
+          "conflict_tasks": 43,
+          "answered_misses": 38,
+          "unparseable_on_conflict": 4,
+          "shortcut_picks": 12,
+          "capture_share": 0.3158,
+          "capture_ci95": [
+            0.1818,
+            0.4583
+          ],
+          "chance_share": 0.2125,
+          "chance_ci95": [
+            0.1479,
+            0.2896
+          ],
+          "ratio": 1.486,
+          "ratio_ci95": [
+            0.8469,
+            2.3179
+          ]
+        },
+        "occlusion": {
+          "conflict_tasks": 13,
+          "answered_misses": 9,
+          "unparseable_on_conflict": 1,
+          "shortcut_picks": 1,
+          "capture_share": 0.1111,
+          "capture_ci95": [
+            0.0,
+            0.375
+          ],
+          "chance_share": 0.2562,
+          "chance_ci95": [
+            0.0949,
+            0.4939
+          ],
+          "ratio": 0.434,
+          "ratio_ci95": [
+            0.0,
+            2.6492
+          ]
+        },
+        "reachability": {
+          "conflict_tasks": 10,
+          "answered_misses": 9,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 4,
+          "capture_share": 0.4444,
+          "capture_ci95": [
+            0.0,
+            0.8467
+          ],
+          "chance_share": 0.117,
+          "chance_ci95": [
+            0.0704,
+            0.1905
+          ],
+          "ratio": 3.798,
+          "ratio_ci95": [
+            0.0,
+            10.7518
+          ]
+        },
+        "relation": {
+          "conflict_tasks": 76,
+          "answered_misses": 53,
+          "unparseable_on_conflict": 4,
+          "shortcut_picks": 9,
+          "capture_share": 0.1698,
+          "capture_ci95": [
+            0.0741,
+            0.28
+          ],
+          "chance_share": 0.2666,
+          "chance_ci95": [
+            0.1873,
+            0.3495
+          ],
+          "ratio": 0.637,
+          "ratio_ci95": [
+            0.2594,
+            1.253
+          ]
+        }
+      },
+      "matched": {
+        "gap_conflict_minus_no_conflict": -0.2559,
+        "ci95": [
+          -0.3287,
+          -0.1789
+        ],
+        "strata_used": 16,
+        "conflict_tasks_in_matched_strata": 234,
+        "strata": {
+          "free_space|front": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.4444
+            },
+            "no_conflict": {
+              "n": 34,
+              "accuracy": 0.7647
+            },
+            "diff": -0.3203
+          },
+          "free_space|gripper": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.6364
+            },
+            "no_conflict": {
+              "n": 32,
+              "accuracy": 0.7812
+            },
+            "diff": -0.1449
+          },
+          "free_space|overhead": {
+            "conflict": {
+              "n": 17,
+              "accuracy": 0.3529
+            },
+            "no_conflict": {
+              "n": 36,
+              "accuracy": 0.8333
+            },
+            "diff": -0.4804
+          },
+          "front_to_back|front": {
+            "conflict": {
+              "n": 3,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 50,
+              "accuracy": 0.86
+            },
+            "diff": -0.86
+          },
+          "front_to_back|gripper": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.7619
+            },
+            "no_conflict": {
+              "n": 28,
+              "accuracy": 0.8929
+            },
+            "diff": -0.131
+          },
+          "front_to_back|overhead": {
+            "conflict": {
+              "n": 22,
+              "accuracy": 0.4545
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.6897
+            },
+            "diff": -0.2351
+          },
+          "nearest_to_gripper|front": {
+            "conflict": {
+              "n": 14,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 37,
+              "accuracy": 0.5135
+            },
+            "diff": -0.5135
+          },
+          "nearest_to_gripper|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.0556
+            },
+            "no_conflict": {
+              "n": 30,
+              "accuracy": 0.2667
+            },
+            "diff": -0.2111
+          },
+          "nearest_to_gripper|overhead": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.2927
+            },
+            "diff": -0.2927
+          },
+          "occlusion|front": {
+            "conflict": {
+              "n": 8,
+              "accuracy": 0.25
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.3659
+            },
+            "diff": -0.1159
+          },
+          "occlusion|gripper": {
+            "conflict": {
+              "n": 4,
+              "accuracy": 0.25
+            },
+            "no_conflict": {
+              "n": 5,
+              "accuracy": 0.4
+            },
+            "diff": -0.15
+          },
+          "occlusion|overhead": {
+            "conflict": {
+              "n": 1,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 18,
+              "accuracy": 0.0556
+            },
+            "diff": -0.0556
+          },
+          "reachability|front": {
+            "conflict": {
+              "n": 10,
+              "accuracy": 0.1
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.5122
+            },
+            "diff": -0.4122
+          },
+          "relation|front": {
+            "conflict": {
+              "n": 37,
+              "accuracy": 0.3243
+            },
+            "no_conflict": {
+              "n": 17,
+              "accuracy": 0.4706
+            },
+            "diff": -0.1463
+          },
+          "relation|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.2222
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.4483
+            },
+            "diff": -0.2261
+          },
+          "relation|overhead": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.1429
+            },
+            "no_conflict": {
+              "n": 31,
+              "accuracy": 0.3548
+            },
+            "diff": -0.212
+          }
+        }
+      },
+      "logit": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation"
+        ],
+        "coef": [
+          1.3181,
+          -1.291,
+          0.1029,
+          0.2036,
+          -0.0935,
+          -0.1287,
+          0.3534,
+          -2.0075,
+          -2.1681,
+          -1.3072,
+          -1.7036
+        ],
+        "se_cluster": [
+          0.1973,
+          0.195,
+          0.0913,
+          0.1178,
+          0.0795,
+          0.0851,
+          0.2809,
+          0.2648,
+          0.3587,
+          0.2814,
+          0.3052
+        ],
+        "conflict_log_odds": -1.291,
+        "conflict_ci95_cluster": [
+          -1.6733,
+          -0.9087
+        ],
+        "conflict_odds_ratio": 0.275,
+        "conflict_or_ci95_cluster": [
+          0.188,
+          0.403
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.7003,
+          -0.9322
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.183,
+          0.394
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 6,
+        "condition_number": 51.5,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "logit_with_camera": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation",
+          "camera=gripper",
+          "camera=overhead"
+        ],
+        "coef": [
+          1.5246,
+          -1.3254,
+          0.1173,
+          0.1881,
+          -0.111,
+          -0.0952,
+          0.3308,
+          -2.059,
+          -2.2059,
+          -1.2829,
+          -1.7184,
+          0.0797,
+          -0.5505
+        ],
+        "se_cluster": [
+          0.2363,
+          0.1956,
+          0.0951,
+          0.1191,
+          0.0838,
+          0.0843,
+          0.2945,
+          0.2751,
+          0.3643,
+          0.2856,
+          0.3075,
+          0.2366,
+          0.1987
+        ],
+        "conflict_log_odds": -1.3254,
+        "conflict_ci95_cluster": [
+          -1.7087,
+          -0.942
+        ],
+        "conflict_odds_ratio": 0.266,
+        "conflict_or_ci95_cluster": [
+          0.181,
+          0.39
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.7467,
+          -0.9659
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.174,
+          0.381
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 6,
+        "condition_number": 61.3,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "mean_thinking_tokens": {
+        "conflict": {
+          "n": 234,
+          "mean": 374.8,
+          "median": 347.5
+        },
+        "no_conflict": {
+          "n": 558,
+          "mean": 320.0,
+          "median": 291.0
+        },
+        "n/a": {
+          "n": 775,
+          "mean": 238.6,
+          "median": 167.0
+        }
+      }
+    },
+    "claude-sonnet-5-5": {
+      "key": "claude-sonnet-5-5",
+      "label": "Sonnet 5.5",
+      "effort": "high",
+      "acc": {
+        "overall": {
+          "n": 1567,
+          "correct": 965,
+          "accuracy": 0.6158,
+          "ci95": [
+            0.5901,
+            0.6399
+          ]
+        },
+        "by_conflict": {
+          "conflict": {
+            "n": 234,
+            "correct": 103,
+            "accuracy": 0.4402,
+            "ci95": [
+              0.3761,
+              0.5061
+            ]
+          },
+          "no_conflict": {
+            "n": 558,
+            "correct": 382,
+            "accuracy": 0.6846,
+            "ci95": [
+              0.6486,
+              0.7214
+            ]
+          },
+          "n/a": {
+            "n": 775,
+            "correct": 480,
+            "accuracy": 0.6194,
+            "ci95": [
+              0.5823,
+              0.6547
+            ]
+          }
+        },
+        "by_family": {
+          "containment": {
+            "n": 149,
+            "correct": 89,
+            "accuracy": 0.5973,
+            "ci95": [
+              0.5082,
+              0.6846
+            ]
+          },
+          "count": {
+            "n": 151,
+            "correct": 115,
+            "accuracy": 0.7616,
+            "ci95": [
+              0.6885,
+              0.8293
+            ]
+          },
+          "count_attribute": {
+            "n": 156,
+            "correct": 116,
+            "accuracy": 0.7436,
+            "ci95": [
+              0.6709,
+              0.8113
+            ]
+          },
+          "distance": {
+            "n": 124,
+            "correct": 32,
+            "accuracy": 0.2581,
+            "ci95": [
+              0.1802,
+              0.3361
+            ]
+          },
+          "free_space": {
+            "n": 148,
+            "correct": 106,
+            "accuracy": 0.7162,
+            "ci95": [
+              0.6406,
+              0.7909
+            ]
+          },
+          "front_to_back": {
+            "n": 153,
+            "correct": 130,
+            "accuracy": 0.8497,
+            "ci95": [
+              0.7908,
+              0.9071
+            ]
+          },
+          "gripper_view": {
+            "n": 49,
+            "correct": 31,
+            "accuracy": 0.6327,
+            "ci95": [
+              0.4909,
+              0.766
+            ]
+          },
+          "nearest_to_gripper": {
+            "n": 151,
+            "correct": 69,
+            "accuracy": 0.457,
+            "ci95": [
+              0.3722,
+              0.5423
+            ]
+          },
+          "occlusion": {
+            "n": 77,
+            "correct": 36,
+            "accuracy": 0.4675,
+            "ci95": [
+              0.3662,
+              0.5765
+            ]
+          },
+          "reachability": {
+            "n": 110,
+            "correct": 65,
+            "accuracy": 0.5909,
+            "ci95": [
+              0.4957,
+              0.6796
+            ]
+          },
+          "relation": {
+            "n": 153,
+            "correct": 79,
+            "accuracy": 0.5163,
+            "ci95": [
+              0.4371,
+              0.5976
+            ]
+          },
+          "support": {
+            "n": 146,
+            "correct": 97,
+            "accuracy": 0.6644,
+            "ci95": [
+              0.5796,
+              0.7445
+            ]
+          }
+        },
+        "by_camera": {
+          "front": {
+            "n": 561,
+            "correct": 359,
+            "accuracy": 0.6399,
+            "ci95": [
+              0.6018,
+              0.6782
+            ]
+          },
+          "gripper": {
+            "n": 476,
+            "correct": 318,
+            "accuracy": 0.6681,
+            "ci95": [
+              0.6171,
+              0.7158
+            ]
+          },
+          "overhead": {
+            "n": 530,
+            "correct": 288,
+            "accuracy": 0.5434,
+            "ci95": [
+              0.5009,
+              0.5845
+            ]
+          }
+        },
+        "by_family_conflict": {
+          "free_space|conflict": {
+            "n": 46,
+            "correct": 23,
+            "accuracy": 0.5,
+            "ci95": [
+              0.3589,
+              0.6471
+            ]
+          },
+          "free_space|no_conflict": {
+            "n": 102,
+            "correct": 83,
+            "accuracy": 0.8137,
+            "ci95": [
+              0.7364,
+              0.885
+            ]
+          },
+          "front_to_back|conflict": {
+            "n": 46,
+            "correct": 30,
+            "accuracy": 0.6522,
+            "ci95": [
+              0.5106,
+              0.7885
+            ]
+          },
+          "front_to_back|no_conflict": {
+            "n": 107,
+            "correct": 100,
+            "accuracy": 0.9346,
+            "ci95": [
+              0.8835,
+              0.9796
+            ]
+          },
+          "nearest_to_gripper|conflict": {
+            "n": 43,
+            "correct": 6,
+            "accuracy": 0.1395,
+            "ci95": [
+              0.0444,
+              0.2593
+            ]
+          },
+          "nearest_to_gripper|no_conflict": {
+            "n": 108,
+            "correct": 63,
+            "accuracy": 0.5833,
+            "ci95": [
+              0.4904,
+              0.6729
+            ]
+          },
+          "occlusion|conflict": {
+            "n": 13,
+            "correct": 6,
+            "accuracy": 0.4615,
+            "ci95": [
+              0.1818,
+              0.75
+            ]
+          },
+          "occlusion|no_conflict": {
+            "n": 64,
+            "correct": 30,
+            "accuracy": 0.4688,
+            "ci95": [
+              0.3538,
+              0.597
+            ]
+          },
+          "reachability|conflict": {
+            "n": 10,
+            "correct": 2,
+            "accuracy": 0.2,
+            "ci95": [
+              0.0,
+              0.5
+            ]
+          },
+          "reachability|no_conflict": {
+            "n": 100,
+            "correct": 63,
+            "accuracy": 0.63,
+            "ci95": [
+              0.5333,
+              0.7209
+            ]
+          },
+          "relation|conflict": {
+            "n": 76,
+            "correct": 36,
+            "accuracy": 0.4737,
+            "ci95": [
+              0.3606,
+              0.5811
+            ]
+          },
+          "relation|no_conflict": {
+            "n": 77,
+            "correct": 43,
+            "accuracy": 0.5584,
+            "ci95": [
+              0.4545,
+              0.6712
+            ]
+          }
+        },
+        "gap": {
+          "points": 0.2444,
+          "ci95": [
+            0.1701,
+            0.3164
+          ]
+        },
+        "errors": 0,
+        "unparseable": 61
+      },
+      "capture": {
+        "conflict_tasks": 234,
+        "answered_misses": 118,
+        "unparseable_on_conflict": 13,
+        "shortcut_picks": 76,
+        "capture_share": 0.6441,
+        "capture_ci95": [
+          0.5545,
+          0.7297
+        ],
+        "chance_share": 0.4641,
+        "chance_ci95": [
+          0.387,
+          0.5384
+        ],
+        "ratio": 1.388,
+        "ratio_ci95": [
+          1.1765,
+          1.6719
+        ]
+      },
+      "capture_object_choice": {
+        "conflict_tasks": 132,
+        "answered_misses": 71,
+        "unparseable_on_conflict": 13,
+        "shortcut_picks": 31,
+        "capture_share": 0.4366,
+        "capture_ci95": [
+          0.3288,
+          0.5539
+        ],
+        "chance_share": 0.2106,
+        "chance_ci95": [
+          0.1534,
+          0.2787
+        ],
+        "ratio": 2.073,
+        "ratio_ci95": [
+          1.3253,
+          3.2002
+        ]
+      },
+      "capture_by_family": {
+        "free_space": {
+          "conflict_tasks": 46,
+          "answered_misses": 23,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 23,
+          "capture_share": 1.0,
+          "capture_ci95": [
+            1.0,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 1.0,
+          "ratio_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "front_to_back": {
+          "conflict_tasks": 46,
+          "answered_misses": 16,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 16,
+          "capture_share": 1.0,
+          "capture_ci95": [
+            1.0,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 1.0,
+          "ratio_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "nearest_to_gripper": {
+          "conflict_tasks": 43,
+          "answered_misses": 32,
+          "unparseable_on_conflict": 5,
+          "shortcut_picks": 22,
+          "capture_share": 0.6875,
+          "capture_ci95": [
+            0.5417,
+            0.8333
+          ],
+          "chance_share": 0.1851,
+          "chance_ci95": [
+            0.1255,
+            0.2561
+          ],
+          "ratio": 3.715,
+          "ratio_ci95": [
+            2.5707,
+            5.556
+          ]
+        },
+        "occlusion": {
+          "conflict_tasks": 13,
+          "answered_misses": 7,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 1,
+          "capture_share": 0.1429,
+          "capture_ci95": [
+            0.0,
+            0.5
+          ],
+          "chance_share": 0.3447,
+          "chance_ci95": [
+            0.0536,
+            0.7001
+          ],
+          "ratio": 0.414,
+          "ratio_ci95": [
+            0.0,
+            4.8455
+          ]
+        },
+        "reachability": {
+          "conflict_tasks": 10,
+          "answered_misses": 8,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 6,
+          "capture_share": 0.75,
+          "capture_ci95": [
+            0.3333,
+            1.0
+          ],
+          "chance_share": 0.1004,
+          "chance_ci95": [
+            0.0704,
+            0.1607
+          ],
+          "ratio": 7.47,
+          "ratio_ci95": [
+            2.3119,
+            12.7919
+          ]
+        },
+        "relation": {
+          "conflict_tasks": 76,
+          "answered_misses": 32,
+          "unparseable_on_conflict": 8,
+          "shortcut_picks": 8,
+          "capture_share": 0.25,
+          "capture_ci95": [
+            0.1111,
+            0.4074
+          ],
+          "chance_share": 0.2069,
+          "chance_ci95": [
+            0.1228,
+            0.3085
+          ],
+          "ratio": 1.208,
+          "ratio_ci95": [
+            0.458,
+            2.69
+          ]
+        }
+      },
+      "matched": {
+        "gap_conflict_minus_no_conflict": -0.2548,
+        "ci95": [
+          -0.3344,
+          -0.1723
+        ],
+        "strata_used": 16,
+        "conflict_tasks_in_matched_strata": 234,
+        "strata": {
+          "free_space|front": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.5556
+            },
+            "no_conflict": {
+              "n": 34,
+              "accuracy": 0.8529
+            },
+            "diff": -0.2974
+          },
+          "free_space|gripper": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.7273
+            },
+            "no_conflict": {
+              "n": 32,
+              "accuracy": 0.75
+            },
+            "diff": -0.0227
+          },
+          "free_space|overhead": {
+            "conflict": {
+              "n": 17,
+              "accuracy": 0.2941
+            },
+            "no_conflict": {
+              "n": 36,
+              "accuracy": 0.8333
+            },
+            "diff": -0.5392
+          },
+          "front_to_back|front": {
+            "conflict": {
+              "n": 3,
+              "accuracy": 0.3333
+            },
+            "no_conflict": {
+              "n": 50,
+              "accuracy": 0.94
+            },
+            "diff": -0.6067
+          },
+          "front_to_back|gripper": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.8571
+            },
+            "no_conflict": {
+              "n": 28,
+              "accuracy": 1.0
+            },
+            "diff": -0.1429
+          },
+          "front_to_back|overhead": {
+            "conflict": {
+              "n": 22,
+              "accuracy": 0.5
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.8621
+            },
+            "diff": -0.3621
+          },
+          "nearest_to_gripper|front": {
+            "conflict": {
+              "n": 14,
+              "accuracy": 0.0714
+            },
+            "no_conflict": {
+              "n": 37,
+              "accuracy": 0.8378
+            },
+            "diff": -0.7664
+          },
+          "nearest_to_gripper|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.2222
+            },
+            "no_conflict": {
+              "n": 30,
+              "accuracy": 0.4333
+            },
+            "diff": -0.2111
+          },
+          "nearest_to_gripper|overhead": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.0909
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.4634
+            },
+            "diff": -0.3725
+          },
+          "occlusion|front": {
+            "conflict": {
+              "n": 8,
+              "accuracy": 0.5
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.6098
+            },
+            "diff": -0.1098
+          },
+          "occlusion|gripper": {
+            "conflict": {
+              "n": 4,
+              "accuracy": 0.5
+            },
+            "no_conflict": {
+              "n": 5,
+              "accuracy": 0.2
+            },
+            "diff": 0.3
+          },
+          "occlusion|overhead": {
+            "conflict": {
+              "n": 1,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 18,
+              "accuracy": 0.2222
+            },
+            "diff": -0.2222
+          },
+          "reachability|front": {
+            "conflict": {
+              "n": 10,
+              "accuracy": 0.2
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.6829
+            },
+            "diff": -0.4829
+          },
+          "relation|front": {
+            "conflict": {
+              "n": 37,
+              "accuracy": 0.5405
+            },
+            "no_conflict": {
+              "n": 17,
+              "accuracy": 0.6471
+            },
+            "diff": -0.1065
+          },
+          "relation|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.4444
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.5517
+            },
+            "diff": -0.1073
+          },
+          "relation|overhead": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.381
+            },
+            "no_conflict": {
+              "n": 31,
+              "accuracy": 0.5161
+            },
+            "diff": -0.1352
+          }
+        }
+      },
+      "logit": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation"
+        ],
+        "coef": [
+          1.4578,
+          -1.2418,
+          0.2302,
+          0.109,
+          -0.1137,
+          -0.1285,
+          0.8451,
+          -1.2889,
+          -1.2168,
+          -1.0207,
+          -0.9437
+        ],
+        "se_cluster": [
+          0.1962,
+          0.1954,
+          0.0894,
+          0.1045,
+          0.0795,
+          0.0846,
+          0.2897,
+          0.263,
+          0.326,
+          0.2851,
+          0.3015
+        ],
+        "conflict_log_odds": -1.2418,
+        "conflict_ci95_cluster": [
+          -1.6248,
+          -0.8588
+        ],
+        "conflict_odds_ratio": 0.289,
+        "conflict_or_ci95_cluster": [
+          0.197,
+          0.424
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.6606,
+          -0.8975
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.19,
+          0.408
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 6,
+        "condition_number": 55.7,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "logit_with_camera": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation",
+          "camera=gripper",
+          "camera=overhead"
+        ],
+        "coef": [
+          1.9182,
+          -1.3301,
+          0.2211,
+          0.1118,
+          -0.1029,
+          -0.107,
+          0.9055,
+          -1.3227,
+          -1.4264,
+          -1.0327,
+          -0.9668,
+          -0.3429,
+          -0.848
+        ],
+        "se_cluster": [
+          0.2467,
+          0.198,
+          0.0911,
+          0.1052,
+          0.0823,
+          0.0857,
+          0.3045,
+          0.2681,
+          0.3361,
+          0.2957,
+          0.3062,
+          0.2487,
+          0.2006
+        ],
+        "conflict_log_odds": -1.3301,
+        "conflict_ci95_cluster": [
+          -1.7182,
+          -0.9421
+        ],
+        "conflict_odds_ratio": 0.264,
+        "conflict_or_ci95_cluster": [
+          0.179,
+          0.39
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.7665,
+          -0.9452
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.171,
+          0.389
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 6,
+        "condition_number": 66.5,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "mean_thinking_tokens": {
+        "conflict": {
+          "n": 21,
+          "mean": 263.4,
+          "median": 269.0
+        },
+        "no_conflict": {
+          "n": 17,
+          "mean": 129.1,
+          "median": 130.0
+        },
+        "n/a": {
+          "n": 29,
+          "mean": 124.4,
+          "median": 0.0
+        }
+      }
+    },
+    "claude-opus-5-5": {
+      "key": "claude-opus-5-5",
+      "label": "Opus 5.5",
+      "effort": "high",
+      "acc": {
+        "overall": {
+          "n": 1567,
+          "correct": 1026,
+          "accuracy": 0.6548,
+          "ci95": [
+            0.6282,
+            0.6805
+          ]
+        },
+        "by_conflict": {
+          "conflict": {
+            "n": 234,
+            "correct": 108,
+            "accuracy": 0.4615,
+            "ci95": [
+              0.3976,
+              0.525
+            ]
+          },
+          "no_conflict": {
+            "n": 558,
+            "correct": 401,
+            "accuracy": 0.7186,
+            "ci95": [
+              0.6777,
+              0.7576
+            ]
+          },
+          "n/a": {
+            "n": 775,
+            "correct": 517,
+            "accuracy": 0.6671,
+            "ci95": [
+              0.6318,
+              0.7024
+            ]
+          }
+        },
+        "by_family": {
+          "containment": {
+            "n": 149,
+            "correct": 95,
+            "accuracy": 0.6376,
+            "ci95": [
+              0.5536,
+              0.7131
+            ]
+          },
+          "count": {
+            "n": 151,
+            "correct": 121,
+            "accuracy": 0.8013,
+            "ci95": [
+              0.7313,
+              0.8684
+            ]
+          },
+          "count_attribute": {
+            "n": 156,
+            "correct": 113,
+            "accuracy": 0.7244,
+            "ci95": [
+              0.6459,
+              0.7972
+            ]
+          },
+          "distance": {
+            "n": 124,
+            "correct": 63,
+            "accuracy": 0.5081,
+            "ci95": [
+              0.4227,
+              0.5983
+            ]
+          },
+          "free_space": {
+            "n": 148,
+            "correct": 107,
+            "accuracy": 0.723,
+            "ci95": [
+              0.647,
+              0.7933
+            ]
+          },
+          "front_to_back": {
+            "n": 153,
+            "correct": 136,
+            "accuracy": 0.8889,
+            "ci95": [
+              0.8415,
+              0.9345
+            ]
+          },
+          "gripper_view": {
+            "n": 49,
+            "correct": 29,
+            "accuracy": 0.5918,
+            "ci95": [
+              0.4375,
+              0.7308
+            ]
+          },
+          "nearest_to_gripper": {
+            "n": 151,
+            "correct": 70,
+            "accuracy": 0.4636,
+            "ci95": [
+              0.3684,
+              0.5586
+            ]
+          },
+          "occlusion": {
+            "n": 77,
+            "correct": 40,
+            "accuracy": 0.5195,
+            "ci95": [
+              0.4085,
+              0.6338
+            ]
+          },
+          "reachability": {
+            "n": 110,
+            "correct": 67,
+            "accuracy": 0.6091,
+            "ci95": [
+              0.5096,
+              0.703
+            ]
+          },
+          "relation": {
+            "n": 153,
+            "correct": 89,
+            "accuracy": 0.5817,
+            "ci95": [
+              0.5071,
+              0.6584
+            ]
+          },
+          "support": {
+            "n": 146,
+            "correct": 96,
+            "accuracy": 0.6575,
+            "ci95": [
+              0.5685,
+              0.7403
+            ]
+          }
+        },
+        "by_camera": {
+          "front": {
+            "n": 561,
+            "correct": 376,
+            "accuracy": 0.6702,
+            "ci95": [
+              0.6284,
+              0.7113
+            ]
+          },
+          "gripper": {
+            "n": 476,
+            "correct": 319,
+            "accuracy": 0.6702,
+            "ci95": [
+              0.6253,
+              0.7174
+            ]
+          },
+          "overhead": {
+            "n": 530,
+            "correct": 331,
+            "accuracy": 0.6245,
+            "ci95": [
+              0.5813,
+              0.6654
+            ]
+          }
+        },
+        "by_family_conflict": {
+          "free_space|conflict": {
+            "n": 46,
+            "correct": 20,
+            "accuracy": 0.4348,
+            "ci95": [
+              0.2856,
+              0.5751
+            ]
+          },
+          "free_space|no_conflict": {
+            "n": 102,
+            "correct": 87,
+            "accuracy": 0.8529,
+            "ci95": [
+              0.7777,
+              0.9192
+            ]
+          },
+          "front_to_back|conflict": {
+            "n": 46,
+            "correct": 34,
+            "accuracy": 0.7391,
+            "ci95": [
+              0.6111,
+              0.8611
+            ]
+          },
+          "front_to_back|no_conflict": {
+            "n": 107,
+            "correct": 102,
+            "accuracy": 0.9533,
+            "ci95": [
+              0.9109,
+              0.9902
+            ]
+          },
+          "nearest_to_gripper|conflict": {
+            "n": 43,
+            "correct": 7,
+            "accuracy": 0.1628,
+            "ci95": [
+              0.0556,
+              0.2857
+            ]
+          },
+          "nearest_to_gripper|no_conflict": {
+            "n": 108,
+            "correct": 63,
+            "accuracy": 0.5833,
+            "ci95": [
+              0.4746,
+              0.6823
+            ]
+          },
+          "occlusion|conflict": {
+            "n": 13,
+            "correct": 5,
+            "accuracy": 0.3846,
+            "ci95": [
+              0.1248,
+              0.6667
+            ]
+          },
+          "occlusion|no_conflict": {
+            "n": 64,
+            "correct": 35,
+            "accuracy": 0.5469,
+            "ci95": [
+              0.4286,
+              0.6774
+            ]
+          },
+          "reachability|conflict": {
+            "n": 10,
+            "correct": 2,
+            "accuracy": 0.2,
+            "ci95": [
+              0.0,
+              0.5
+            ]
+          },
+          "reachability|no_conflict": {
+            "n": 100,
+            "correct": 65,
+            "accuracy": 0.65,
+            "ci95": [
+              0.549,
+              0.747
+            ]
+          },
+          "relation|conflict": {
+            "n": 76,
+            "correct": 40,
+            "accuracy": 0.5263,
+            "ci95": [
+              0.4154,
+              0.6364
+            ]
+          },
+          "relation|no_conflict": {
+            "n": 77,
+            "correct": 49,
+            "accuracy": 0.6364,
+            "ci95": [
+              0.5263,
+              0.7467
+            ]
+          }
+        },
+        "gap": {
+          "points": 0.2571,
+          "ci95": [
+            0.1814,
+            0.3275
+          ]
+        },
+        "errors": 0,
+        "unparseable": 114
+      },
+      "capture": {
+        "conflict_tasks": 234,
+        "answered_misses": 107,
+        "unparseable_on_conflict": 19,
+        "shortcut_picks": 72,
+        "capture_share": 0.6729,
+        "capture_ci95": [
+          0.5657,
+          0.7619
+        ],
+        "chance_share": 0.4934,
+        "chance_ci95": [
+          0.4092,
+          0.5774
+        ],
+        "ratio": 1.364,
+        "ratio_ci95": [
+          1.1208,
+          1.6734
+        ]
+      },
+      "capture_object_choice": {
+        "conflict_tasks": 132,
+        "answered_misses": 62,
+        "unparseable_on_conflict": 18,
+        "shortcut_picks": 30,
+        "capture_share": 0.4839,
+        "capture_ci95": [
+          0.3333,
+          0.6269
+        ],
+        "chance_share": 0.2296,
+        "chance_ci95": [
+          0.1678,
+          0.3051
+        ],
+        "ratio": 2.107,
+        "ratio_ci95": [
+          1.2595,
+          3.3054
+        ]
+      },
+      "capture_by_family": {
+        "free_space": {
+          "conflict_tasks": 46,
+          "answered_misses": 26,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 26,
+          "capture_share": 1.0,
+          "capture_ci95": [
+            1.0,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 1.0,
+          "ratio_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "front_to_back": {
+          "conflict_tasks": 46,
+          "answered_misses": 12,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 11,
+          "capture_share": 0.9167,
+          "capture_ci95": [
+            0.7143,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 0.917,
+          "ratio_ci95": [
+            0.7143,
+            1.0
+          ]
+        },
+        "nearest_to_gripper": {
+          "conflict_tasks": 43,
+          "answered_misses": 31,
+          "unparseable_on_conflict": 5,
+          "shortcut_picks": 23,
+          "capture_share": 0.7419,
+          "capture_ci95": [
+            0.5455,
+            0.8919
+          ],
+          "chance_share": 0.1654,
+          "chance_ci95": [
+            0.1185,
+            0.2183
+          ],
+          "ratio": 4.485,
+          "ratio_ci95": [
+            2.9671,
+            6.4327
+          ]
+        },
+        "occlusion": {
+          "conflict_tasks": 13,
+          "answered_misses": 7,
+          "unparseable_on_conflict": 1,
+          "shortcut_picks": 2,
+          "capture_share": 0.2857,
+          "capture_ci95": [
+            0.0,
+            0.6667
+          ],
+          "chance_share": 0.4078,
+          "chance_ci95": [
+            0.1072,
+            0.7495
+          ],
+          "ratio": 0.701,
+          "ratio_ci95": [
+            0.0,
+            3.6801
+          ]
+        },
+        "reachability": {
+          "conflict_tasks": 10,
+          "answered_misses": 7,
+          "unparseable_on_conflict": 1,
+          "shortcut_picks": 5,
+          "capture_share": 0.7143,
+          "capture_ci95": [
+            0.25,
+            1.0
+          ],
+          "chance_share": 0.079,
+          "chance_ci95": [
+            0.067,
+            0.0944
+          ],
+          "ratio": 9.039,
+          "ratio_ci95": [
+            3.12,
+            13.2807
+          ]
+        },
+        "relation": {
+          "conflict_tasks": 76,
+          "answered_misses": 24,
+          "unparseable_on_conflict": 12,
+          "shortcut_picks": 5,
+          "capture_share": 0.2083,
+          "capture_ci95": [
+            0.0588,
+            0.3889
+          ],
+          "chance_share": 0.2606,
+          "chance_ci95": [
+            0.1454,
+            0.4006
+          ],
+          "ratio": 0.8,
+          "ratio_ci95": [
+            0.2004,
+            2.0328
+          ]
+        }
+      },
+      "matched": {
+        "gap_conflict_minus_no_conflict": -0.2761,
+        "ci95": [
+          -0.3542,
+          -0.1959
+        ],
+        "strata_used": 16,
+        "conflict_tasks_in_matched_strata": 234,
+        "strata": {
+          "free_space|front": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.3889
+            },
+            "no_conflict": {
+              "n": 34,
+              "accuracy": 0.9118
+            },
+            "diff": -0.5229
+          },
+          "free_space|gripper": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.5455
+            },
+            "no_conflict": {
+              "n": 32,
+              "accuracy": 0.7812
+            },
+            "diff": -0.2358
+          },
+          "free_space|overhead": {
+            "conflict": {
+              "n": 17,
+              "accuracy": 0.4118
+            },
+            "no_conflict": {
+              "n": 36,
+              "accuracy": 0.8611
+            },
+            "diff": -0.4493
+          },
+          "front_to_back|front": {
+            "conflict": {
+              "n": 3,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 50,
+              "accuracy": 0.96
+            },
+            "diff": -0.96
+          },
+          "front_to_back|gripper": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.8571
+            },
+            "no_conflict": {
+              "n": 28,
+              "accuracy": 0.9643
+            },
+            "diff": -0.1071
+          },
+          "front_to_back|overhead": {
+            "conflict": {
+              "n": 22,
+              "accuracy": 0.7273
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.931
+            },
+            "diff": -0.2038
+          },
+          "nearest_to_gripper|front": {
+            "conflict": {
+              "n": 14,
+              "accuracy": 0.1429
+            },
+            "no_conflict": {
+              "n": 37,
+              "accuracy": 0.7568
+            },
+            "diff": -0.6139
+          },
+          "nearest_to_gripper|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.2778
+            },
+            "no_conflict": {
+              "n": 30,
+              "accuracy": 0.5333
+            },
+            "diff": -0.2556
+          },
+          "nearest_to_gripper|overhead": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.4634
+            },
+            "diff": -0.4634
+          },
+          "occlusion|front": {
+            "conflict": {
+              "n": 8,
+              "accuracy": 0.25
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.7317
+            },
+            "diff": -0.4817
+          },
+          "occlusion|gripper": {
+            "conflict": {
+              "n": 4,
+              "accuracy": 0.5
+            },
+            "no_conflict": {
+              "n": 5,
+              "accuracy": 0.2
+            },
+            "diff": 0.3
+          },
+          "occlusion|overhead": {
+            "conflict": {
+              "n": 1,
+              "accuracy": 1.0
+            },
+            "no_conflict": {
+              "n": 18,
+              "accuracy": 0.2222
+            },
+            "diff": 0.7778
+          },
+          "reachability|front": {
+            "conflict": {
+              "n": 10,
+              "accuracy": 0.2
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.7073
+            },
+            "diff": -0.5073
+          },
+          "relation|front": {
+            "conflict": {
+              "n": 37,
+              "accuracy": 0.5946
+            },
+            "no_conflict": {
+              "n": 17,
+              "accuracy": 0.7059
+            },
+            "diff": -0.1113
+          },
+          "relation|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.3889
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.6552
+            },
+            "diff": -0.2663
+          },
+          "relation|overhead": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.5238
+            },
+            "no_conflict": {
+              "n": 31,
+              "accuracy": 0.5806
+            },
+            "diff": -0.0568
+          }
+        }
+      },
+      "logit": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation"
+        ],
+        "coef": [
+          1.5345,
+          -1.4102,
+          0.181,
+          0.1406,
+          -0.0131,
+          -0.1257,
+          1.2486,
+          -1.269,
+          -1.1584,
+          -0.942,
+          -0.6628
+        ],
+        "se_cluster": [
+          0.2146,
+          0.2062,
+          0.0887,
+          0.1171,
+          0.0873,
+          0.0851,
+          0.3156,
+          0.2793,
+          0.3478,
+          0.3088,
+          0.3333
+        ],
+        "conflict_log_odds": -1.4102,
+        "conflict_ci95_cluster": [
+          -1.8144,
+          -1.0059
+        ],
+        "conflict_odds_ratio": 0.244,
+        "conflict_or_ci95_cluster": [
+          0.163,
+          0.366
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.8704,
+          -1.0217
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.154,
+          0.36
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 6,
+        "condition_number": 55.5,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "logit_with_camera": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation",
+          "camera=gripper",
+          "camera=overhead"
+        ],
+        "coef": [
+          1.9369,
+          -1.4895,
+          0.1641,
+          0.1495,
+          0.008,
+          -0.1141,
+          1.3366,
+          -1.2827,
+          -1.3571,
+          -0.9579,
+          -0.6781,
+          -0.3808,
+          -0.6956
+        ],
+        "se_cluster": [
+          0.2546,
+          0.2087,
+          0.0899,
+          0.1175,
+          0.089,
+          0.084,
+          0.3337,
+          0.2822,
+          0.3642,
+          0.3102,
+          0.3391,
+          0.2345,
+          0.1999
+        ],
+        "conflict_log_odds": -1.4895,
+        "conflict_ci95_cluster": [
+          -1.8987,
+          -1.0804
+        ],
+        "conflict_odds_ratio": 0.225,
+        "conflict_or_ci95_cluster": [
+          0.15,
+          0.339
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.9577,
+          -1.0941
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.141,
+          0.335
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 6,
+        "condition_number": 65.7,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "mean_thinking_tokens": {
+        "conflict": {
+          "n": 234,
+          "mean": 251.2,
+          "median": 223.5
+        },
+        "no_conflict": {
+          "n": 558,
+          "mean": 163.7,
+          "median": 134.0
+        },
+        "n/a": {
+          "n": 775,
+          "mean": 149.6,
+          "median": 80.0
+        }
+      }
+    },
+    "claude-opus-5-5-xhigh": {
+      "key": "claude-opus-5-5-xhigh",
+      "label": "Opus 5.5",
+      "effort": "xhigh",
+      "acc": {
+        "overall": {
+          "n": 1567,
+          "correct": 1040,
+          "accuracy": 0.6637,
+          "ci95": [
+            0.6378,
+            0.6883
+          ]
+        },
+        "by_conflict": {
+          "conflict": {
+            "n": 234,
+            "correct": 112,
+            "accuracy": 0.4786,
+            "ci95": [
+              0.4155,
+              0.5451
+            ]
+          },
+          "no_conflict": {
+            "n": 558,
+            "correct": 411,
+            "accuracy": 0.7366,
+            "ci95": [
+              0.6968,
+              0.7731
+            ]
+          },
+          "n/a": {
+            "n": 775,
+            "correct": 517,
+            "accuracy": 0.6671,
+            "ci95": [
+              0.6306,
+              0.7025
+            ]
+          }
+        },
+        "by_family": {
+          "containment": {
+            "n": 149,
+            "correct": 94,
+            "accuracy": 0.6309,
+            "ci95": [
+              0.5454,
+              0.7114
+            ]
+          },
+          "count": {
+            "n": 151,
+            "correct": 114,
+            "accuracy": 0.755,
+            "ci95": [
+              0.68,
+              0.8258
+            ]
+          },
+          "count_attribute": {
+            "n": 156,
+            "correct": 113,
+            "accuracy": 0.7244,
+            "ci95": [
+              0.6475,
+              0.7973
+            ]
+          },
+          "distance": {
+            "n": 124,
+            "correct": 68,
+            "accuracy": 0.5484,
+            "ci95": [
+              0.4636,
+              0.6328
+            ]
+          },
+          "free_space": {
+            "n": 148,
+            "correct": 113,
+            "accuracy": 0.7635,
+            "ci95": [
+              0.6992,
+              0.8302
+            ]
+          },
+          "front_to_back": {
+            "n": 153,
+            "correct": 142,
+            "accuracy": 0.9281,
+            "ci95": [
+              0.8869,
+              0.9647
+            ]
+          },
+          "gripper_view": {
+            "n": 49,
+            "correct": 30,
+            "accuracy": 0.6122,
+            "ci95": [
+              0.4688,
+              0.7442
+            ]
+          },
+          "nearest_to_gripper": {
+            "n": 151,
+            "correct": 74,
+            "accuracy": 0.4901,
+            "ci95": [
+              0.3974,
+              0.5796
+            ]
+          },
+          "occlusion": {
+            "n": 77,
+            "correct": 40,
+            "accuracy": 0.5195,
+            "ci95": [
+              0.4125,
+              0.6389
+            ]
+          },
+          "reachability": {
+            "n": 110,
+            "correct": 67,
+            "accuracy": 0.6091,
+            "ci95": [
+              0.5185,
+              0.6964
+            ]
+          },
+          "relation": {
+            "n": 153,
+            "correct": 87,
+            "accuracy": 0.5686,
+            "ci95": [
+              0.4934,
+              0.6471
+            ]
+          },
+          "support": {
+            "n": 146,
+            "correct": 98,
+            "accuracy": 0.6712,
+            "ci95": [
+              0.5844,
+              0.7547
+            ]
+          }
+        },
+        "by_camera": {
+          "front": {
+            "n": 561,
+            "correct": 386,
+            "accuracy": 0.6881,
+            "ci95": [
+              0.6479,
+              0.7271
+            ]
+          },
+          "gripper": {
+            "n": 476,
+            "correct": 322,
+            "accuracy": 0.6765,
+            "ci95": [
+              0.6331,
+              0.7219
+            ]
+          },
+          "overhead": {
+            "n": 530,
+            "correct": 332,
+            "accuracy": 0.6264,
+            "ci95": [
+              0.5816,
+              0.666
+            ]
+          }
+        },
+        "by_family_conflict": {
+          "free_space|conflict": {
+            "n": 46,
+            "correct": 23,
+            "accuracy": 0.5,
+            "ci95": [
+              0.3617,
+              0.64
+            ]
+          },
+          "free_space|no_conflict": {
+            "n": 102,
+            "correct": 90,
+            "accuracy": 0.8824,
+            "ci95": [
+              0.819,
+              0.9388
+            ]
+          },
+          "front_to_back|conflict": {
+            "n": 46,
+            "correct": 38,
+            "accuracy": 0.8261,
+            "ci95": [
+              0.7143,
+              0.9231
+            ]
+          },
+          "front_to_back|no_conflict": {
+            "n": 107,
+            "correct": 104,
+            "accuracy": 0.972,
+            "ci95": [
+              0.9369,
+              1.0
+            ]
+          },
+          "nearest_to_gripper|conflict": {
+            "n": 43,
+            "correct": 8,
+            "accuracy": 0.186,
+            "ci95": [
+              0.0714,
+              0.3243
+            ]
+          },
+          "nearest_to_gripper|no_conflict": {
+            "n": 108,
+            "correct": 66,
+            "accuracy": 0.6111,
+            "ci95": [
+              0.5102,
+              0.7064
+            ]
+          },
+          "occlusion|conflict": {
+            "n": 13,
+            "correct": 3,
+            "accuracy": 0.2308,
+            "ci95": [
+              0.0,
+              0.5
+            ]
+          },
+          "occlusion|no_conflict": {
+            "n": 64,
+            "correct": 37,
+            "accuracy": 0.5781,
+            "ci95": [
+              0.4528,
+              0.7097
+            ]
+          },
+          "reachability|conflict": {
+            "n": 10,
+            "correct": 2,
+            "accuracy": 0.2,
+            "ci95": [
+              0.0,
+              0.5
+            ]
+          },
+          "reachability|no_conflict": {
+            "n": 100,
+            "correct": 65,
+            "accuracy": 0.65,
+            "ci95": [
+              0.5529,
+              0.7404
+            ]
+          },
+          "relation|conflict": {
+            "n": 76,
+            "correct": 38,
+            "accuracy": 0.5,
+            "ci95": [
+              0.3902,
+              0.6094
+            ]
+          },
+          "relation|no_conflict": {
+            "n": 77,
+            "correct": 49,
+            "accuracy": 0.6364,
+            "ci95": [
+              0.5333,
+              0.7437
+            ]
+          }
+        },
+        "gap": {
+          "points": 0.258,
+          "ci95": [
+            0.1862,
+            0.3298
+          ]
+        },
+        "errors": 0,
+        "unparseable": 128
+      },
+      "capture": {
+        "conflict_tasks": 234,
+        "answered_misses": 98,
+        "unparseable_on_conflict": 24,
+        "shortcut_picks": 67,
+        "capture_share": 0.6837,
+        "capture_ci95": [
+          0.5789,
+          0.779
+        ],
+        "chance_share": 0.4632,
+        "chance_ci95": [
+          0.3803,
+          0.5443
+        ],
+        "ratio": 1.476,
+        "ratio_ci95": [
+          1.209,
+          1.8407
+        ]
+      },
+      "capture_object_choice": {
+        "conflict_tasks": 132,
+        "answered_misses": 61,
+        "unparseable_on_conflict": 22,
+        "shortcut_picks": 31,
+        "capture_share": 0.5082,
+        "capture_ci95": [
+          0.365,
+          0.6471
+        ],
+        "chance_share": 0.2285,
+        "chance_ci95": [
+          0.164,
+          0.3044
+        ],
+        "ratio": 2.224,
+        "ratio_ci95": [
+          1.4028,
+          3.5087
+        ]
+      },
+      "capture_by_family": {
+        "free_space": {
+          "conflict_tasks": 46,
+          "answered_misses": 23,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 23,
+          "capture_share": 1.0,
+          "capture_ci95": [
+            1.0,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 1.0,
+          "ratio_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "front_to_back": {
+          "conflict_tasks": 46,
+          "answered_misses": 8,
+          "unparseable_on_conflict": 0,
+          "shortcut_picks": 8,
+          "capture_share": 1.0,
+          "capture_ci95": [
+            1.0,
+            1.0
+          ],
+          "chance_share": 1.0,
+          "chance_ci95": [
+            1.0,
+            1.0
+          ],
+          "ratio": 1.0,
+          "ratio_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "nearest_to_gripper": {
+          "conflict_tasks": 43,
+          "answered_misses": 27,
+          "unparseable_on_conflict": 8,
+          "shortcut_picks": 22,
+          "capture_share": 0.8148,
+          "capture_ci95": [
+            0.6521,
+            0.95
+          ],
+          "chance_share": 0.1664,
+          "chance_ci95": [
+            0.1094,
+            0.2295
+          ],
+          "ratio": 4.898,
+          "ratio_ci95": [
+            3.5386,
+            7.3
+          ]
+        },
+        "occlusion": {
+          "conflict_tasks": 13,
+          "answered_misses": 9,
+          "unparseable_on_conflict": 1,
+          "shortcut_picks": 3,
+          "capture_share": 0.3333,
+          "capture_ci95": [
+            0.0,
+            0.7143
+          ],
+          "chance_share": 0.456,
+          "chance_ci95": [
+            0.1791,
+            0.7495
+          ],
+          "ratio": 0.731,
+          "ratio_ci95": [
+            0.0,
+            2.8487
+          ]
+        },
+        "reachability": {
+          "conflict_tasks": 10,
+          "answered_misses": 6,
+          "unparseable_on_conflict": 2,
+          "shortcut_picks": 5,
+          "capture_share": 0.8333,
+          "capture_ci95": [
+            0.3333,
+            1.0
+          ],
+          "chance_share": 0.0755,
+          "chance_ci95": [
+            0.0635,
+            0.091
+          ],
+          "ratio": 11.033,
+          "ratio_ci95": [
+            5.4783,
+            14.0
+          ]
+        },
+        "relation": {
+          "conflict_tasks": 76,
+          "answered_misses": 25,
+          "unparseable_on_conflict": 13,
+          "shortcut_picks": 6,
+          "capture_share": 0.24,
+          "capture_ci95": [
+            0.08,
+            0.4286
+          ],
+          "chance_share": 0.2137,
+          "chance_ci95": [
+            0.1182,
+            0.329
+          ],
+          "ratio": 1.123,
+          "ratio_ci95": [
+            0.3459,
+            2.6474
+          ]
+        }
+      },
+      "matched": {
+        "gap_conflict_minus_no_conflict": -0.2753,
+        "ci95": [
+          -0.3496,
+          -0.1979
+        ],
+        "strata_used": 16,
+        "conflict_tasks_in_matched_strata": 234,
+        "strata": {
+          "free_space|front": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.5
+            },
+            "no_conflict": {
+              "n": 34,
+              "accuracy": 0.9412
+            },
+            "diff": -0.4412
+          },
+          "free_space|gripper": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.5455
+            },
+            "no_conflict": {
+              "n": 32,
+              "accuracy": 0.8438
+            },
+            "diff": -0.2983
+          },
+          "free_space|overhead": {
+            "conflict": {
+              "n": 17,
+              "accuracy": 0.4706
+            },
+            "no_conflict": {
+              "n": 36,
+              "accuracy": 0.8611
+            },
+            "diff": -0.3905
+          },
+          "front_to_back|front": {
+            "conflict": {
+              "n": 3,
+              "accuracy": 0.3333
+            },
+            "no_conflict": {
+              "n": 50,
+              "accuracy": 0.96
+            },
+            "diff": -0.6267
+          },
+          "front_to_back|gripper": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.9048
+            },
+            "no_conflict": {
+              "n": 28,
+              "accuracy": 1.0
+            },
+            "diff": -0.0952
+          },
+          "front_to_back|overhead": {
+            "conflict": {
+              "n": 22,
+              "accuracy": 0.8182
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.9655
+            },
+            "diff": -0.1473
+          },
+          "nearest_to_gripper|front": {
+            "conflict": {
+              "n": 14,
+              "accuracy": 0.1429
+            },
+            "no_conflict": {
+              "n": 37,
+              "accuracy": 0.7838
+            },
+            "diff": -0.6409
+          },
+          "nearest_to_gripper|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.3333
+            },
+            "no_conflict": {
+              "n": 30,
+              "accuracy": 0.5667
+            },
+            "diff": -0.2333
+          },
+          "nearest_to_gripper|overhead": {
+            "conflict": {
+              "n": 11,
+              "accuracy": 0.0
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.4878
+            },
+            "diff": -0.4878
+          },
+          "occlusion|front": {
+            "conflict": {
+              "n": 8,
+              "accuracy": 0.125
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.7805
+            },
+            "diff": -0.6555
+          },
+          "occlusion|gripper": {
+            "conflict": {
+              "n": 4,
+              "accuracy": 0.25
+            },
+            "no_conflict": {
+              "n": 5,
+              "accuracy": 0.2
+            },
+            "diff": 0.05
+          },
+          "occlusion|overhead": {
+            "conflict": {
+              "n": 1,
+              "accuracy": 1.0
+            },
+            "no_conflict": {
+              "n": 18,
+              "accuracy": 0.2222
+            },
+            "diff": 0.7778
+          },
+          "reachability|front": {
+            "conflict": {
+              "n": 10,
+              "accuracy": 0.2
+            },
+            "no_conflict": {
+              "n": 41,
+              "accuracy": 0.6585
+            },
+            "diff": -0.4585
+          },
+          "relation|front": {
+            "conflict": {
+              "n": 37,
+              "accuracy": 0.6216
+            },
+            "no_conflict": {
+              "n": 17,
+              "accuracy": 0.7059
+            },
+            "diff": -0.0843
+          },
+          "relation|gripper": {
+            "conflict": {
+              "n": 18,
+              "accuracy": 0.3333
+            },
+            "no_conflict": {
+              "n": 29,
+              "accuracy": 0.6897
+            },
+            "diff": -0.3563
+          },
+          "relation|overhead": {
+            "conflict": {
+              "n": 21,
+              "accuracy": 0.4286
+            },
+            "no_conflict": {
+              "n": 31,
+              "accuracy": 0.5484
+            },
+            "diff": -0.1198
+          }
+        }
+      },
+      "logit": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation"
+        ],
+        "coef": [
+          1.8312,
+          -1.5102,
+          0.2332,
+          0.1286,
+          -0.012,
+          -0.1919,
+          1.5286,
+          -1.4319,
+          -1.3903,
+          -1.2497,
+          -0.9672
+        ],
+        "se_cluster": [
+          0.2117,
+          0.1989,
+          0.0996,
+          0.1215,
+          0.09,
+          0.081,
+          0.3968,
+          0.2844,
+          0.3535,
+          0.2979,
+          0.3233
+        ],
+        "conflict_log_odds": -1.5102,
+        "conflict_ci95_cluster": [
+          -1.9001,
+          -1.1204
+        ],
+        "conflict_odds_ratio": 0.221,
+        "conflict_or_ci95_cluster": [
+          0.15,
+          0.326
+        ],
+        "conflict_ci95_bootstrap": [
+          -1.9159,
+          -1.1769
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.147,
+          0.308
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 7,
+        "condition_number": 61.5,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "logit_with_camera": {
+        "n": 792,
+        "scenes": 249,
+        "columns": [
+          "intercept",
+          "conflict",
+          "visible_fraction_z",
+          "g4_margin_z",
+          "object_count_z",
+          "camera_quality_z",
+          "family=front_to_back",
+          "family=nearest_to_gripper",
+          "family=occlusion",
+          "family=reachability",
+          "family=relation",
+          "camera=gripper",
+          "camera=overhead"
+        ],
+        "coef": [
+          2.2925,
+          -1.616,
+          0.2144,
+          0.1409,
+          0.0116,
+          -0.1819,
+          1.6437,
+          -1.4539,
+          -1.6252,
+          -1.2768,
+          -0.9938,
+          -0.4132,
+          -0.7752
+        ],
+        "se_cluster": [
+          0.2617,
+          0.2013,
+          0.1001,
+          0.1233,
+          0.094,
+          0.0799,
+          0.4186,
+          0.2872,
+          0.3726,
+          0.3002,
+          0.3331,
+          0.2512,
+          0.1996
+        ],
+        "conflict_log_odds": -1.616,
+        "conflict_ci95_cluster": [
+          -2.0106,
+          -1.2214
+        ],
+        "conflict_odds_ratio": 0.199,
+        "conflict_or_ci95_cluster": [
+          0.134,
+          0.295
+        ],
+        "conflict_ci95_bootstrap": [
+          -2.0235,
+          -1.2535
+        ],
+        "conflict_or_ci95_bootstrap": [
+          0.132,
+          0.286
+        ],
+        "bootstrap_fits": 500,
+        "converged": true,
+        "iterations": 7,
+        "condition_number": 71.8,
+        "stable": true,
+        "unstable_reasons": [],
+        "scaling": {
+          "mean": [
+            0.8606623737373726,
+            1.4053810238532287,
+            13.172979797979798,
+            0.8522727272727273
+          ],
+          "sd": [
+            0.1724562102914898,
+            1.0243649294358004,
+            6.676630978406256,
+            1.0646500285049543
+          ]
+        }
+      },
+      "mean_thinking_tokens": {
+        "conflict": {
+          "n": 234,
+          "mean": 550.2,
+          "median": 389.0
+        },
+        "no_conflict": {
+          "n": 558,
+          "mean": 315.7,
+          "median": 206.5
+        },
+        "n/a": {
+          "n": 775,
+          "mean": 507.1,
+          "median": 136.0
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "claude-opus-5-5-xhigh vs claude-opus-5-5": {
+      "gap_change_points": 0.0009,
+      "gap_change_ci95": [
+        -0.0506,
+        0.0509
+      ],
+      "overall_change": 0.0089,
+      "overall_change_ci95": [
+        -0.0062,
+        0.0241
+      ],
+      "conflict_accuracy_change": 0.0171,
+      "conflict_accuracy_change_ci95": [
+        -0.0305,
+        0.0651
+      ]
+    },
+    "claude-opus-5-5 vs claude-sonnet-5-5": {
+      "gap_change_points": 0.0127,
+      "gap_change_ci95": [
+        -0.0523,
+        0.0799
+      ],
+      "overall_change": 0.039,
+      "overall_change_ci95": [
+        0.0168,
+        0.0593
+      ],
+      "conflict_accuracy_change": 0.0213,
+      "conflict_accuracy_change_ci95": [
+        -0.038,
+        0.0798
+      ]
+    },
+    "claude-sonnet-5-5 vs claude-haiku-5-5": {
+      "gap_change_points": -0.0042,
+      "gap_change_ci95": [
+        -0.0694,
+        0.058
+      ],
+      "overall_change": 0.1129,
+      "overall_change_ci95": [
+        0.0915,
+        0.1333
+      ],
+      "conflict_accuracy_change": 0.1368,
+      "conflict_accuracy_change_ci95": [
+        0.0857,
+        0.1909
+      ]
+    },
+    "claude-opus-5-5 vs claude-haiku-5-5": {
+      "gap_change_points": 0.0085,
+      "gap_change_ci95": [
+        -0.0706,
+        0.0889
+      ],
+      "overall_change": 0.1519,
+      "overall_change_ci95": [
+        0.1243,
+        0.1781
+      ],
+      "conflict_accuracy_change": 0.1581,
+      "conflict_accuracy_change_ci95": [
+        0.092,
+        0.2251
+      ]
+    }
+  },
+  "logit_pooled": {
+    "n": 3168,
+    "scenes": 249,
+    "columns": [
+      "intercept",
+      "conflict",
+      "visible_fraction_z",
+      "g4_margin_z",
+      "object_count_z",
+      "camera_quality_z",
+      "family=front_to_back",
+      "family=nearest_to_gripper",
+      "family=occlusion",
+      "family=reachability",
+      "family=relation",
+      "model=claude-sonnet-5-5",
+      "model=claude-opus-5-5",
+      "model=claude-opus-5-5-xhigh"
+    ],
+    "coef": [
+      0.9381,
+      -1.3503,
+      0.1855,
+      0.1436,
+      -0.0611,
+      -0.1418,
+      0.9045,
+      -1.5088,
+      -1.4888,
+      -1.1409,
+      -1.0829,
+      0.6731,
+      0.8314,
+      0.9259
+    ],
+    "se_cluster": [
+      0.1638,
+      0.1554,
+      0.0758,
+      0.0974,
+      0.0661,
+      0.0652,
+      0.2145,
+      0.212,
+      0.2797,
+      0.2397,
+      0.2645,
+      0.0817,
+      0.1018,
+      0.0973
+    ],
+    "conflict_log_odds": -1.3503,
+    "conflict_ci95_cluster": [
+      -1.6549,
+      -1.0458
+    ],
+    "conflict_odds_ratio": 0.259,
+    "conflict_or_ci95_cluster": [
+      0.191,
+      0.351
+    ],
+    "conflict_ci95_bootstrap": [
+      -1.6758,
+      -1.0739
+    ],
+    "conflict_or_ci95_bootstrap": [
+      0.187,
+      0.342
+    ],
+    "bootstrap_fits": 500,
+    "converged": true,
+    "iterations": 6,
+    "condition_number": 63.3,
+    "stable": true,
+    "unstable_reasons": [],
+    "scaling": {
+      "mean": [
+        0.8606623737373729,
+        1.4053810238532356,
+        13.172979797979798,
+        0.8522727272727273
+      ],
+      "sd": [
+        0.1724562102914888,
+        1.024364929435799,
+        6.676630978406252,
+        1.064650028504925
+      ]
+    }
+  },
+  "shortcut_matched_by_noun": [
+    "t0d3d0d91961fb75b",
+    "t152196ff0df8b7c2",
+    "t1ec6690cb3647fb6",
+    "t29e51e2819d0c632",
+    "tc4c978d5bb1ba38d",
+    "td6753dc30efac1c9",
+    "tef1eecb17a8cd5e0",
+    "tef2645d6fc6f22dc"
+  ],
+  "spatial_common": 792,
+  "verdicts": [
+    "Haiku 5.5 at effort high: 55% when the 2D shortcut agrees with the 3D truth, 30% when it conflicts; gap 25 points (95% CI 18 to 32).",
+    "Sonnet 5.5 at effort high: 68% when the 2D shortcut agrees with the 3D truth, 44% when it conflicts; gap 24 points (95% CI 17 to 32).",
+    "Opus 5.5 at effort high: 72% when the 2D shortcut agrees with the 3D truth, 46% when it conflicts; gap 26 points (95% CI 18 to 33).",
+    "Opus 5.5 at effort xhigh: 74% when the 2D shortcut agrees with the 3D truth, 48% when it conflicts; gap 26 points (95% CI 19 to 33).",
+    "Shortcut capture: of the conflict tasks each model got wrong, the share answered with exactly the 2D-shortcut answer, against chance: Haiku 5.5 high 44% vs 46% (0.95x, 95% CI 0.79 to 1.12); Sonnet 5.5 high 64% vs 46% (1.39x, 95% CI 1.18 to 1.67); Opus 5.5 high 67% vs 49% (1.36x, 95% CI 1.12 to 1.67); Opus 5.5 xhigh 68% vs 46% (1.48x, 95% CI 1.21 to 1.84).",
+    "The pull is strongest for 'nearest to the gripper', where wrong answers name the object nearest in the image: Haiku 5.5 high 12 of 38 (chance 21%); Sonnet 5.5 high 22 of 32 (chance 19%); Opus 5.5 high 23 of 31 (chance 17%); Opus 5.5 xhigh 22 of 27 (chance 17%). Other object families, all models pooled: relation 28 of 134 (chance 24%); occlusion 7 of 32 (chance 36%); reachability 20 of 30 (chance 10%).",
+    "Confound check: the gap survives for every model. Within the same family and camera, conflict tasks score lower by (points): Haiku 5.5 high -26, Sonnet 5.5 high -25, Opus 5.5 high -28, Opus 5.5 xhigh -28; the logistic regression holding visible fraction, G4 margin, object count, camera quality and family fixed gives conflict odds ratios of Haiku 5.5 high 0.275 (0.188 to 0.403), Sonnet 5.5 high 0.289 (0.197 to 0.424), Opus 5.5 high 0.244 (0.163 to 0.366), Opus 5.5 xhigh 0.221 (0.15 to 0.326).",
+    "More thinking (Opus 5.5 xhigh vs high): the gap changes by +0 points (95% CI -5 to +5); accuracy on conflict tasks by +2 points (95% CI -3 to +7)."
+  ],
+  "survives": {
+    "claude-haiku-5-5": true,
+    "claude-sonnet-5-5": true,
+    "claude-opus-5-5": true,
+    "claude-opus-5-5-xhigh": true
+  },
+  "gallery": [
+    {
+      "task_id": "t08138724d906efd6",
+      "scene_id": "scene_0103",
+      "family": "nearest_to_gripper",
+      "camera": "front",
+      "question": "Which object is nearest to the gripper's tip?",
+      "truth": "jug",
+      "shortcut_answer": "box",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t13526658a2e08723",
+      "scene_id": "scene_0029",
+      "family": "reachability",
+      "camera": "front",
+      "question": "Which objects have their centre inside the red reach zone marked on the table?",
+      "truth": "jug",
+      "shortcut_answer": [],
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t1d7f93a2f7d157f9",
+      "scene_id": "scene_0167_twin_dc9ca93fee",
+      "family": "nearest_to_gripper",
+      "camera": "front",
+      "question": "Which object is nearest to the gripper's tip?",
+      "truth": "rock",
+      "shortcut_answer": "wrench",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t1eb4ff4013c3c6a9",
+      "scene_id": "scene_0180",
+      "family": "free_space",
+      "camera": "overhead",
+      "question": "Would the bowl fit on the table in the gap between the pliers and the box?",
+      "truth": "no",
+      "shortcut_answer": true,
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t1f7b3e4b01527393",
+      "scene_id": "scene_0193",
+      "family": "free_space",
+      "camera": "front",
+      "question": "Is there room to place the ball on the table between the lemon and the pot?",
+      "truth": "no",
+      "shortcut_answer": true,
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t205c9777edd278f3",
+      "scene_id": "scene_0194",
+      "family": "relation",
+      "camera": "front",
+      "question": "From the camera's view, looking directly to the left of the baseball, which object is closest to it?",
+      "truth": "jug",
+      "shortcut_answer": "can",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t2532095c22dc23ec",
+      "scene_id": "scene_0285",
+      "family": "free_space",
+      "camera": "overhead",
+      "question": "Is there room to place the block on the table between the blue can and the purple bottle?",
+      "truth": "no",
+      "shortcut_answer": true,
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t3b1e22e326aef6c6",
+      "scene_id": "scene_0075",
+      "family": "nearest_to_gripper",
+      "camera": "gripper",
+      "question": "Which object is closest to the tip of the gripper?",
+      "truth": "elephant",
+      "shortcut_answer": "box",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t5773b8fb3c62013d",
+      "scene_id": "scene_0173",
+      "family": "front_to_back",
+      "camera": "overhead",
+      "question": "Of the bowl and the lime, which one is nearer to the camera?",
+      "truth": "lime",
+      "shortcut_answer": "bowl",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t87c6cb5824e95535",
+      "scene_id": "scene_0183",
+      "family": "relation",
+      "camera": "overhead",
+      "question": "From the camera's view, which object is the nearest one directly to the left of the pliers?",
+      "truth": "cylinder",
+      "shortcut_answer": "hammer",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "t8d3fdc745412a116",
+      "scene_id": "scene_0003",
+      "family": "front_to_back",
+      "camera": "overhead",
+      "question": "Which is closer to the camera, the tape or the pomegranate?",
+      "truth": "tape",
+      "shortcut_answer": "pomegranate",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    },
+    {
+      "task_id": "td5984c012527a9cd",
+      "scene_id": "scene_0046",
+      "family": "front_to_back",
+      "camera": "front",
+      "question": "Of the elephant and the cube, which one is nearer to the camera?",
+      "truth": "elephant",
+      "shortcut_answer": "cube",
+      "models_taking_shortcut": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5-xhigh"
+      ]
+    }
+  ]
+}
