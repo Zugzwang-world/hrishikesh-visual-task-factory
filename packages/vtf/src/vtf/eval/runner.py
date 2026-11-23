@@ -153,7 +153,13 @@ def load_tasks(
 
 def score_task(task: TaskPackage, raw_text: str) -> Score:
     """Score a raw reply against a task. The one place the runner and the audit call the scorer."""
-    return score_response(task.answer_type, task.answer, raw_text, task.tolerance)
+    return score_response(
+        task.answer_type,
+        task.answer,
+        raw_text,
+        task.tolerance,
+        scene_objects=task.scene_objects or None,
+    )
 
 
 def score_value_for_task(task: TaskPackage, value: Any) -> Score:
