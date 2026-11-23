@@ -34,7 +34,13 @@ from vtf.core.program import CompiledQuestion, ProgramReject, TwinEdit
 from vtf.core.rng import derive_seed
 from vtf.core.scene import Placement, SceneSpec
 from vtf.core.task import GateResult, TaskPackage
-from vtf.package.writer import build_task, task_difficulty, task_versions, write_task
+from vtf.package.writer import (
+    build_task,
+    task_difficulty,
+    task_versions,
+    visible_object_ids,
+    write_task,
+)
 from vtf.validate import pipeline as pl
 
 DEFAULT_FRACTION = 0.2
@@ -254,7 +260,8 @@ def evaluate_twin(
     )
     difficulty["twin"] = 1
     twin_task = build_task(q, twin_settled, sha256_json(twin_settled), gates, versions, difficulty,
-                           ctx.rig, twin_of=task.task_id)  # fmt: skip
+                           ctx.rig, twin_of=task.task_id,
+                           visible_ids=visible_object_ids(twin_settled, ctx.vis))  # fmt: skip
     twin_task.gates["G6"] = GateResult(
         passed=True, evidence={"status": "is_twin", "twin_of": task.task_id, **{
             k: record[k] for k in ("moved_object", "original_answer", "twin_answer")}},

@@ -7,7 +7,7 @@ The 12 families in `vtf.core.program.FAMILIES`, with the exact rule each program
 - **Frames.** Every relation names its frame: "from the camera's view" (front and overhead rigs) or "in the gripper camera's view" (gripper rig). Camera-frame left and right are image left and right.
 - **Naming rule.** Any object a question names, and any object answer, must be uniquely nameable in the scene. The name is the first of these that is unique among all scene objects (comparing category, colour and size word): `category`, `colour category`, `size category`, `size colour category`. An object with no unique name is never named and never an answer. Duplicates are allowed only as the counted objects of a count question about that category or colour. Support answers may also be `table`.
 - **Names in answers.** `answer` for an object is its unique name; for a set, the sorted list of unique names (every member must be nameable, else reject); `answer_text` joins them with commas, or says `none`.
-- **Scoring (scorer).** A free-text object answer is correct when the colour, size and category words it uses match exactly one scene object (from `task.scene_objects`) and that object is the truth. So "the red mug" is right when the truth is "mug" and only one mug exists. Sets: every item resolves, and the resolved set equals the truth. Numbers: |answer - truth| <= tolerance.
+- **Scoring (scorer).** A free-text object answer is correct when the colour, size and category words it uses match exactly one object visible in the task's image (`task.scene_objects` lists the objects with at least 20 visible pixels in that camera, v0.2.2) and that object is the truth. So "the red mug" is right when the truth is "mug" and only one mug exists. Sets: every item resolves, and the resolved set equals the truth. Numbers: |answer - truth| <= tolerance.
 - **Resting.** "Resting on X" means the object's lowest point is within 1 cm of X's top surface below it, and its centre lies over X's footprint. X is the table or another object.
 - **Inside a container.** Using the container's `ContainerInfo` in its local frame: the object's centre is inside the interior footprint (circle radius or rect, shrunk by 5 mm) and its lowest point is between floor_z - 1 cm and rim_z above the container's lowest point.
 - **Footprint.** The object mesh projected onto the table plane (convex hull of the xy of its world vertices). Centre = bounding-box centre.
@@ -106,6 +106,7 @@ The 12 families in `vtf.core.program.FAMILIES`, with the exact rule each program
 - **G4.** No object centre within 2 cm of the zone boundary; pixel: no image point within 6 px of the projected boundary.
 - **2D heuristic.** Objects whose image point lies inside the projected zone outline.
 - **Twin.** Move one member out of the zone (or one non-member in).
+- **In frame (v0.2.2).** Asked only when the whole zone outline projects inside the image (4 px margin); otherwise "inside the zone" cannot be judged.
 
 ### free_space
 

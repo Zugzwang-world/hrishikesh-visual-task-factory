@@ -42,7 +42,8 @@ from vtf.programs.view import (
     scale_reference,
 )
 
-PROGRAMS_VERSION = "0.2.1"
+PROGRAMS_VERSION = "0.2.2"
+ZONE_IN_FRAME_MARGIN_PX = 4  # the whole reach-zone outline must be this far inside the image
 
 TABLE_CONTACT_TOL_M = RESTING_TOL_M
 # G4 margins (spec/families.md)
@@ -718,6 +719,18 @@ def in_zone(ctx: Ctx, params: dict[str, Any]) -> ProgramResult:
     outline = zone_outline(zone)
     h = ctx.scene.table.height
     uv_outline, z_outline = _project_outline(cam, outline, h)
+    # The whole outline must be in frame, or "inside the zone" cannot be judged from the image
+    # (brief 05 check run: a wrist view showed one corner of the zone).
+    w, hgt = cam.resolution
+    m = ZONE_IN_FRAME_MARGIN_PX
+    in_frame = (
+        (np.asarray(z_outline) > 0)
+        & (uv_outline[:, 0] >= m) & (uv_outline[:, 0] <= w - m)
+        & (uv_outline[:, 1] >= m) & (uv_outline[:, 1] <= hgt - m)
+    )  # fmt: skip
+    if not bool(np.all(in_frame)):
+        raise ProgramReject("zone_not_in_frame", zone=zone.id,
+                            outside_share=_r(1.0 - float(np.mean(in_frame)), 4))  # fmt: skip
     rows, margin, margin_px, near = [], math.inf, math.inf, []
     for o in ctx.sg.objects:
         g = ctx.sg.geom[o.id]

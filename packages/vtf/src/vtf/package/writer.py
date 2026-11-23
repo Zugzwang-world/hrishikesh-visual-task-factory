@@ -50,7 +50,13 @@ def make_task_id(
     )
 
 
-def scene_object_refs(scene: SceneSpec) -> list[ObjectRef]:
+VISIBLE_FOR_SCORING_PX = 20  # an object counts as nameable in an image from this many pixels
+
+
+def scene_object_refs(scene: SceneSpec, visible_ids: set[str] | None = None) -> list[ObjectRef]:
+    """Objects the scorer resolves free-text names against. With `visible_ids`, only the objects
+    visible in the task's image: a model that sees one hammer and says "hammer" is right even if a
+    second hammer is out of view (brief 05 check run)."""
     return [
         ObjectRef(
             id=o.id,
@@ -60,7 +66,18 @@ def scene_object_refs(scene: SceneSpec) -> list[ObjectRef]:
             size_word=o.size_word,
         )
         for o in sorted(scene.objects, key=lambda o: o.id)
+        if visible_ids is None or o.id in visible_ids
     ]
+
+
+def visible_object_ids(scene: SceneSpec, vis: dict) -> set[str]:
+    """Object ids with at least VISIBLE_FOR_SCORING_PX visible pixels (vis: pass index ->
+    Visibility from the index pass)."""
+    return {
+        o.id
+        for o in scene.objects
+        if o.pass_index in vis and vis[o.pass_index].visible_pixels >= VISIBLE_FOR_SCORING_PX
+    }
 
 
 def _flat(value: Any) -> int | float | str:
@@ -117,6 +134,7 @@ def build_task(
     rig: str = "front",
     twin_of: str | None = None,
     twin_id: str | None = None,
+    visible_ids: set[str] | None = None,
 ) -> TaskPackage:
     result = question.result
     assert result is not None
@@ -138,7 +156,7 @@ def build_task(
         shortcut_conflict=result.shortcut_conflict,
         shortcut_answer=result.shortcut_answer,
         evidence_object_ids=result.evidence_object_ids,
-        scene_objects=scene_object_refs(settled),
+        scene_objects=scene_object_refs(settled, visible_ids),
         gates=gates,
         twin_of=twin_of,
         twin_id=twin_id,

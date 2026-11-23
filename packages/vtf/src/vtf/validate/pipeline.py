@@ -37,7 +37,13 @@ from vtf.core.render_manifest import RenderManifest
 from vtf.core.rng import derive_seed
 from vtf.core.scene import RunInfo, SceneSpec
 from vtf.core.task import GateResult, ManifestRow, RejectedRow
-from vtf.package.writer import build_task, task_difficulty, task_versions, write_task
+from vtf.package.writer import (
+    build_task,
+    task_difficulty,
+    task_versions,
+    visible_object_ids,
+    write_task,
+)
 from vtf.validate.gates import g3_evidence_visible as g3
 from vtf.validate.gates.g1_truth import check_g1
 from vtf.validate.gates.g2_second_computation import check_g2, render_vs_scene
@@ -423,7 +429,8 @@ def validate_scene(
                 difficulty = task_difficulty(
                     settled, q, ctx.rig, min_visible_fraction(q, settled, ctx.vis)
                 )
-                task = build_task(q, settled, scene_hash, gates, versions, difficulty, ctx.rig)
+                task = build_task(q, settled, scene_hash, gates, versions, difficulty, ctx.rig,
+                                  visible_ids=visible_object_ids(settled, ctx.vis))  # fmt: skip
                 record = g6.get(task.task_id)
                 task.gates["G6"] = g6_gate(record)
                 if record and record.get("status") == "changed":
