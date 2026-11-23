@@ -6,21 +6,24 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { blenderQuat, blenderToThree, cameraPose, frustumCorners } from "@/lib/geometry";
+import { ROLE_COLOR, type Highlights, type Role } from "@/lib/highlights";
 import type { CameraData, ObjectData, SceneData, Vec3 } from "@/lib/types";
 
 export type ViewMode = "camera" | "orbit";
 export type LabelMode = "evidence" | "all" | "none";
 
-const ACCENT = "#e8590c";
-const PICK = "#d9342b";
+// Neutral rig colours: blue and orange are kept for the true answer and the 2D shortcut.
+const TIP = "#24231f";
+const FRUSTUM_ON = "#3b6e8f";
+const FRUSTUM_OFF = "#7d838c";
+const HALO = "#151514";
 const BLENDER_FRAME: [number, number, number] = [-Math.PI / 2, 0, 0];
 
 interface Props {
   scene: SceneData;
   dataBase: string;
   camera: CameraData | null;
-  evidence: Set<string>;
-  picks: Set<string>; // objects a model wrongly answered
+  hl: Highlights; // objects to mark: true answer, 2D shortcut, wrong pick, evidence
   mode: ViewMode;
   snapKey: number;
   labels: LabelMode;
@@ -79,24 +82,29 @@ function Solid({ shape, dims, color, opacity = 1, cast = true }: {
   );
 }
 
-const unitEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1));
+/** The 12 edges of a box centred on the origin, as point pairs for a segments Line. */
+function boxEdges(dims: Vec3, pad: number): Vec3[] {
+  const [hx, hy, hz] = dims.map((d) => (d + pad) / 2);
+  const c = (i: number): Vec3 => [i & 1 ? hx : -hx, i & 2 ? hy : -hy, i & 4 ? hz : -hz];
+  const pairs = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
+  return pairs.flatMap(([a, b]) => [c(a), c(b)]);
+}
 
-function HighlightBox({ dims, color }: { dims: Vec3; color: string }) {
-  const pad = 0.012;
+/** A thick outline in the role colour over a dark halo, drawn on top of everything. Both lines sit
+ * in the transparent pass (after every mesh), where renderOrder puts the colour over the halo. */
+function HighlightBox({ dims, role }: { dims: Vec3; role: Role }) {
+  const pts = useMemo(() => boxEdges(dims, 0.014), [dims]);
+  const main = role === "evidence" ? 2 : 3;
+  const common = { points: pts, segments: true, transparent: true, depthTest: false, depthWrite: false };
   return (
-    <lineSegments
-      geometry={unitEdges}
-      scale={[dims[0] + pad, dims[1] + pad, dims[2] + pad]}
-      renderOrder={2}
-    >
-      <lineBasicMaterial color={color} depthTest={false} transparent opacity={0.95} />
-    </lineSegments>
+    <>
+      <Line {...common} color={HALO} lineWidth={main + 2.5} opacity={0.9} renderOrder={3} />
+      <Line {...common} color={ROLE_COLOR[role]} lineWidth={main} renderOrder={4} />
+    </>
   );
 }
 
-function SceneObject({ obj, evidence, pick, drawSolid }: {
-  obj: ObjectData; evidence: boolean; pick: boolean; drawSolid: boolean;
-}) {
+function SceneObject({ obj, role, drawSolid }: { obj: ObjectData; role: Role | undefined; drawSolid: boolean }) {
   if (!obj.position || !obj.dimensions) return null;
   const q = blenderQuat(obj.rotation);
   const color = linearColor(obj.rgb);
@@ -111,7 +119,7 @@ function SceneObject({ obj, evidence, pick, drawSolid }: {
           opacity={primitive ? 1 : 0.6}
         />
       )}
-      {(evidence || pick) && <HighlightBox dims={obj.dimensions} color={pick ? PICK : ACCENT} />}
+      {role && <HighlightBox dims={obj.dimensions} role={role} />}
     </group>
   );
 }
@@ -119,7 +127,8 @@ function SceneObject({ obj, evidence, pick, drawSolid }: {
 interface LabelItem {
   id: string;
   name: string;
-  pos: THREE.Vector3; // three.js world, above the object
+  pos: THREE.Vector3; // three.js world: above the object, or below it for a 2D-shortcut label
+  below: boolean;
 }
 
 /** Moves the DOM labels (outside the Canvas) to their projected positions every frame. Plain DOM
@@ -140,7 +149,8 @@ function LabelProjector({ items, refs }: {
       el.style.visibility = "visible";
       const x = ((v.x + 1) / 2) * size.width;
       const y = ((1 - v.y) / 2) * size.height;
-      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -100%)`;
+      const dy = it.below ? "4px" : "-100%";
+      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, ${dy})`;
     }
   });
   return null;
@@ -186,7 +196,7 @@ function Gripper({ scene, drawSolid }: { scene: SceneData; drawSolid: boolean })
       {g.tip && (
         <mesh position={g.tip.position}>
           <sphereGeometry args={[0.008, 16, 8]} />
-          <meshBasicMaterial color={ACCENT} />
+          <meshBasicMaterial color={TIP} />
         </mesh>
       )}
     </group>
@@ -241,7 +251,7 @@ function Frusta({ scene, active, hideActive }: {
           <Line
             key={cam.camera_id}
             points={pts}
-            color={on ? ACCENT : "#5d6470"}
+            color={on ? FRUSTUM_ON : FRUSTUM_OFF}
             lineWidth={on ? 2 : 1.2}
             transparent
             opacity={on ? 1 : 0.7}
@@ -253,7 +263,9 @@ function Frusta({ scene, active, hideActive }: {
 }
 
 function GltfModel({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
+  // Meshopt geometry (decoder bundled with three-stdlib) and WebP textures; never Draco, whose
+  // decoder would come from a CDN.
+  const { scene } = useGLTF(url, false, true);
   useEffect(() => {
     scene.traverse((o) => {
       const m = o as THREE.Mesh;
@@ -311,7 +323,7 @@ function CameraRig({ camera, scene, mode, snapKey }: {
 }
 
 export default function SceneView3D(props: Props) {
-  const { scene, dataBase, camera, evidence, picks, mode, snapKey, labels, useGltf, onOrbit, onGltfError } = props;
+  const { scene, dataBase, camera, hl, mode, snapKey, labels, useGltf, onOrbit, onGltfError } = props;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const labelRefs = useRef(new Map<string, HTMLSpanElement>());
   const gltfUrl = scene.gltf && useGltf ? `${dataBase}/${scene.scene_id}/${scene.gltf}` : null;
@@ -331,13 +343,17 @@ export default function SceneView3D(props: Props) {
         .map((o) => {
           const [x, y, z] = o.position!;
           const half = Math.max(...o.dimensions!) / 2;
-          return { id: o.id, name: o.name, pos: blenderToThree([x, y, z + half + 0.015]) };
+          const below = hl.role.get(o.id) === "shortcut";
+          const pos = blenderToThree([x, y, below ? z - half - 0.01 : z + half + 0.015]);
+          return { id: o.id, name: hl.label.get(o.id) ?? o.name, pos, below };
         }),
-    [scene],
+    [scene, hl],
   );
-  // Evidence labels only when there are few (a count over ten objects would bury the view).
+  // Role labels always; plain evidence labels only when there are few (a count over ten objects
+  // would bury the view).
+  const quiet = [...hl.role.keys()].filter((id) => !hl.always.has(id)).length;
   const visible = (id: string) =>
-    labels === "all" || (labels === "evidence" && (picks.has(id) || (evidence.has(id) && evidence.size <= 4)));
+    labels === "all" || (labels === "evidence" && (hl.always.has(id) || (hl.role.has(id) && quiet <= 4)));
 
   return (
     <div className="canvas-wrap" onPointerDownCapture={startOrbit} onWheelCapture={startOrbit}>
@@ -367,7 +383,7 @@ export default function SceneView3D(props: Props) {
           <Gripper scene={scene} drawSolid={drawSolid} />
           <Zones scene={scene} />
           {scene.objects.map((o) => (
-            <SceneObject key={o.id} obj={o} evidence={evidence.has(o.id)} pick={picks.has(o.id)} drawSolid={drawSolid} />
+            <SceneObject key={o.id} obj={o} role={hl.role.get(o.id)} drawSolid={drawSolid} />
           ))}
           <Frusta scene={scene} active={camera?.camera_id ?? null} hideActive={mode === "camera"} />
         </group>
@@ -383,10 +399,10 @@ export default function SceneView3D(props: Props) {
               if (el) labelRefs.current.set(it.id, el);
               else labelRefs.current.delete(it.id);
             }}
-            className={`label3d${picks.has(it.id) ? " label3d-pick" : evidence.has(it.id) ? " label3d-ev" : ""}`}
+            className={`label3d${hl.role.has(it.id) ? ` label3d-${hl.role.get(it.id)}` : ""}`}
             style={{ display: visible(it.id) ? undefined : "none" }}
           >
-            {picks.has(it.id) && !evidence.has(it.id) ? `model: ${it.name}` : it.name}
+            {it.name}
           </span>
         ))}
       </div>

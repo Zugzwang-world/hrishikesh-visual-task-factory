@@ -273,7 +273,19 @@ def export(
     out: Path = typer.Option(None, help="Output folder (explorer: e.g. web/public/data)."),
     scenes: int = typer.Option(6, help="explorer: number of scenes in the sample."),
     max_width: int = typer.Option(1024, help="explorer: camera images at most this wide (px)."),
-    max_mb: float = typer.Option(25.0, help="explorer: size budget for the whole sample (MB)."),
+    max_mb: float = typer.Option(40.0, help="explorer: size budget for the whole sample (MB)."),
+    results: list[Path] = typer.Option(
+        None,
+        "--results",
+        help="explorer: a result folder (results.jsonl + summary.json), labelled by its name; "
+        "repeat for each model. Default: <run>/eval/*.",
+    ),
+    gallery: Path = typer.Option(
+        None, help='explorer: JSON with a "gallery" list (docs/reports/v1/findings.json).'
+    ),
+    compress_glb: bool = typer.Option(
+        True, help="explorer: meshopt + WebP glTF via web/scripts/compress-glb.mjs (needs Node)."
+    ),
 ) -> None:
     """Export tasks for Hugging Face, SFT, RL or the Task Explorer."""
     if format == "explorer":
@@ -288,6 +300,9 @@ def export(
             n_scenes=scenes,
             max_width=max_width,
             max_mb=max_mb,
+            results_dirs=results or None,
+            gallery=gallery,
+            compress_glbs=compress_glb,
         )
         return
     _stub("export")

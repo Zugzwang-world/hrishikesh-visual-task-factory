@@ -1,4 +1,4 @@
-// Shapes of the files `vtf export --format explorer` writes (vtf.package.explorer, v0.1.0).
+// Shapes of the files `vtf export --format explorer` writes (vtf.package.explorer, v0.2.0).
 // Fields a run does not have are null, so everything optional is typed `| null`.
 
 export type Vec3 = [number, number, number];
@@ -7,8 +7,10 @@ export type Mat3 = [Vec3, Vec3, Vec3];
 export type Mat4 = number[][];
 
 export interface ModelSummary {
-  label: string;
-  model: string | null;
+  label: string; // the result folder key, e.g. claude-opus-5-5-xhigh
+  model: string | null; // model id
+  display_name?: string; // e.g. "Opus 5.5 · xhigh" (v0.2)
+  effort?: string | null;
   with_image: boolean | null;
   n: number;
   correct: number;
@@ -26,6 +28,45 @@ export interface SceneSummary {
   gltf: boolean;
   shortcut_conflicts: number;
   models: Record<string, { n: number; correct: number }>;
+  gallery?: boolean; // exported for the conflict gallery (v0.2)
+  thumbs?: Record<string, string>; // camera_id -> gallery thumbnail
+}
+
+export interface GalleryMark {
+  object_id: string;
+  role: "truth" | "shortcut";
+  name: string;
+  uv: [number, number]; // fractions of the image width and height
+}
+
+export interface GalleryModel {
+  label: string;
+  display_name: string | null;
+  effort: string | null;
+  with_image: boolean | null;
+  answer: unknown;
+  parse_ok: boolean;
+  correct: boolean;
+  took_shortcut: boolean | null;
+}
+
+export interface GalleryItem {
+  task_id: string;
+  scene_id: string;
+  task_index: number;
+  family: string;
+  camera: string;
+  rig: string | null;
+  question: string;
+  truth: unknown;
+  answer_type: string | null;
+  shortcut_answer: unknown;
+  models_taking_shortcut: string[];
+  truth_object_ids: string[];
+  shortcut_object_ids: string[];
+  thumb: string | null;
+  marks: GalleryMark[];
+  models: GalleryModel[];
 }
 
 export interface ExplorerIndex {
@@ -43,6 +84,7 @@ export interface ExplorerIndex {
   gates: string[];
   models: ModelSummary[];
   scenes: SceneSummary[];
+  gallery?: GalleryItem[];
 }
 
 export interface Pose {
@@ -60,6 +102,7 @@ export interface CameraData {
   world_to_camera: Mat4 | null;
   focal_mm: number | null;
   sensor_width_mm: number | null;
+  quality?: { distortion_k1?: number | null } | null;
 }
 
 export interface ObjectData {
@@ -86,10 +129,14 @@ export interface GateData {
 export interface ModelAnswer {
   label: string;
   model: string | null;
+  display_name?: string;
+  effort?: string | null;
   with_image: boolean | null;
   answer: unknown;
+  answer_object_ids?: string[]; // objects the answer names (object and set answers, v0.2)
   parse_ok: boolean;
   correct: boolean;
+  took_shortcut?: boolean | null; // wrong in the 2D-shortcut way (shortcut-conflict tasks)
   raw_response: string | null;
   error: string | null;
 }
@@ -108,6 +155,8 @@ export interface TaskData {
   tolerance: number | null;
   shortcut_conflict: boolean | null;
   shortcut_answer: unknown;
+  truth_object_ids?: string[]; // shortcut-conflict tasks (v0.2)
+  shortcut_object_ids?: string[];
   evidence_object_ids: string[];
   difficulty: Record<string, unknown>;
   gates: Record<string, GateData>;

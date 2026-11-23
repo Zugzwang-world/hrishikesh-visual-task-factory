@@ -6,9 +6,19 @@
   --ink-2: #3d3c39;
   --muted: #6d6b66;
   --line: #e2dfd8;
-  --accent: #e8590c;
-  --accent-soft: #fdebe0;
-  --pick: #d9342b;
+  --accent: #1b1b1a;
+  --accent-soft: #e2dfd8;
+  /* Highlight roles: blue true answer and orange 2D shortcut (the headline chart's pair, colour-blind
+     safe), reddish purple for a model's wrong pick, neutral white-on-dark for plain evidence. */
+  --truth: #2a78d6;
+  --truth-ink: #1b5aa6;
+  --truth-soft: #e4eefa;
+  --shortcut: #eb6834;
+  --shortcut-ink: #a8431a;
+  --shortcut-soft: #fdebe3;
+  --on-shortcut: #1b1b1a;
+  --pick: #a0458f;
+  --pick-soft: #f5e6f2;
   --pass: #1f7a45;
   --pass-soft: #e3f3e9;
   --fail: #c0392b;
@@ -32,9 +42,16 @@
     --ink-2: #cfcdc7;
     --muted: #9a978f;
     --line: #34332f;
-    --accent: #ff7a33;
-    --accent-soft: #3a2416;
-  --pick: #e5483d;
+    --accent: #ecebe7;
+    --accent-soft: #34332f;
+    --truth: #2a78d6;
+    --truth-ink: #7fb2f0;
+    --truth-soft: #17263a;
+    --shortcut: #eb6834;
+    --shortcut-ink: #f59a72;
+    --shortcut-soft: #3a2216;
+    --pick: #b35aa3;
+    --pick-soft: #33202f;
     --pass: #4cc283;
     --pass-soft: #17301f;
     --fail: #ff6b5b;
@@ -120,6 +137,31 @@ pre {
   gap: 8px;
 }
 
+.view-tabs {
+  flex-basis: 100%;
+}
+
+.view-tabs.seg button {
+  text-transform: none;
+}
+
+.view-tabs .count {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--shortcut);
+  color: var(--on-shortcut);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.model-chip-blind {
+  border-style: dashed;
+}
+
 .model-chip {
   display: inline-flex;
   align-items: baseline;
@@ -186,6 +228,11 @@ pre {
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
+.scene-id .tag-gallery {
+  font-family: var(--sans);
+  font-weight: 600;
+}
+
 .scene-card img,
 .thumb-empty {
   width: 100%;
@@ -201,6 +248,7 @@ pre {
   font-family: var(--mono);
   font-size: 0.82rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .scene-meta {
@@ -363,22 +411,9 @@ pre {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 2.5px solid var(--accent);
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.35);
-}
-
-.pin-left .pin-label {
-  left: auto;
-  right: 12px;
-}
-
-.pin-pick .pin-dot {
-  border-color: var(--pick);
-}
-
-.pin-pick .pin-label {
-  background: var(--pick);
+  border: 2.5px solid #fff;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.55);
 }
 
 .pin-label {
@@ -388,10 +423,78 @@ pre {
   white-space: nowrap;
   padding: 1px 6px;
   border-radius: 5px;
-  background: var(--accent);
+  background: rgba(20, 20, 18, 0.8);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.pin-left .pin-label {
+  left: auto;
+  right: 12px;
+}
+
+.pin-plain .pin-dot {
+  width: 10px;
+  height: 10px;
+  border-width: 2px;
+}
+
+.pin-truth .pin-dot,
+.pin-shortcut .pin-dot,
+.pin-pick .pin-dot {
+  width: 18px;
+  height: 18px;
+  border-width: 3.5px;
+}
+
+/* Role labels stay on top of plain evidence labels. */
+.pin-truth,
+.pin-shortcut {
+  z-index: 3;
+}
+
+.pin-pick {
+  z-index: 2;
+}
+
+.label3d-truth,
+.label3d-shortcut {
+  z-index: 3;
+}
+
+.label3d-pick {
+  z-index: 2;
+}
+
+.pin-truth .pin-dot {
+  border-color: var(--truth);
+}
+
+.pin-truth .pin-label {
+  background: var(--truth);
+}
+
+/* Shortcut labels hang below the dot, truth labels sit above it: the two objects are close in the
+   picture by construction, so their labels would otherwise collide. */
+.pin-shortcut .pin-dot {
+  border-color: var(--shortcut);
+}
+
+.pin-shortcut .pin-label {
+  top: 14px;
+  background: var(--shortcut);
+  color: var(--on-shortcut);
+}
+
+.pin-pick .pin-dot {
+  border-color: var(--pick);
+}
+
+.pin-pick .pin-label {
+  top: 14px;
+  background: var(--pick);
 }
 
 .label-layer {
@@ -415,8 +518,19 @@ pre {
   will-change: transform;
 }
 
-.label3d-ev {
-  background: var(--accent);
+.label3d-evidence {
+  background: rgba(20, 20, 18, 0.82);
+  font-weight: 650;
+}
+
+.label3d-truth {
+  background: var(--truth);
+  font-weight: 650;
+}
+
+.label3d-shortcut {
+  background: var(--shortcut);
+  color: var(--on-shortcut);
   font-weight: 650;
 }
 
@@ -443,21 +557,42 @@ pre {
 
 .legend {
   display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  color: var(--ink-2);
+}
+
+.legend-item {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 .swatch {
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--accent);
-  border-radius: 3px;
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
   display: inline-block;
+  flex: 0 0 auto;
+}
+
+.swatch-truth {
+  border-color: var(--truth);
+}
+
+.swatch-shortcut {
+  border-color: var(--shortcut);
 }
 
 .swatch-pick {
   border-color: var(--pick);
-  margin-left: 8px;
+}
+
+.swatch-evidence {
+  border-color: #fff;
+  box-shadow: 0 0 0 1.5px #1b1b1a;
 }
 
 /* ------------------------------------------------------------ task card */
@@ -538,6 +673,30 @@ pre {
   background: var(--none);
 }
 
+.dot-mixed {
+  background: linear-gradient(135deg, var(--pass) 50%, var(--fail) 50%);
+}
+
+/* Shortcut-conflict tasks: an orange bar under the dot. */
+.step-dot.dot-conflict {
+  position: relative;
+}
+
+.step-dot.dot-conflict::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: -5px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--shortcut);
+}
+
+.step-dots {
+  row-gap: 9px;
+}
+
 .step-count {
   font-family: var(--mono);
   font-size: 0.85rem;
@@ -574,6 +733,13 @@ pre {
   font-weight: 600;
 }
 
+.chip-shortcut {
+  background: var(--shortcut-soft);
+  color: var(--shortcut-ink);
+  border-color: transparent;
+  font-weight: 650;
+}
+
 .chip-muted {
   color: var(--muted);
 }
@@ -592,28 +758,46 @@ pre {
   font-size: 0.88rem;
 }
 
-.truth {
+.answer-box {
   display: flex;
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 10px 12px;
-  margin: 10px 0 4px;
+  padding: 9px 12px;
+  margin: 8px 0 4px;
   border-radius: 8px;
-  background: var(--pass-soft);
+  border-left: 4px solid;
 }
 
-.truth-label {
+.answer-truth {
+  background: var(--truth-soft);
+  border-left-color: var(--truth);
+}
+
+.answer-shortcut {
+  background: var(--shortcut-soft);
+  border-left-color: var(--shortcut);
+}
+
+.answer-label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--pass);
   font-weight: 700;
 }
 
-.truth-value {
+.answer-truth .answer-label {
+  color: var(--truth-ink);
+}
+
+.answer-shortcut .answer-label {
+  color: var(--shortcut-ink);
+}
+
+.answer-value {
   font-size: 1.08rem;
   font-weight: 650;
+  overflow-wrap: anywhere;
 }
 
 .tol {
@@ -661,12 +845,31 @@ pre {
 }
 
 .tag {
+  display: inline-block;
   margin-left: 6px;
   padding: 0 5px;
   border-radius: 4px;
   background: var(--warn-soft);
   color: var(--warn);
   font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+
+.tag-shortcut {
+  background: var(--shortcut-soft);
+  color: var(--shortcut-ink);
+}
+
+.tag-muted,
+.tag-gallery {
+  background: var(--panel-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.model-row-missing .model-row-name {
+  color: var(--muted);
 }
 
 .mark {
@@ -700,8 +903,9 @@ pre {
 .ev-chip {
   padding: 1px 8px;
   border-radius: 5px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -830,6 +1034,257 @@ pre {
   color: var(--muted);
 }
 
+/* ------------------------------------------------------------ conflict gallery */
+
+.gallery-intro {
+  max-width: 78ch;
+  margin: 4px 0 16px;
+}
+
+.gallery-intro h2 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+}
+
+.gallery-intro p {
+  margin: 0 0 10px;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.gallery-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 14px;
+}
+
+.g-card {
+  min-width: 0;
+}
+
+.g-open {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.g-open:hover {
+  border-color: var(--muted);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.g-open:active {
+  transform: scale(0.99);
+}
+
+.g-open:focus-visible {
+  outline: 2px solid var(--truth);
+  outline-offset: 2px;
+}
+
+.g-thumb {
+  position: relative;
+  background: var(--pane);
+  overflow: hidden;
+}
+
+.g-thumb img,
+.g-thumb .thumb-empty {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 0;
+}
+
+.g-mark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.g-dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.55);
+}
+
+.g-mark-truth .g-dot {
+  border-color: var(--truth);
+}
+
+.g-mark-shortcut .g-dot {
+  border-color: var(--shortcut);
+}
+
+.g-tag {
+  position: absolute;
+  left: 11px;
+  top: -20px;
+  white-space: nowrap;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.g-mark-left .g-tag {
+  left: auto;
+  right: 11px;
+}
+
+.g-mark-truth .g-tag {
+  background: var(--truth);
+  color: #fff;
+}
+
+.g-mark-shortcut .g-tag {
+  top: 12px;
+  background: var(--shortcut);
+  color: var(--on-shortcut);
+}
+
+.g-cam {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: rgba(20, 20, 18, 0.66);
+  color: #fff;
+  font-size: 0.72rem;
+}
+
+.g-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  flex: 1;
+}
+
+.g-question {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.g-answers {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.g-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+.g-row dt {
+  flex: 0 0 auto;
+  min-width: 6.2em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.g-row dd {
+  margin: 0;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.g-row-truth {
+  background: var(--truth-soft);
+  border-left-color: var(--truth);
+}
+
+.g-row-truth dt {
+  color: var(--truth-ink);
+}
+
+.g-row-shortcut {
+  background: var(--shortcut-soft);
+  border-left-color: var(--shortcut);
+}
+
+.g-row-shortcut dt {
+  color: var(--shortcut-ink);
+}
+
+.g-note,
+.g-took {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+.g-took-label {
+  color: var(--muted);
+}
+
+.g-models {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 4px;
+}
+
+.g-model {
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.g-model .mark {
+  width: 18px;
+  height: 18px;
+}
+
+.g-model-name {
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.g-model-answer {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ------------------------------------------------------------ footer and states */
 
 .page-foot {
@@ -858,6 +1313,13 @@ pre {
 @media (max-width: 560px) {
   .app {
     padding: 12px 12px 32px;
+  }
+  .model-chip {
+    padding: 4px 9px;
+    font-size: 0.8rem;
+  }
+  .seg button {
+    padding: 6px 9px;
   }
   .brand h1 {
     font-size: 1.3rem;
