@@ -1,7 +1,36 @@
-# Models for the evaluation harness (stage 4).
-# PLACEHOLDER: every model_id below is UNVERIFIED. Pin the real IDs on the day the
-# evaluation runs (see docs/thinking-partner/OPEN.md, item 1) and set verified: true.
+# Models for the evaluation harness. `vtf eval <run> --model <key>` looks the key up here.
+#
+# The key is what results (<run>/eval/<key>/) and the reply cache are filed under. To compare
+# two settings of one model (say two effort levels), give each its own key.
+#
+# settings (Anthropic): max_tokens, thinking (adaptive | between_tools), effort
+# (low | medium | high | xhigh | max), structured_output (true sends a JSON schema),
+# timeout_s, max_retries. Temperature, top_p and top_k are never sent: API version 2026-10-21
+# rejects them on every model.
+#
+# Fake models need no entry: fake-oracle, fake-constant, fake-unparseable (offline, free).
+
+defaults:
+  max_tokens: 16000     # thinking counts toward it; a JSON answer needs a few dozen tokens
+  timeout_s: 120        # per attempt; the SDK retries 408/409/429/5xx with backoff
+  max_retries: 6
+  concurrency: 4        # parallel requests per run
+
 models:
+  # Development model (P08). ID, image input, pricing and the no-sampling-parameters rule
+  # checked by the scout and the claude-api skill reference on 23 Nov 2026.
+  - key: claude-sonnet-5-5
+    provider: anthropic
+    model_id: claude-sonnet-5-5
+    verified: true
+    price_usd_per_mtok: {input: 2.0, output: 10.0}
+    settings:
+      thinking: adaptive  # the model's default; it cannot be disabled, only cut to between_tools
+      effort: high        # the model's default, pinned so it is recorded and stays fixed
+
+  # Frontier and open models for the stage 4 evaluation.
+  # PLACEHOLDER: every model_id below is UNVERIFIED. Pin the real IDs on the day the
+  # evaluation runs (see docs/thinking-partner/OPEN.md, item 1) and set verified: true.
   - key: anthropic-flagship
     provider: anthropic
     model_id: TBD   # unverified: current Anthropic flagship vision model
