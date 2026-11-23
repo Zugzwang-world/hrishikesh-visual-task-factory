@@ -115,10 +115,28 @@ def verify(
 
 @app.command()
 def export(
-    path: Path = typer.Argument(None, help="Task directory."),
-    format: str = typer.Option("hf", help="Export format: hf, sft, rl, gltf."),
+    path: Path = typer.Argument(None, help="Run folder."),
+    format: str = typer.Option("hf", help="Export format: hf, sft, rl, explorer."),
+    out: Path = typer.Option(None, help="Output folder (explorer: e.g. web/public/data)."),
+    scenes: int = typer.Option(6, help="explorer: number of scenes in the sample."),
+    max_width: int = typer.Option(1024, help="explorer: camera images at most this wide (px)."),
+    max_mb: float = typer.Option(25.0, help="explorer: size budget for the whole sample (MB)."),
 ) -> None:
     """Export tasks for Hugging Face, SFT, RL or the Task Explorer."""
+    if format == "explorer":
+        if path is None:
+            raise typer.BadParameter("give the run folder, e.g. out/s2")
+        from vtf.core.layout import RunLayout
+        from vtf.package.explorer import export_explorer
+
+        export_explorer(
+            path,
+            out or RunLayout(path).explorer_dir,
+            n_scenes=scenes,
+            max_width=max_width,
+            max_mb=max_mb,
+        )
+        return
     _stub("export")
 
 
