@@ -20,6 +20,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 import shutil
 import sys
 import time
@@ -159,7 +160,7 @@ def main() -> None:
     manifest = {
         "manifest_version": MANIFEST_VERSION,
         "scene_id": spec["meta"]["scene_id"],
-        "scene_file": str(args.scene),
+        "scene_file": os.path.relpath(scene_path.resolve(), out),  # relative, like all paths
         "scene_sha256": hashlib.sha256(raw).hexdigest(),
         "settled_scene_file": SETTLED,
         "renderer": "blender",

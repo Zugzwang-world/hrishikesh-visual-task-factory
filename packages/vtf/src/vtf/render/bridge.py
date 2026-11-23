@@ -148,26 +148,35 @@ def render_run(
 ) -> dict:
     """Render every <run>/scenes/<id>/scene.json into <run>/scenes/<id>/render/.
 
-    Scenes that already have a manifest are skipped unless force. Prints one line per scene and
-    writes <run>/render_report.json with per-scene status, seconds and errors.
+    Scenes that already have a manifest are skipped unless force; `limit` caps the number of
+    scenes rendered (skips do not count), so repeated calls work through a run in batches. Prints
+    one line per scene and rewrites <run>/render_report.json after every scene, with per-scene
+    status, seconds (wall clock including Blender start-up), phase timings and errors.
     """
     layout = RunLayout(run_dir)
     scene_ids = layout.scene_ids()
     if not scene_ids:
         raise FileNotFoundError(f"no scenes in {layout.scenes_dir}")
-    if limit is not None:
-        scene_ids = scene_ids[:limit]
     blender_path = find_blender(blender)
     previous = _load_report(layout.render_report).get("scenes", {})
-    scenes: dict[str, dict] = dict(previous)
-    counts = {"ok": 0, "failed": 0, "skipped": 0}
+    report = {
+        "report_version": REPORT_VERSION,
+        "device": device.upper(),
+        "blender": blender_path,
+        "counts": {"ok": 0, "failed": 0, "skipped": 0},
+        "seconds": 0.0,
+        "scenes": dict(previous),
+    }
+    counts = report["counts"]
     start = time.perf_counter()
     for scene_id in scene_ids:
+        if limit is not None and counts["ok"] + counts["failed"] >= limit:
+            break
         if layout.render_manifest(scene_id).exists() and not force:
             counts["skipped"] += 1
             entry = dict(previous.get(scene_id, {}))
             entry.update(status="skipped", error=None)
-            scenes[scene_id] = entry
+            report["scenes"][scene_id] = entry
             print(f"{scene_id}  skipped (already rendered)", flush=True)
             continue
         result = render_scene(
@@ -193,23 +202,22 @@ def render_run(
             print(f"{scene_id}  ok  {result.seconds:.1f} s", flush=True)
         else:
             print(f"{scene_id}  FAILED  {result.seconds:.1f} s  {result.error}", flush=True)
-        scenes[scene_id] = entry
+        report["scenes"][scene_id] = entry
+        report["seconds"] = round(time.perf_counter() - start, 3)
+        _write_report(layout.render_report, report)
     total = time.perf_counter() - start
-    report = {
-        "report_version": REPORT_VERSION,
-        "device": device.upper(),
-        "blender": blender_path,
-        "counts": counts,
-        "seconds": round(total, 3),
-        "scenes": dict(sorted(scenes.items())),
-    }
-    path = layout.render_report
-    path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    report["seconds"] = round(total, 3)
+    _write_report(layout.render_report, report)
     rendered = counts["ok"] + counts["failed"]
     per_scene = f", {total / rendered:.1f} s per scene" if rendered else ""
     print(
         f"rendered {counts['ok']} ok, {counts['failed']} failed, {counts['skipped']} skipped "
-        f"in {total:.1f} s{per_scene}; report {path}",
+        f"in {total:.1f} s{per_scene}; report {layout.render_report}",
         flush=True,
     )
     return report
+
+
+def _write_report(path: Path, report: dict) -> None:
+    data = dict(report, scenes=dict(sorted(report["scenes"].items())))
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
