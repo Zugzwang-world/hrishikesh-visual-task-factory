@@ -3,7 +3,18 @@ name = "vtf"
 version = "0.0.1"
 description = "Visual Task Factory core: scene spec, question programs, validation gates, evaluation. Never imports bpy."
 requires-python = ">=3.12,<3.13"
-dependencies = ["typer>=0.29"]
+dependencies = [
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "numpy>=2.5.5",
+    "opencv-python-headless>=5.1.0.95",
+    "pillow>=13.0.0",
+    "pydantic>=2.14.4",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.4",
+    "scikit-image>=0.26.0",
+    "typer>=0.29",
+]
 
 [project.scripts]
 vtf = "vtf.cli:app"
