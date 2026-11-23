@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Dataset report: {{ run_name }}</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --line: rgba(11, 11, 11, 0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --mutedfill: #d6d5ce;
+  --h1: #cde2fb; --h2: #9ec5f4; --h3: #6da7ec; --h4: #3987e5; --h5: #256abf; --h6: #184f95;
+  --good: #006300; --bad: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --line: rgba(255, 255, 255, 0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --mutedfill: #45453f;
+    --h1: #104281; --h2: #184f95; --h3: #1c5cab; --h4: #256abf; --h5: #2a78d6; --h6: #3987e5;
+    --good: #0ca30c; --bad: #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --line: rgba(255, 255, 255, 0.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --mutedfill: #45453f;
+  --h1: #104281; --h2: #184f95; --h3: #1c5cab; --h4: #256abf; --h5: #2a78d6; --h6: #3987e5;
+  --good: #0ca30c; --bad: #e66767;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 900px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 28px; line-height: 1.2; margin: 0 0 6px; }
+h2 { font-size: 20px; margin: 44px 0 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 15px; margin: 22px 0 6px; }
+p { margin: 6px 0 10px; }
+.lede { color: var(--ink-2); font-size: 16px; max-width: 68ch; }
+.why { color: var(--ink-2); max-width: 72ch; }
+.small { font-size: 13px; color: var(--muted); }
+.empty { color: var(--muted); font-style: italic; }
+nav.toc { margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; }
+nav.toc a { color: var(--ink-2); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 22px 0 0; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.tile b { display: block; font-size: 26px; line-height: 1.1; font-weight: 650; }
+.tile span { color: var(--ink-2); font-size: 13px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 12px; }
+.cards .card { margin: 0; }
+.card h3 { margin: 0 0 4px; }
+svg.chart { width: 100%; height: auto; display: block; font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; }
+svg .lbl, svg .val { fill: var(--ink); }
+svg .val { fill: var(--ink-2); font-variant-numeric: tabular-nums; }
+svg .tick, svg .mk { fill: var(--muted); font-size: 11px; }
+svg .axis { stroke: var(--axis); stroke-width: 1; }
+svg .grid, svg .rowline { stroke: var(--grid); stroke-width: 1; }
+svg .marker { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg .hit { fill: transparent; }
+svg g:hover .hit { fill: var(--line); }
+svg .bar.s1 { fill: var(--s1); } svg .bar.s2 { fill: var(--s2); } svg .bar.s3 { fill: var(--s3); }
+svg .bar.muted { fill: var(--mutedfill); }
+svg .dot { stroke: var(--surface); stroke-width: 2; }
+svg .dot.s1 { fill: var(--s1); } svg .dot.s2 { fill: var(--s2); } svg .dot.s3 { fill: var(--s3); }
+svg .whisker { stroke-width: 2; stroke-linecap: round; }
+svg .whisker.s1 { stroke: var(--s1); } svg .whisker.s2 { stroke: var(--s2); } svg .whisker.s3 { stroke: var(--s3); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 4px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.legend .s1 { background: var(--s1); } .legend .s2 { background: var(--s2); } .legend .s3 { background: var(--s3); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { color: var(--ink-2); font-weight: 600; }
+caption { text-align: left; font-weight: 600; padding: 4px 0 6px; color: var(--ink); }
+table.heat td { text-align: center; min-width: 34px; }
+table.heat th.grp { text-align: center; border-bottom: 2px solid var(--axis); }
+table.heat td.tot { font-weight: 600; text-align: right; }
+td.h0 { color: var(--muted); }
+td.h1 { background: var(--h1); } td.h2 { background: var(--h2); } td.h3 { background: var(--h3); color: #fff; }
+td.h4 { background: var(--h4); color: #fff; } td.h5 { background: var(--h5); color: #fff; } td.h6 { background: var(--h6); color: #fff; }
+.ok { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; }
+details { margin: 8px 0; } summary { cursor: pointer; color: var(--ink-2); }
+code { font: 13px ui-monospace, Menlo, monospace; }
+@media (max-width: 520px) { .cards { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Dataset report: {{ run_name }}</h1>
+<p class="lede">What the Visual Task Factory built in this run, what it threw away and why, and how models did. Every number below is computed from the run folder by programs; no answer was typed by hand or taken from a model.</p>
+<p class="small">Report {{ report_version }}{% if versions %} · vtf {{ versions.vtf }} · scene spec {{ versions.spec }} · tasks {{ versions.task }} · programs {{ versions.programs }} · renderer {{ versions.renderer }}{% endif %}{% if run_info.run_seed is defined %} · run seed {{ run_info.run_seed }}{% endif %}</p>
+
+<div class="tiles">
+  <div class="tile"><b>{{ tiles.scenes }}</b><span>scenes</span></div>
+  {% if tiles.candidates is not none %}<div class="tile"><b>{{ tiles.candidates }}</b><span>candidate questions</span></div>{% endif %}
+  <div class="tile"><b>{{ tiles.accepted }}</b><span>accepted tasks</span></div>
+  <div class="tile"><b>{{ tiles.rejected }}</b><span>rejections logged</span></div>
+  <div class="tile"><b>{{ tiles.families }}</b><span>question families</span></div>
+  <div class="tile"><b>{{ tiles.rigs }}</b><span>camera rigs</span></div>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#gates">Gates</a><a href="#rejections">Rejections</a><a href="#coverage">Coverage</a>
+  <a href="#answers">Answers</a><a href="#conflict">2D shortcut</a><a href="#g5">Vision necessity</a>
+  <a href="#twins">Twins</a><a href="#models">Models</a><a href="#audit">Audit</a><a href="#render">Render</a>
+</nav>
+
+<h2 id="gates">Gate pass rates</h2>
+<p class="why">Each candidate question must pass every gate to ship. G1 re-runs the program on the scene file; G2 recomputes the answer from rendered pixels; G3 checks the evidence is visible; G4 rejects near-ties; G5 balances answers so they cannot be guessed; G6 moves one object and requires the answer to change; G7 checks the task rebuilds identically. Rates are over the candidates that reached each gate.</p>
+<div class="card">{{ gates.chart }}</div>
+<details><summary>Table view</summary>
+<table><thead><tr><th>Gate</th><th>Reached</th><th>Passed</th><th>Pass rate</th></tr></thead><tbody>
+{% for g in gates.table %}<tr><td>{{ g.gate }}</td><td>{{ g.run }}</td><td>{{ g['pass'] }}</td><td>{{ pct(g.rate, 1) if g.run else "not run" }}</td></tr>{% endfor %}
+</tbody></table></details>
+
+<h2 id="rejections">What the factory threw away</h2>
+<p class="why">{{ rejections.total }} rejections across {{ rejections.distinct }} distinct reasons, every one logged in <code>rejected.jsonl</code> with its evidence. By stage: {% for s, c in rejections.stages.items() %}{{ s }} {{ c }}{% if not loop.last %}, {% endif %}{% endfor %}.</p>
+<div class="card">{{ rejections.chart }}</div>
+
+<h2 id="coverage">Coverage</h2>
+<p class="why">Accepted tasks by question family, camera rig and difficulty level, so gaps are visible at a glance. Darker cells hold more tasks; a dot means none.</p>
+{% for m in coverage.matrices %}<div class="card">{{ m }}</div>{% endfor %}
+{% for n in coverage.notes %}<p class="small">{{ n }}</p>{% endfor %}
+
+<h2 id="answers">Answer distributions</h2>
+<p class="why">Share of each answer value within its family after G5 balancing. The dashed line is the cap: no single value may exceed it, so always giving the most common answer stays a weak strategy.</p>
+<div class="cards">
+{% for c in answers %}<div class="card"><h3>{{ c.family }}</h3><p class="small">{{ c.n }} tasks · {{ c.type }} answers{% if c.top_share is not none %} · top value {{ pct(c.top_share) }}{% endif %}</p>{{ c.chart }}</div>
+{% endfor %}
+</div>
+
+<h2 id="conflict">Where the 2D shortcut fails</h2>
+<p class="why">For spatial families, a 2D heuristic (nearest in the image, lowest in the frame, and so on) is computed from the scene file. A task is a <em>conflict</em> task when that heuristic gives the wrong answer, so a model that reads the picture flatly will miss it. {{ conflict.n }} spatial tasks are tagged.</p>
+<div class="card">{{ conflict.chart }}</div>
+
+<h2 id="g5">Vision necessity (G5)</h2>
+{% if g5 %}
+<p class="why">Can the answer be guessed without looking? The prior baseline always gives the family's most common answer{% if g5.blind_model %}; the blind baseline is {{ g5.blind_model.replace("__blind", "") }} answering the question with no image{% endif %}{% if g5.model_name %}; the third marker is {{ g5.model_name }} with the image{% endif %}. Whiskers are 95% bootstrap intervals.</p>
+<div class="legend"><span><i class="s3"></i>Prior (most common answer)</span><span><i class="s2"></i>Blind (question only)</span><span><i class="s1"></i>Model with image</span></div>
+<div class="card">{{ g5.chart }}</div>
+<details open><summary>Table view</summary>
+<div class="scroll"><table><thead><tr><th>Family</th><th>Most common answer</th><th>Prior before balance</th><th>Prior</th><th>Blind</th><th>With image</th></tr></thead><tbody>
+{% for r in g5.table %}<tr><td>{{ r.family }}</td><td>{{ r.prior_answer if r.prior_answer is not none else "–" }}</td><td>{{ pct(r.prior_before) }}</td><td>{{ pct(r.prior) }}</td><td>{{ pct(r.blind) }}{% if r.blind_n %} <span class="small">n={{ r.blind_n }}</span>{% endif %}{% if r.blind_flag %} <span class="no">beats prior</span>{% endif %}</td><td>{{ pct(r.model) }}{% if r.model_n %} <span class="small">n={{ r.model_n }}</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></details>
+{% if g5.balance %}<p class="small">Balancing (seed {{ g5.balance.seed }}) kept {{ g5.balance.kept }} of {{ g5.balance.pool }} validated tasks and moved {{ g5.balance.dropped }} to the rejected log (stage G5, reason rebalance).</p>{% endif %}
+{% else %}
+<p class="empty">Not run yet: <code>vtf balance &lt;run&gt;</code> writes the prior baseline, <code>vtf baseline &lt;run&gt;</code> the blind one.</p>
+{% endif %}
+
+<h2 id="twins">Counterfactual twins (G6)</h2>
+<p class="why">For a twin, one evidence object is moved, the scene is re-rendered and the same program re-run; the answer must change and the twin must pass every gate. A model that really looks should get both the original and the twin right.</p>
+{% if twins.gate and twins.gate.run %}
+<p>G6 passed on <b>{{ twins.gate['pass'] }}</b> of {{ twins.gate.run }} attempted twins ({{ pct(twins.gate['pass'] / twins.gate.run, 1) }}). {{ twins.with_twin }} accepted tasks have a twin; {{ twins.pairs }} twin pairs are both in the accepted set.</p>
+{% else %}
+<p class="empty">No G6 results in this run yet{% if twins.with_twin %} ({{ twins.with_twin }} tasks name a twin){% endif %}.</p>
+{% endif %}
+{% if twins.consistency %}
+<table><thead><tr><th>Model</th><th>Twin pairs</th><th>Both right</th><th>Rate</th></tr></thead><tbody>
+{% for c in twins.consistency %}<tr><td>{{ c.model }}</td><td>{{ c.pairs }}</td><td>{{ c.both }}</td><td>{{ pct(c.rate, 1) }}</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+
+<h2 id="models">Model accuracy</h2>
+{% if models %}
+<p class="why">Accuracy with the image, scored by typed checkers against the program answers. Intervals are 95% percentile bootstrap. Unparseable replies count as wrong.</p>
+{% for m in models %}
+<h3>{{ m.name }}: {{ pct(m.accuracy, 1) }} overall <span class="small">({{ m.correct }}/{{ m.n }}{% if m.ci %}, 95% CI {{ pct(m.ci[0], 1) }} to {{ pct(m.ci[1], 1) }}{% endif %}{% if m.parse_failures %}, {{ m.parse_failures }} unparseable{% endif %})</span></h3>
+<div class="card">{{ m.family_chart }}</div>
+{% if m.conflict_chart %}
+<p class="why">Spatial families split by whether the 2D shortcut agrees with the 3D truth. A large gap means the model leans on the shortcut.</p>
+<div class="legend"><span><i class="s3"></i>Shortcut agrees</span><span><i class="s2"></i>Shortcut conflicts</span></div>
+<div class="card">{{ m.conflict_chart }}</div>
+{% endif %}
+<details><summary>Table view: by family, rig and shortcut conflict</summary>
+<div class="scroll"><table><thead><tr><th>Split</th><th>n</th><th>Correct</th><th>Accuracy</th><th>95% CI</th></tr></thead><tbody>
+{% for label, group in (("family", m.families), ("rig", m.rigs), ("shortcut conflict", m.conflict), ("family x conflict", m.fxc)) %}
+{% for k, s in group.items() %}<tr><td>{{ label }}: {{ k }}</td><td>{{ s.n }}</td><td>{{ s.correct }}</td><td>{{ pct(s.accuracy, 1) }}</td><td>{{ pct(s.ci95_low) }} to {{ pct(s.ci95_high) }}</td></tr>{% endfor %}
+{% endfor %}
+</tbody></table></div></details>
+{% endfor %}
+{% else %}
+<p class="empty">No model has been evaluated on this run yet (<code>vtf eval &lt;run&gt; --sample 1500 --stratify family,rig</code>).</p>
+{% endif %}
+
+<h2 id="audit">Founder audit</h2>
+<p class="why">A human answers a stratified sample blind, through a labelling page that never shows the answer. Target: at least 98%. Every miss is traced to a cause.</p>
+{% if audit %}
+<p><b>{{ audit.correct }}/{{ audit.audited }}</b> correct ({{ pct(audit.accuracy, 1) }}), target {{ pct(audit.target) }}: {% if audit.meets_target %}<span class="ok">met</span>{% else %}<span class="no">not met</span>{% endif %}. {{ audit.misses | length }} misses, {{ audit.flagged }} flagged.</p>
+<div class="scroll"><table><thead><tr><th>Family</th><th>n</th><th>Correct</th><th>Accuracy</th></tr></thead><tbody>
+{% for f, s in audit.families.items() %}<tr><td>{{ f }}</td><td>{{ s.n }}</td><td>{{ s.correct }}</td><td>{{ pct(s.accuracy, 1) }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}
+<p class="empty">No audit scored for this run yet (<code>vtf audit make</code>, then <code>vtf audit score</code>).</p>
+{% endif %}
+
+<h2 id="render">Render timings</h2>
+{% if render %}
+<p class="why">Blender renders every scene headless: beauty image, object index, depth and amodal masks.{% if render.device %} Device: {{ render.device }}.{% endif %}</p>
+<div class="tiles">
+  <div class="tile"><b>{{ render.timed }}</b><span>scenes timed</span></div>
+  <div class="tile"><b>{{ "%.1f" | format(render.median) }} s</b><span>median per scene</span></div>
+  <div class="tile"><b>{{ "%.1f" | format(render.p90) }} s</b><span>90th percentile</span></div>
+  <div class="tile"><b>{{ "%.2f" | format(render.hours) }} h</b><span>total render time</span></div>
+</div>
+<h3>Mean seconds per phase</h3>
+<div class="card">{{ render.phase_chart }}</div>
+<h3>Seconds per scene</h3>
+<div class="card">{{ render.hist }}</div>
+{% else %}
+<p class="empty">No render timings in this run folder.</p>
+{% endif %}
+
+<h2>Reproduce</h2>
+<p class="why">Everything here is a pure function of the recipe, the seed and the pinned versions.</p>
+<pre><code>uv run vtf validate &lt;run&gt;
+uv run vtf balance &lt;run&gt;
+uv run vtf baseline &lt;run&gt;
+uv run vtf eval &lt;run&gt; --sample 1500 --stratify family,rig
+uv run vtf dataset-report &lt;run&gt;</code></pre>
+</main>
+</body>
+</html>
