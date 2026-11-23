@@ -271,11 +271,36 @@ def collect_ended(state: State, key: str, adapter: Any, cache: EvalCache) -> dic
     return dict(stats)
 
 
-def wait_open(state: State, key: str, adapter: Any, cache: EvalCache, poll_s: float = 30) -> None:
+def wait_open(
+    state: State,
+    key: str,
+    adapter: Any,
+    cache: EvalCache,
+    poll_s: float = 30,
+    others: Any = None,
+) -> None:
+    """Wait for `key`'s open batches; `others()` collects other models' ended batches meanwhile."""
     while open_ids(state.model(key)):
         collect_ended(state, key, adapter, cache)
+        if others is not None:
+            others()
         if open_ids(state.model(key)):
             time.sleep(poll_s)
+
+
+def collect_others(state: State, cache: EvalCache, run: Path, cache_path: Path, keys: list[str]):
+    adapters: dict[str, Any] = {}
+
+    def collect() -> None:
+        for key in keys:
+            ms = state.model(key)
+            if ms["status"] == "running" and open_ids(ms):
+                if key not in adapters:
+                    adapters[key] = make_adapter(resolve_model(key))
+                collect_ended(state, key, adapters[key], cache)
+        cost_report(run, cache_path, keys)
+
+    return collect
 
 
 # --- standard calls (fallback) ----------------------------------------------------------------
@@ -537,7 +562,8 @@ def cmd_run(args: argparse.Namespace) -> None:
                         state.event(f"{key}: batches failed twice; switching to standard calls")
                         run_standard(key, adapter, all_tasks, pending(), cache, spec.concurrency)
                         continue
-                wait_open(state, key, adapter, cache, args.poll)
+                others = collect_others(state, cache, run, args.cache, args.models)
+                wait_open(state, key, adapter, cache, args.poll, others)
                 gate = [b for b in ms["batches"] if b["kind"] == "gate"]
                 gids = [t for b in gate for t in b["task_ids"]]
                 bad = 0

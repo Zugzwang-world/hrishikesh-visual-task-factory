@@ -2,6 +2,30 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 24 Nov 2026: Overnight Claude model sweep on frozen v1 (brief 06)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Task set | 1,567 tasks: the 1,500-task eval sample plus the 150 audit tasks (67 of them were not in the sample; Sonnet answered those 67 tonight) | Decision 1 of the brief: every model answers exactly the same tasks; no new sampling. |
+| Where results go | out/v1/sweep/<model>/results.jsonl and summary.json; out/v1/eval/ is only read | FROZEN.json holds the sha256 of out/v1/eval/claude-sonnet-5-5/results.jsonl; rewriting it would change frozen v1. |
+| Models and settings | claude-haiku-5-5 high, claude-opus-5-5 high, claude-opus-5-5 xhigh (max_tokens 64,000, 1,200 s timeout); thinking adaptive and effort sent on every call; same prompts, scorer and JSON schema as Sonnet | Only the model ID and effort change (xhigh also gets the brief's max_tokens and timeout). Opus 5.5 and Haiku 5.5 default to medium effort, so it is always sent. |
+| Model IDs and prices | From the claude-api skill reference (cached 3 Nov 2026): Haiku 5.5 $0.10/$0.50, Opus 5.5 $4/$20 per million tokens; each ID confirmed by a smoke call (ID resolves, image accepted, JSON schema output parses) | Verify before relying; the smoke calls passed first time for all three. |
+| Founder rule | The Anthropic adapter refuses any model ID containing fable or mythos (test added) | Never call Fable or Mythos, for anything. |
+| Message Batches | Batch params are byte-identical to the standard call's (asserted per request and tested); replies share the cache key; chunks of at most 100 requests and 150 MB (the cap is 256 MB, images are about 1 MB each); each batch id is saved to out/v1/sweep/state.json before the next chunk | Half price, interchangeable with standard replies, and a resumed driver collects a batch instead of re-sending it. Proof: 5 Haiku tasks, 5 of 5 back in 90 s. |
+| Error budget and cost projection | Each model's first 100 tasks (a seeded shuffle, so a fair sample) go as one gate batch; error or truncation above 5% pauses the model; projected total = mean cost of those 100 x 1,567 | The brief's error budget and "projected total after the first 100 calls", in batch form. |
+| Order | Gates run Haiku, then Opus high, then Opus xhigh; each model's remaining batches go in as soon as its gate passes, so processing overlaps | The brief's order, without idling the night. |
+| Opus xhigh order | Its fallback-subset tasks are submitted first | If xhigh is slow or truncates, the fallback subset is already done and costs nothing extra. |
+| Fallback subset | 213 conflict tasks, 213 non-conflict spatial tasks matched on family x camera (relation/front had 20 too few and was topped up from relation on other cameras), 174 non-spatial tasks (stratified family x rig), plus the 150 audit tasks: 704 unique | The brief's definition, seeded (seed 6); used only if a fallback calls for it. |
+| Smoke replies | Kept in the cache (standard calls on real tasks in the set) | No repeats: a call already made is not made again. |
+| Thinking tokens | Recorded from usage.output_tokens_details.thinking_tokens (SDK 2.12.0) with model ID, API and SDK version, effort, max_tokens and standard/batch on every result | The brief asks for them with each result. Sonnet's 1,500 earlier replies predate the field, so theirs are null. |
+| Unsigned commits tonight | The SSH agent is empty after the restart, so signed commits hang; tonight's commits are made with signing off for that command only (git config unchanged) | Push over HTTPS works; signing needs the founder's key. Asked in NOW.md. |
+| Keep-awake | The app's keep-awake for the session, plus `caffeinate -i -w <driver pid>` | The sweep driver must survive this session; caffeinate ends with it. |
+| Shortcut capture | Misses = wrong and parseable answers; a miss is a shortcut pick when the eval scorer accepts it against shortcut_answer (6 relation tasks whose shortcut object is not nameable in the view are matched by noun); chance = 1 / wrong candidates per task (1 for yes/no and two-object questions; other visible objects for nearest; candidates minus one for relation; visible objects minus the occluder for occlusion; one-object-away sets for reachability) | The brief's definition, made concrete per family. Pooled, the yes/no families have chance 1, so object-choice families are also reported alone. |
+| Intervals | 2,000 scene resamples (seed 20261124), the same draws for every model, so model differences are paired | Tasks from one scene are correlated. |
+| Logistic regression | IRLS in numpy on spatial tasks: correct ~ conflict + visible fraction + G4 margin (log of margin over the gate threshold) + object count + camera quality (clean 0 to cctv 3) + family; scene-clustered errors plus 500 scene-bootstrap fits; relation tasks with no runner-up get the largest observed margin | No statsmodels in the environment; the fit is 30 lines and checkable. Unstable if it fails to converge, a coefficient exceeds 15, or over 5% of bootstrap fits fail. |
+| Chart tool | matplotlib added as a dev dependency; colours blue #2a78d6 and orange #eb6834 with circle and triangle markers (validator: CVD dE 24.7, normal 33.6) | A PNG for the slides, readable in colour-blind palettes and in greyscale. |
+| Explorer v1 | Built by a builder in its own worktree while the sweep runs; the Coordinator exports and deploys at the end | Parallel work; the deploy needs the final results. |
+
 ## 23 Nov 2026: Integration and the scale run (brief 05, phase B)
 
 | Decision | Choice | Why |

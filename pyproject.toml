@@ -9,6 +9,7 @@ dependencies = ["vtf", "vtf-blender"]
 [dependency-groups]
 dev = [
     "hypothesis>=6.170.17",
+    "matplotlib>=3.11.2",
     "pytest>=9.2",
     "ruff>=0.17",
 ]
