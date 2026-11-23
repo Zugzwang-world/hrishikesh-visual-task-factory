@@ -84,11 +84,14 @@ def render_camera(scene: SceneSpec, camera_id: str, width: int = 512) -> np.ndar
     edge &= (idx > 0) & (idx != TABLE_PASS_INDEX)
     img[edge] = (img[edge] * 0.35).astype(np.uint8)
 
-    q = scene.camera(camera_id).quality.level
-    label = f"{scene.meta.scene_id} {camera_id} ({q})"
-    cv2.putText(img, label, (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 3, cv2.LINE_AA)
-    cv2.putText(img, label, (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1,
-                cv2.LINE_AA)  # fmt: skip
+    d = scene.meta.difficulty
+    label = f"{scene.meta.scene_id}  {camera_id}  quality {scene.camera(camera_id).quality.level}"
+    if camera_id == scene.cameras[0].id and d:
+        label += f"  | {d.get('n_objects')} objects, {d.get('lighting')} light"
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    (tw, th), _ = cv2.getTextSize(label, font, 0.42, 1)
+    img[: th + 10, : tw + 12] = (img[: th + 10, : tw + 12] * 0.35).astype(np.uint8)
+    cv2.putText(img, label, (6, th + 4), font, 0.42, (255, 255, 255), 1, cv2.LINE_AA)
     return img
 
 
