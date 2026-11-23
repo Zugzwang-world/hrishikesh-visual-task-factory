@@ -1,0 +1,24 @@
+# Models for the evaluation harness (stage 4).
+# PLACEHOLDER: every model_id below is UNVERIFIED. Pin the real IDs on the day the
+# evaluation runs (see docs/thinking-partner/OPEN.md, item 1) and set verified: true.
+models:
+  - key: anthropic-flagship
+    provider: anthropic
+    model_id: TBD   # unverified: current Anthropic flagship vision model
+    verified: false
+  - key: google-flagship
+    provider: google
+    model_id: TBD   # unverified: current Google flagship vision model
+    verified: false
+  - key: openai-flagship
+    provider: openai
+    model_id: TBD   # unverified: current OpenAI flagship vision model
+    verified: false
+  - key: open-qwen-vl
+    provider: openrouter
+    model_id: TBD   # unverified: strongest current Qwen VL model
+    verified: false
+  - key: open-second
+    provider: openrouter
+    model_id: TBD   # unverified: a second strong open vision model
+    verified: false
