@@ -1,17 +1,28 @@
-"""Analytic ray caster for scene primitives, in numpy.
+"""Ray caster for scene files: exact analytic primitives plus asset meshes, in numpy.
 
-Renders exact object-index, planar depth and amodal masks for a SceneSpec without Blender. Used
-to make the contract fixtures, and as an independent check of the Blender passes (camera
-conventions, poses). It is not the renderer.
+Renders object-index, planar depth and amodal masks for a SceneSpec without Blender. Used to make
+the contract fixtures, as the independent second route for G2, and as validate's render-agreement
+check (camera conventions, poses). It is not the renderer.
+
+- Table, gripper parts, primitive objects and procedural assets (`proc_*`, which are exact
+  primitives) are hit analytically, as before.
+- Poly Haven assets are hit on their mesh (vtf.core.assets.object_local_mesh) with trimesh's
+  Embree intersector, in the object's local frame (rotation only, so ray parameters are
+  unchanged). Embree finds the first triangle; the hit distance is then computed in float64
+  from that triangle's plane.
+- Each object is only traced over the pixels inside the projection of its bounding box (when
+  every box corner is in front of the camera), which keeps 25 objects at 1024x768 fast.
 """
 
+import math
 from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 
-from vtf.core.geometry import Pose
-from vtf.core.projection import pixel_rays
-from vtf.core.scene import CameraSpec, SceneSpec
+from vtf.core.geometry import Pose, transform_points
+from vtf.core.projection import pixel_rays, project
+from vtf.core.scene import MAX_OBJECT_PASS_INDEX, CameraSpec, SceneSpec
 
 INF = np.inf
 
@@ -109,6 +120,34 @@ def hit_cone(dims, o, d) -> np.ndarray:
 HITTERS = {"box": hit_box, "sphere": hit_sphere, "cylinder": hit_cylinder, "cone": hit_cone}
 
 
+@lru_cache(maxsize=128)
+def _mesh_intersector(cache_dir: str, file: str, scale: float):
+    """Embree intersector on an asset's centred, Z-up local mesh (built once per asset size)."""
+    from trimesh.ray.ray_pyembree import RayMeshIntersector
+
+    from vtf.core.assets import _asset_local_mesh
+
+    return RayMeshIntersector(_asset_local_mesh(cache_dir, file, scale))
+
+
+def hit_mesh(intersector, o: np.ndarray, d: np.ndarray) -> np.ndarray:
+    """First-hit ray parameter (in units of d) on a mesh, INF on a miss. o (3,), d (N, 3)."""
+    n = len(d)
+    t = np.full(n, INF)
+    if n == 0:
+        return t
+    origins = np.broadcast_to(o, d.shape)
+    tri, ray = intersector.intersects_id(origins, d, multiple_hits=False)
+    if len(ray):
+        mesh = intersector.mesh
+        p0 = mesh.triangles[tri, 0, :]
+        normal = mesh.face_normals[tri]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            hit_t = ((p0 - origins[ray]) * normal).sum(-1) / (d[ray] * normal).sum(-1)
+        t[ray] = np.where(np.isfinite(hit_t) & (hit_t > 1e-9), hit_t, INF)
+    return t
+
+
 @dataclass
 class RaycastResult:
     index: np.ndarray  # (H, W) uint16
@@ -117,37 +156,96 @@ class RaycastResult:
     colour: np.ndarray  # (H, W, 3) linear rgb of the nearest hit (background grey)
 
 
-def raycast(scene: SceneSpec, camera_id: str) -> RaycastResult:
+@dataclass
+class _Target:
+    pass_index: int
+    pose: Pose
+    dims: tuple
+    rgb: tuple
+    shape: str | None = None  # analytic primitive
+    mesh_key: tuple | None = None  # (cache_dir, file, scale) for an asset mesh
+
+
+def _targets(scene: SceneSpec, manifest=None) -> list[_Target]:
+    out: list[_Target] = []
+    t = scene.table
+    table_pose = Pose(position=(0.0, 0.0, t.height - t.thickness / 2))
+    out.append(_Target(t.pass_index, table_pose, (*t.size_xy, t.thickness), (0.35, 0.2, 0.1),
+                       shape="box"))  # fmt: skip
+    for part in scene.gripper.parts:
+        out.append(_Target(scene.gripper.pass_index, part.pose, part.dimensions,
+                           (0.3, 0.3, 0.32), shape=part.shape))  # fmt: skip
+    for obj in scene.objects:
+        if obj.source == "primitive":
+            out.append(_Target(obj.pass_index, obj.pose, obj.dimensions, obj.rgb, shape=obj.shape))
+            continue
+        from vtf.core.assets import asset_cache_dir, load_asset_manifest
+
+        manifest = manifest or load_asset_manifest()
+        entry = manifest.get(obj.shape)
+        if entry.source == "procedural":
+            out.append(_Target(obj.pass_index, obj.pose, obj.dimensions, obj.rgb,
+                               shape=entry.shape or "box"))  # fmt: skip
+            continue
+        if not entry.file:
+            raise ValueError(f"asset {entry.id} has no file")
+        key = (str(asset_cache_dir(manifest)), entry.file, round(entry.scale * obj.scale, 9))
+        out.append(_Target(obj.pass_index, obj.pose, obj.dimensions, obj.rgb, mesh_key=key))
+    return out
+
+
+def _pixel_window(cam: CameraSpec, target: _Target) -> tuple[slice, slice] | None:
+    """Rows and columns that can see the target's bounding box; None if none can."""
+    width, height = cam.resolution
+    half = np.asarray(target.dims, dtype=float) / 2
+    signs = np.array([[sx, sy, sz] for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)])
+    corners = transform_points(target.pose.matrix(), signs * half)
+    uv, depth = project(cam, corners)
+    if not np.all(depth > 1e-6) or not np.all(np.isfinite(uv)):
+        return slice(0, height), slice(0, width)  # straddles the camera plane: trace everything
+    u0 = max(math.floor(uv[:, 0].min() - 0.5) - 1, 0)
+    u1 = min(math.ceil(uv[:, 0].max() - 0.5) + 2, width)
+    v0 = max(math.floor(uv[:, 1].min() - 0.5) - 1, 0)
+    v1 = min(math.ceil(uv[:, 1].max() - 0.5) + 2, height)
+    if u0 >= u1 or v0 >= v1:
+        return None
+    return slice(v0, v1), slice(u0, u1)
+
+
+def raycast(scene: SceneSpec, camera_id: str, manifest=None) -> RaycastResult:
+    """Index, planar depth and amodal masks of a scene in one of its cameras.
+
+    `manifest` (vtf.core.assets.AssetManifest) is loaded on demand when the scene has assets.
+    """
     cam: CameraSpec = scene.camera(camera_id)
     origin, dirs = pixel_rays(cam)
     width, height = cam.resolution
-
-    prims: list[tuple[int, str, tuple, Pose, tuple]] = []
-    t = scene.table
-    table_pose = Pose(position=(0.0, 0.0, t.height - t.thickness / 2))
-    prims.append((t.pass_index, "box", (*t.size_xy, t.thickness), table_pose, (0.35, 0.2, 0.1)))
-    for part in scene.gripper.parts:
-        prims.append((scene.gripper.pass_index, part.shape, part.dimensions, part.pose,
-                      (0.3, 0.3, 0.32)))  # fmt: skip
-    for obj in scene.objects:
-        if obj.source != "primitive":
-            raise ValueError(f"raycast handles primitives only, not {obj.shape}")
-        prims.append((obj.pass_index, obj.shape, obj.dimensions, obj.pose, obj.rgb))
 
     best_t = np.full((height, width), INF)
     best_idx = np.zeros((height, width), dtype=np.uint16)
     colour = np.full((height, width, 3), 0.18)
     amodal: dict[int, np.ndarray] = {}
-    for pass_index, shape, dims, pose, rgb in prims:
-        o, d = _local_rays(pose, origin, dirs)
-        o = np.broadcast_to(o, d.shape)
-        t_hit = HITTERS[shape](dims, o, d)
-        if pass_index <= 999:
-            amodal[pass_index] = np.isfinite(t_hit)
-        closer = t_hit < best_t
-        best_t = np.where(closer, t_hit, best_t)
-        best_idx = np.where(closer, pass_index, best_idx).astype(np.uint16)
-        colour = np.where(closer[..., None], np.asarray(rgb), colour)
+    for target in _targets(scene, manifest):
+        window = _pixel_window(cam, target)
+        if target.pass_index <= MAX_OBJECT_PASS_INDEX:
+            amodal[target.pass_index] = np.zeros((height, width), dtype=bool)
+        if window is None:
+            continue
+        rows, cols = window
+        sub = dirs[rows, cols]
+        o, d = _local_rays(target.pose, origin, sub)
+        if target.shape is not None:
+            t_hit = HITTERS[target.shape](target.dims, np.broadcast_to(o, d.shape), d)
+        else:
+            intersector = _mesh_intersector(*target.mesh_key)  # type: ignore[misc]
+            t_hit = hit_mesh(intersector, o, d.reshape(-1, 3)).reshape(d.shape[:2])
+        if target.pass_index <= MAX_OBJECT_PASS_INDEX:
+            amodal[target.pass_index][rows, cols] = np.isfinite(t_hit)
+        bt = best_t[rows, cols]
+        closer = t_hit < bt
+        best_t[rows, cols] = np.where(closer, t_hit, bt)
+        best_idx[rows, cols] = np.where(closer, target.pass_index, best_idx[rows, cols])
+        colour[rows, cols] = np.where(closer[..., None], np.asarray(target.rgb), colour[rows, cols])
 
     depth = np.where(np.isfinite(best_t), best_t, 0.0).astype(np.float32)
     return RaycastResult(index=best_idx, depth=depth, amodal=amodal, colour=colour)

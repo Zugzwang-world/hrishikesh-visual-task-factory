@@ -1,0 +1,164 @@
+# Stage-3 main recipe (sampler v1): everyday objects from the asset manifest on a workcell table,
+# 3 to 25 per scene, with stacks, objects in containers, reach zones, look-alikes and duplicate
+# groups; the low gripper; overhead, front and gripper cameras with camera-quality levels; a key
+# light under four lighting conditions; a printed cm grid on about 40% of scenes; every family.
+#
+#   uv run vtf generate --recipe recipes/v1.yaml --n 20 --seed 1 --out out/v1dev
+#
+# Units are metres and degrees. Ranges are [low, high], drawn uniformly from one seeded stream.
+# The recipe hash (sha256 of this file after defaults are filled in) is written into every
+# scene's meta. Objects come from assets/manifest.yaml (vtf.core.assets); its contents decide the
+# scenes too, so pin it with `asset_manifest` for a release.
+
+recipe_version: "0.2.0"
+sampler: v1
+name: v1
+description: Everyday objects, clutter 3-25, stacks, containers, zones, look-alikes, 3 cameras.
+
+table:
+  size_xy: [1.2, 0.8]
+  height: 0.75
+  thickness: 0.03
+  material_id: wood_simple
+  grid_fraction: 0.4            # share of scenes with the printed cm grid (rule A scale)
+  grid_material_id: cm_grid
+  grid_cell_m: 0.01
+
+objects:
+  clutter:                      # level -> object count range and draw weight
+    low:    {count: [3, 8],   weight: 1.0}
+    medium: {count: [9, 16],  weight: 1.0}
+    high:   {count: [17, 25], weight: 1.0}
+  pool_weights: {assets: 1.0, primitives: 0.0}
+  assets:
+    categories: null            # null: every category in the manifest
+    ids: null
+    exclude_ids: []
+    source_weights: {polyhaven: 6.0, procedural: 0.6}   # split evenly within each source
+  colours: [red, green, blue, yellow, orange, purple, white, black]   # procedural references
+  yaw_deg: [-180, 180]
+  drop_m: 0.01                  # spawn 1 cm above the support so the settle is short
+  fill_ratio: 0.40              # table-level footprints use at most 40% of the table top
+
+placement:
+  table_margin_m: 0.03
+  gap_m: 0.012                  # minimum gap between footprint rectangles
+  tries_per_object: 300
+
+stacks:
+  count: [0, 2]                 # two-high stacks per scene
+  max_offset_frac: 0.2
+  max_size_ratio: 1.2
+  yaw_jitter_deg: 15
+
+containers:
+  count: [0, 2]
+  items: [0, 3]                 # 0 keeps some containers empty ("none" answers)
+  wall_margin_m: 0.005
+  max_height_ratio: 1.5
+  max_fill: 0.5
+
+lookalikes:
+  colour_pairs: [0, 2]          # same colour, different category
+  size_pairs: [0, 1]            # one asset at two sizes: small and large
+  small_scale: [0.68, 0.72]
+  large_scale: [1.30, 1.40]
+
+duplicates:
+  probability: 0.35             # one group of identical objects (count questions)
+  copies: [2, 3]
+
+zones:
+  count: [0, 2]
+  colours: [green, blue, yellow, orange, purple, red]
+  rect_weight: 0.5
+  rect_size_m: [0.20, 0.38]
+  circle_radius_m: [0.10, 0.18]
+  yaw_deg: [-45, 45]
+  line_width_m: 0.012
+  boundary_margin_m: 0.02       # G4: no object centre within 2 cm of the boundary
+  min_inside: 1
+  min_outside: 1
+  tries: 300
+
+gripper:
+  clearance_m: [0.03, 0.12]     # decision 1, brief 05: the low gripper
+  neighbourhood_m: 0.15
+  over_object_probability: 0.85
+  over_object_offset_m: 0.05
+  xy_margin_m: 0.10
+  yaw_deg: [-90, 90]            # the two-finger gripper is symmetric under a half turn
+  min_part_gap_m: 0.008
+  tries: 300
+
+cameras:
+  rigs: [front, overhead, gripper]
+  resolution: [1024, 768]
+  sensor_width_mm: 36.0
+  view_margin_px: 12
+  front:
+    target_jitter_m: 0.03
+    distance_m: [1.05, 1.15]
+    elevation_deg: [40, 48]
+    azimuth_deg: [-8, 8]
+    focal_mm: [26, 30]
+  overhead:
+    height_m: [1.05, 1.20]      # eye above the table top
+    focal_mm: [22, 24]
+    xy_jitter_m: 0.02
+    tilt_deg: [0, 3]
+    roll_deg: [-4, 4]
+  gripper:
+    hfov_deg: [70, 90]
+    mount_gap_m: 0.01
+  quality:
+    weights: {clean: 0.55, mild: 0.2, harsh: 0.1, cctv: 0.15}
+
+lighting:
+  hdri_ids: [studio_small_09]
+  rotation_deg: [0, 360]
+  key_azimuth_deg: [0, 360]
+  conditions:
+    normal:
+      weight: 0.55
+      hdri_strength: [0.6, 1.0]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [45, 70]
+      key_angle_deg: [1.0, 3.0]
+    dim:
+      weight: 0.15
+      hdri_strength: [0.12, 0.25]
+      key_strength: [0.4, 0.9]
+      key_elevation_deg: [35, 60]
+      key_angle_deg: [1.0, 3.0]
+    harsh:
+      weight: 0.15
+      hdri_strength: [0.15, 0.3]
+      key_strength: [6.0, 9.0]
+      key_elevation_deg: [15, 30]
+      key_angle_deg: [0.3, 0.8]
+    coloured:
+      weight: 0.15
+      hdri_strength: [0.4, 0.7]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [40, 65]
+      key_angle_deg: [1.0, 3.0]
+      key_rgb:                  # linear-light tints: warm, cool, green, magenta
+        - [1.0, 0.62, 0.35]
+        - [0.45, 0.62, 1.0]
+        - [0.55, 1.0, 0.5]
+        - [1.0, 0.45, 0.85]
+
+questions:
+  families: null                # every family (vtf.core.program.FAMILIES)
+  max_per_camera: 5
+
+render:
+  samples: 128
+  seed: 0
+  device: GPU
+  denoise: true
+
+# physics: omitted on purpose, so scenes carry the settle settings measured on Blender 5.3.
+
+max_layout_attempts: 60

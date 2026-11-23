@@ -1,0 +1,88 @@
+# Stage-2 style nearest-to-gripper recipe on sampler v1: 5 to 10 coloured primitives (box,
+# cylinder, sphere, cone, unique colour-shape names), the low gripper, a key light, overhead,
+# front and gripper cameras, and only the nearest_to_gripper family. Isolates the 2D-proximity
+# shortcut finding from stage 2 under the stage-3 camera rigs.
+#
+#   uv run vtf generate --recipe recipes/s2_nearest_v1.yaml --n 20 --seed 1 --out out/s2n
+
+recipe_version: "0.2.0"
+sampler: v1
+name: s2_nearest_v1
+description: Coloured primitives, the low gripper, three cameras, nearest_to_gripper only.
+
+table:
+  size_xy: [1.0, 0.7]
+  height: 0.75
+  thickness: 0.03
+  material_id: wood_simple
+  grid_fraction: 0.0
+
+objects:
+  clutter:
+    low: {count: [5, 10], weight: 1.0}
+  pool_weights: {assets: 0.0, primitives: 1.0}
+  primitives:
+    shapes: [box, cylinder, sphere, cone]
+    size_m: [0.04, 0.10]        # box sides; cylinder/cone diameter and height; sphere diameter
+    roughness: 0.45
+    metallic: 0.0
+  colours: [red, green, blue, yellow, orange, purple, white, black]
+  yaw_deg: [-180, 180]          # boxes only; cylinders, cones and spheres stay unrotated
+  drop_m: 0.01
+  fill_ratio: 0.35
+
+placement:
+  table_margin_m: 0.04
+  gap_m: 0.015
+  tries_per_object: 200
+
+gripper:
+  clearance_m: [0.03, 0.12]     # the low gripper
+  neighbourhood_m: 0.15
+  over_object_probability: 0.85
+  over_object_offset_m: 0.06
+  xy_margin_m: 0.10
+  yaw_deg: [-90, 90]
+  tries: 300
+
+cameras:
+  rigs: [front, overhead, gripper]
+  resolution: [1024, 768]
+  view_margin_px: 16
+  front:
+    target_jitter_m: 0.02
+    distance_m: [0.88, 0.92]
+    elevation_deg: [38, 42]
+    azimuth_deg: [-5, 5]
+    focal_mm: [26, 30]
+  overhead:
+    height_m: [0.95, 1.05]
+    focal_mm: [24, 26]
+    tilt_deg: [0, 2]
+    roll_deg: [-3, 3]
+  gripper:
+    hfov_deg: [70, 90]
+  quality:
+    weights: {clean: 1.0}
+
+lighting:
+  hdri_ids: [studio_small_09]
+  rotation_deg: [0, 360]
+  conditions:
+    normal:
+      hdri_strength: [0.6, 1.0]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [45, 70]
+      key_angle_deg: [1.0, 3.0]
+
+questions:
+  families: [nearest_to_gripper]
+  max_per_camera: 5
+
+render:
+  samples: 128
+  seed: 0
+  device: GPU
+  denoise: true
+
+max_layout_attempts: 50
