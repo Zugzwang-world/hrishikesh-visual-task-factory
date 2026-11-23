@@ -2,6 +2,22 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 23 Nov 2026: Stage 3 overnight run (brief 05), contracts and lanes
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Contracts v0.2 first | SceneSpec 0.2.0 (asset objects, size words, placement intent, grid table, reach zones, camera rigs with a quality dial, key light, question mix, scene difficulty, twin_of), TaskPackage 0.2.0 (rig, question_alt, shortcut_conflict, scene_objects, twin ids), RenderManifest 0.2.0 (depth.npz, rig, quality, beauty_raw, scene.glb), program FAMILIES registry, number answers, TwinEdit | Eight lanes build in parallel; they can only do that against one agreed contract. |
+| Family semantics as a contract | spec/families.md fixes, per family, the truth rule, the G2 pixel route, the G4 margins, the 2D shortcut heuristic and the twin rule | The questions lane (G1) and the validation lane (G2) build the two independent routes at the same time; both need the same definition. |
+| shortcut_conflict definition | Per spatial family, the heuristic answer computed by projection from the scene file (image-plane distance, or lower-in-image for depth) compared with the 3D truth; recorded true or false on every spatial task, None otherwise | Decision 2 of brief 05; computing it from the scene file keeps it exact and model-free. |
+| Count twins | A count twin removes one counted object (TwinEdit.remove) instead of moving it | Moving an object cannot change a count; removal is the smallest edit that must change the answer. |
+| Scoring names | An object answer is right when its colour, size and category words pick out exactly the truth object among task.scene_objects | With unique-by-minimal-name questions, "the red mug" must count as right when only one mug exists. |
+| Asset meshes in core | vtf.core.assets loads each glTF with trimesh, converts glTF +Y up to +Z up, scales, centres on the bounding box; object_mesh gives any object's world mesh. trimesh, embreex and rtree added to the core package | Programs, the mesh ray caster and G2 all need the same exact geometry without bpy; Embree casts 786k rays in 0.15 s, so the ray caster stays fast. |
+| Depth as depth.npz | np.savez_compressed float32 (exact), 0.7 MB instead of 3.0 MB per camera; read_depth reads both | Only about 17 GB of disk is free; 500 scenes x 3 cameras would otherwise use about 4.5 GB on depth alone. |
+| Task images as hard links | link_or_copy instead of copying the beauty PNG into every task folder | Same disk reason; the bytes are identical. |
+| Shared resources across worktrees | The main checkout holds the asset cache (assets/cache, symlinked into every worktree), the eval cache (out/cache/eval_cache.sqlite via VTF_EVAL_CACHE), the stage-2 run (out/s2) and the scale run (out/v1) | Never re-download or re-evaluate what exists; outputs survive worktree clean-up. |
+| Lanes | Eight builders in worktrees: render assets and look; render cameras and pipeline; sampler; questions; validation (G2, G4, G6, incremental validate, scale driver); report and audit (G5, P16, P17); web (Task Explorer on Vercel); twins (mat, layouts, shopping list). CLAUDE.md lane table updated | The brief's lanes, with render and validation each split in two so no builder carries more than about three hours of work. |
+| Keep awake | The session holds a keep-awake and a 14-hour `caffeinate -ims` assertion | The scale run must not stop when the Mac idles; this changes no settings. |
+
 ## 23 Nov 2026: Finish setup (brief 03)
 
 | Decision | Choice | Why |
