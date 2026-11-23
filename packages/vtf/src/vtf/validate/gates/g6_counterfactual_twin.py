@@ -281,6 +281,7 @@ def run_g6(
     batch_size: int = 25,
     timeout: float = 300.0,
     log=print,
+    keep_beauty_raw: bool = True,
 ) -> dict:
     """Plan, build, render and evaluate twins for these scenes; update the original tasks."""
     from vtf.validate.render_batch import render_many
@@ -321,6 +322,7 @@ def run_g6(
             [tl.scene_file(j[3].meta.scene_id) for j in todo],
             [tl.render_dir(j[3].meta.scene_id) for j in todo],
             device=device, batch_size=batch_size, timeout=timeout, log=log,
+            keep_beauty_raw=keep_beauty_raw,
         )  # fmt: skip
     for sid, task, settled, twin, edit in jobs:
         try:

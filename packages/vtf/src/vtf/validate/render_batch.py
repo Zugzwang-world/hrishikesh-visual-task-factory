@@ -9,9 +9,34 @@ import time
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
-from vtf.validate.pipeline import is_rendered
+from vtf.core.io import model_json, read_manifest
+from vtf.core.layout import RENDER_MANIFEST
+from vtf.validate.pipeline import atomic_write_text, is_rendered
 
 DEFAULT_TIMEOUT_S = 300.0
+
+
+def strip_beauty_raw(render_dir: Path) -> int:
+    """Delete the pre-dial beauty_raw.png copies of a finished render and drop them from its
+    manifest (atomic rewrite); returns the bytes freed. Idempotent. Nothing downstream reads
+    beauty_raw: tasks show beauty.png."""
+    mpath = Path(render_dir) / RENDER_MANIFEST
+    if not mpath.exists():
+        return 0
+    manifest = read_manifest(mpath)
+    if not any(c.beauty_raw for c in manifest.cameras):
+        return 0
+    freed, cams = 0, []
+    for c in manifest.cameras:
+        if c.beauty_raw:
+            raw = Path(render_dir) / c.beauty_raw
+            if raw.exists():
+                freed += raw.stat().st_size
+                raw.unlink()
+            c = c.model_copy(update={"beauty_raw": None})
+        cams.append(c)
+    atomic_write_text(mpath, model_json(manifest.model_copy(update={"cameras": cams})))
+    return freed
 
 
 def _item(results, i: int, n: int):
@@ -28,8 +53,19 @@ def render_many(
     timeout: float = DEFAULT_TIMEOUT_S,
     gltf: bool = False,
     log: Callable[[str], None] = print,
+    keep_beauty_raw: bool = True,
 ) -> list[dict]:
-    """Render each scene file into its out dir; one {ok, seconds, error} per scene, in order."""
+    """Render each scene file into its out dir; one {ok, seconds, error} per scene, in order.
+    keep_beauty_raw False deletes beauty_raw.png copies after each render (disk-lean runs)."""
+    out = _render(scene_files, out_dirs, device, batch_size, timeout, gltf, log)
+    if not keep_beauty_raw:
+        for od, r in zip(out_dirs, out, strict=True):
+            if r["ok"]:
+                strip_beauty_raw(Path(od))
+    return out
+
+
+def _render(scene_files, out_dirs, device, batch_size, timeout, gltf, log) -> list[dict]:
     from vtf.render import bridge
 
     scene_files = [Path(p) for p in scene_files]

@@ -130,7 +130,7 @@ def test_scale_run_resumes_without_rerendering(tmp_path, recipe, monkeypatch, cr
     monkeypatch.delattr(bridge, "render_scenes", raising=False)
     monkeypatch.setattr(vtf.programs, "make_twin", stub_make_twin, raising=False)
     out = tmp_path / "run"
-    args = dict(recipe=recipe, n=4, seed=3, out=out, batch=2, twin_fraction=0.5)
+    args = dict(recipe=recipe, n=4, seed=3, out=out, batch=2, twin_fraction=0.5, min_free_gb=0)
 
     first = FakeRenderer(crash_on)  # dies in batch 2's scene renders, or in the first twin render
     monkeypatch.setattr(bridge, "render_scene", first)
@@ -199,3 +199,67 @@ def test_stratified_sample() -> None:
     assert by == {("count", "front"): 2, ("relation", "overhead"): 1, ("support", "front"): 1}
     assert stratified_sample(rows, 0.2) == picked  # deterministic
     assert stratified_sample(rows, 0.0) == set()
+
+
+def _disk(free_bytes):
+    import shutil
+
+    return shutil._ntuple_diskusage(total=500 * 10**9, used=0, free=int(free_bytes))
+
+
+def test_disk_floor_stops_cleanly_and_resumes(tmp_path, recipe, monkeypatch) -> None:
+    import shutil
+
+    from vtf.validate.scale import scale_run
+
+    monkeypatch.delattr(bridge, "render_scenes", raising=False)
+    out = tmp_path / "run"
+    args = dict(recipe=recipe, n=4, seed=5, out=out, batch=2, twins=False, min_free_gb=20)
+    lay = layout.RunLayout(out)
+
+    # Below the floor from the start: nothing is rendered, the status says why, exit is clean.
+    renderer = FakeRenderer()
+    monkeypatch.setattr(bridge, "render_scene", renderer)
+    monkeypatch.setattr(shutil, "disk_usage", lambda p: _disk(20.01e9))  # 15 MB x 2 > 10 MB
+    scale_run(**args)
+    progress = json.loads((lay.logs_dir / "progress.json").read_text())
+    assert renderer.calls == [] and progress["status"] == "stopped_disk_floor"
+    assert progress["disk"]["free_gb"] == 20.01 and progress["disk"]["min_free_gb"] == 20
+    assert progress["disk"]["measured"] is False and progress["scenes_rendered"] == 0
+
+    # Room for one batch only: stops after batch 1, using the measured size per scene.
+    def disk(path):
+        return _disk(100e9 if len(renderer.rendered()) < 2 else 20e9 + 1)
+
+    monkeypatch.setattr(shutil, "disk_usage", disk)
+    scale_run(**args)
+    progress = json.loads((lay.logs_dir / "progress.json").read_text())
+    assert progress["status"] == "stopped_disk_floor" and progress["scenes_rendered"] == 2
+    assert progress["disk"]["measured"] is True and progress["tasks_accepted"] > 0
+    assert "stopped_disk_floor before batch 2/2" in (lay.logs_dir / "scale_run.log").read_text()
+
+    # Space freed: the rerun finishes without re-rendering batch 1.
+    monkeypatch.setattr(shutil, "disk_usage", lambda p: _disk(100e9))
+    before = list(renderer.rendered())
+    scale_run(**args)
+    assert len(renderer.rendered()) == 4 and renderer.rendered()[:2] == before
+    assert json.loads((lay.logs_dir / "progress.json").read_text())["status"] == "finished"
+
+
+def test_strip_beauty_raw(tmp_path) -> None:
+    import shutil
+
+    from vtf.core.io import read_manifest
+    from vtf.validate.render_batch import strip_beauty_raw
+
+    src = REPO / "spec" / "examples" / "run_example" / "scenes" / "scene_0000" / "render"
+    rdir = tmp_path / "render"
+    shutil.copytree(src, rdir)
+    m = read_manifest(rdir / layout.RENDER_MANIFEST)
+    cam = m.cameras[0].model_copy(update={"beauty_raw": "front/beauty_raw.png"})
+    write_model(rdir / layout.RENDER_MANIFEST, m.model_copy(update={"cameras": [cam]}))
+    shutil.copyfile(rdir / "front" / layout.BEAUTY, rdir / "front" / "beauty_raw.png")
+    assert strip_beauty_raw(rdir) > 0
+    assert not (rdir / "front" / "beauty_raw.png").exists()
+    assert read_manifest(rdir / layout.RENDER_MANIFEST).cameras[0].beauty_raw is None
+    assert strip_beauty_raw(rdir) == 0  # idempotent

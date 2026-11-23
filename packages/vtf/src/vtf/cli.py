@@ -102,11 +102,14 @@ def run_(
     no_twins: bool = typer.Option(False, "--no-twins", help="Skip G6 twins."),
     max_scenes: int = typer.Option(None, help="Process only the first N scenes of the run."),
     device: str = typer.Option("gpu", help=DEVICE_HELP),
+    min_free_gb: float = typer.Option(20.0, help="Stop cleanly below this much free disk (GB)."),
+    keep_beauty_raw: bool = typer.Option(False, help="Keep beauty_raw.png copies."),
 ) -> None:
     """Resumable scale run: generate, then render, validate, twin and collect in batches."""
     _lane("run", "vtf.validate.scale", "scale_run")(
         recipe=recipe, n=n, seed=seed, out=out, batch=batch, twin_fraction=twin_fraction,
-        twins=not no_twins, max_scenes=max_scenes, device=device,
+        twins=not no_twins, max_scenes=max_scenes, device=device, min_free_gb=min_free_gb,
+        keep_beauty_raw=keep_beauty_raw,
     )  # fmt: skip
 
 

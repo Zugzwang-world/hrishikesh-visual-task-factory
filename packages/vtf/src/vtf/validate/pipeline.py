@@ -524,11 +524,13 @@ def collect(run_dir: Path, prune: bool = True, quiet: bool = False) -> dict:
         vdir = scene_validate_dir(lay.scene_dir(sid))
         rep = read_json(vdir / SCENE_REPORT)
         if rep is None:
-            statuses["not_validated" if is_rendered(lay.scene_file(sid), lay.render_dir(sid))
-                     else "not_rendered"] += 1  # fmt: skip
-            if not lay.render_manifest(sid).exists():
+            rendered = is_rendered(lay.scene_file(sid), lay.render_dir(sid))
+            attempted = lay.render_dir(sid).exists()
+            statuses["not_validated" if rendered else
+                     "render_failed" if attempted else "not_rendered"] += 1  # fmt: skip
+            if attempted and not rendered:  # a render that ran and left no valid manifest
                 rejected.append(
-                    RejectedRow(scene_id=sid, stage="render", reason="not_rendered").model_dump(
+                    RejectedRow(scene_id=sid, stage="render", reason="render_failed").model_dump(
                         mode="json"
                     )
                 )
