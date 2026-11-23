@@ -165,8 +165,12 @@ def default_mat_spec() -> MatSpec:
         )
         q = half + QUIET_MM
         keep_out.append(
-            Rect(x_min=_r((cx - q) / 1000), y_min=_r((cy - q) / 1000),
-                 x_max=_r((cx + q) / 1000), y_max=_r((cy + q) / 1000))  # fmt: skip
+            Rect(
+                x_min=_r((cx - q) / 1000),
+                y_min=_r((cy - q) / 1000),
+                x_max=_r((cx + q) / 1000),
+                y_max=_r((cy + q) / 1000),
+            )  # fmt: skip
         )
     px, py = PLACEMENT_MM[0] / 2000, PLACEMENT_MM[1] / 2000
     c0, c2 = _marker_center_mm(0), _marker_center_mm(2)
@@ -174,8 +178,9 @@ def default_mat_spec() -> MatSpec:
         TileSpec(
             page=i + 1,
             name=name,
-            window=Rect(x_min=_r(x0 / 1000), y_min=_r(y0 / 1000),
-                        x_max=_r(x1 / 1000), y_max=_r(y1 / 1000)),  # fmt: skip
+            window=Rect(
+                x_min=_r(x0 / 1000), y_min=_r(y0 / 1000), x_max=_r(x1 / 1000), y_max=_r(y1 / 1000)
+            ),  # fmt: skip
             trim_left=trim_l,
             trim_bottom=trim_b,
         )

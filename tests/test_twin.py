@@ -156,3 +156,124 @@ def test_register_with_one_marker_covered() -> None:
 def test_register_blank_photo_fails_cleanly() -> None:
     reg = register_photo(np.full((480, 640, 3), 200, np.uint8))
     assert not reg.ok and reg.marker_ids == [] and reg.photo_to_mat is None
+
+
+# Shopping list ---------------------------------------------------------------------------------
+
+
+def test_shopping_list_matches_manifest_assets(tmp_path: Path) -> None:
+    from vtf.core.assets import load_asset_manifest
+    from vtf.twin.shopping import TOLERANCE, build_shopping_list, write_shopping_list
+
+    manifest = load_asset_manifest()
+    items = build_shopping_list(manifest)
+    assert len(items) == 15
+    assert len({i.asset_id for i in items}) == 15
+    spec = default_mat_spec()
+    depth = spec.placement_area.y_max - spec.placement_area.y_min
+    for it in items:
+        entry = manifest.get(it.asset_id)
+        assert entry.source == "polyhaven"
+        assert it.size_m == tuple(entry.size_m) and it.colour == entry.color_name
+        assert max(entry.size_m[:2]) < depth  # fits the placement area in any turn
+        for (lo, hi), v in zip(it.ranges_m(), it.size_m, strict=True):
+            assert lo == pytest.approx(v * (1 - TOLERANCE))
+            assert hi == pytest.approx(v * (1 + TOLERANCE))
+        assert "cm" in it.size_text()
+    md, js = write_shopping_list(tmp_path)
+    text = md.read_text()
+    assert text.count("\n1. ") == 1 and "\n15. " in text
+    data = json.loads(js.read_text())
+    assert [i["asset_id"] for i in data["items"]] == [i.asset_id for i in items]
+
+
+# Recipe and layout sheets ----------------------------------------------------------------------
+
+TWIN_RECIPE = REPO / "recipes" / "physical_twin.yaml"
+
+
+@pytest.fixture(scope="module")
+def twin_run(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    from vtf.scene.generate import generate_run
+
+    out = tmp_path_factory.mktemp("twins")
+    generate_run(recipe=TWIN_RECIPE, n=6, seed=19, out=out)
+    return out
+
+
+def test_twin_recipe_layouts_fit_the_mat(twin_run: Path) -> None:
+    from vtf.core.io import read_scene
+    from vtf.core.layout import RunLayout
+    from vtf.twin.layouts import camera_spots, object_placements
+
+    spec = default_mat_spec()
+    area = spec.placement_area
+    run = RunLayout(twin_run)
+    for sid in run.scene_ids():
+        scene = read_scene(run.scene_file(sid))
+        assert tuple(scene.table.size_xy) == spec.size_xy
+        assert 3 <= len(scene.objects) <= 8
+        for p in object_placements(scene):
+            for x, y in p.footprint_m:  # every footprint point inside the placement area
+                assert area.contains(x, y), (sid, p.obj.id, x, y)
+        (spot,) = camera_spots(scene)
+        assert spot.camera.id == "front"
+        assert spot.height_cm == pytest.approx(49.8, abs=0.1)
+        assert spot.lens_cm[1] == pytest.approx(-41.8, abs=0.1)
+        assert spot.aim_cm == pytest.approx((0.0, 0.0), abs=0.01)
+        assert spot.tilt_down_deg == pytest.approx(50.0, abs=0.01)
+
+
+def test_layout_placements_read_poses() -> None:
+    from vtf.core.geometry import Pose, quat_from_axis_angle
+    from vtf.core.io import read_scene
+    from vtf.twin.layouts import object_placements
+
+    scene = read_scene(REPO / "spec" / "examples" / "scene_example.json")
+    pose = Pose(
+        position=(0.05, -0.02, scene.table.height + 0.015),
+        rotation=quat_from_axis_angle((0, 0, 1), np.radians(30)),
+    )
+    obj = scene.objects[0].model_copy(
+        update={"source": "primitive", "shape": "box", "dimensions": (0.06, 0.04, 0.03),
+                "pose": pose}
+    )  # fmt: skip
+    scene = scene.model_copy(update={"objects": [obj]})
+    (p,) = object_placements(scene)
+    assert p.centre_cm == pytest.approx((5.0, -2.0))
+    assert p.turn_deg == pytest.approx(30.0)
+    assert p.tilt_deg == pytest.approx(0.0, abs=1e-4)
+    assert p.base_cm == pytest.approx(0.0, abs=1e-6)
+    xs, ys = p.footprint_m[:, 0], p.footprint_m[:, 1]
+    half_diag = float(np.hypot(0.03, 0.02))
+    assert np.hypot(xs - 0.05, ys + 0.02).max() == pytest.approx(half_diag, abs=1e-6)
+
+
+def test_layouts_pdf_has_cover_and_one_page_per_scene(twin_run: Path, tmp_path: Path) -> None:
+    from vtf.twin.layouts import make_layouts
+
+    pdf = make_layouts(twin_run, tmp_path / "layouts.pdf")
+    again = make_layouts(twin_run, tmp_path / "again.pdf")
+    assert pdf.read_bytes() == again.read_bytes()
+    assert _pdf_pages(pdf) == 1 + 6
+    assert pdf.stat().st_size < 2_000_000
+
+
+def test_cli_twin_commands(twin_run: Path, tmp_path: Path) -> None:
+    from typer.testing import CliRunner
+
+    from vtf.cli import app
+
+    runner = CliRunner()
+    docs = tmp_path / "docs"
+    res = runner.invoke(app, ["twin", "mat", "--out", str(docs)])
+    assert res.exit_code == 0, res.output
+    assert (docs / "mat_spec.json").exists()
+    res = runner.invoke(app, ["twin", "shopping", "--out", str(docs)])
+    assert res.exit_code == 0, res.output
+    assert (docs / "shopping_list.md").exists()
+    res = runner.invoke(app, ["twin", "layouts", str(twin_run), "--out", str(docs), "--limit", "2"])
+    assert res.exit_code == 0, res.output
+    assert _pdf_pages(docs / "layouts.pdf") == 3
+    res = runner.invoke(app, ["twin", "bogus"])
+    assert res.exit_code != 0
