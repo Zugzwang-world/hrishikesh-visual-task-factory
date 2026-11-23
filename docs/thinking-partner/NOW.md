@@ -1,8 +1,21 @@
 # NOW
 
-**Updated:** 24 Nov 2026, 00:15 IST
-**Stage:** **Stage 3, Core factory: built, integrated and run (brief 05). Dataset v1 is frozen at 300 scenes** (founder, 24 Nov 00:15): 3,181 tasks, freeze record in docs/reports/v1/FROZEN.json. The last 200 scenes, the three-scene crash fix and the swap cause wait for the morning.
+**Updated:** 24 Nov 2026, 01:00 IST (overnight, brief 06 running unattended)
+**Stage:** **Stage 4 starts on frozen v1: the Claude model sweep, the shortcut analysis and Explorer v1 (brief 06).** Dataset v1 stays frozen at 300 scenes and 3,181 tasks (docs/reports/v1/FROZEN.json, unchanged).
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
+
+## Tonight, in progress (brief 06)
+
+- Every model answers the same 1,567 tasks: Sonnet's 1,500-task sample plus the 150 audit tasks (67 were new; Sonnet answered them tonight). Results go to out/v1/sweep/<model>/; out/v1/eval/ is untouched.
+- Phase A passed: smoke calls for claude-haiku-5-5, claude-opus-5-5 (high) and claude-opus-5-5 (xhigh, max_tokens 64,000) resolved, took the image and returned parseable JSON first time; a 5-task Message Batches proof came back 5 of 5 in 90 s with byte-identical request bodies. Disk 41 GB free (the restart cleared swap to 0).
+- Phase B running detached (out/v1/logs/sweep_run.log, state in out/v1/sweep/state.json): Sonnet's 67 done; Haiku's 100-task gate had 0 errors or truncations; its other 1,362 tasks are in batches; Opus high, then Opus xhigh follow, each gated on its first 100.
+- Phase C code is ready and tested on Sonnet: scripts/shortcut_findings.py (scene bootstrap, shortcut capture vs chance, matched strata, clustered logistic regression, headline chart), the findings section of the dataset report, and scripts/audit_vs_models.py for the founder's audit.
+- Phase D (Explorer v1 with every model and a conflict gallery) is being built in a separate worktree.
+
+## Running cost of model calls (tonight)
+
+- claude-sonnet-5-5 (67 batched): $0.15. claude-haiku-5-5: $0.016 after its first 106; projected total $0.23. claude-opus-5-5 high and xhigh: one smoke call each, under $0.01. Batches bill at half price.
+- Before tonight: about $9.65 (Sonnet's 1,500 answers were $6.80 of it).
 
 ## Dataset v1 candidate (out/v1, main checkout)
 
@@ -32,11 +45,13 @@
 - Task Explorer, public, now showing the v1 run (8 scenes, three cameras, 3D, Sonnet's answers, gates): https://vtf-task-explorer.vercel.app
 - Physical twins: docs/twins/ (mat PDFs, 15-item shopping list, 30 layout sheets).
 
-## Running cost of model calls
+## Running cost of model calls (before tonight)
 
 - Stage 2: $0.25. Tonight: $9.40 (20-scene check $1.31, nearest re-run $0.30, blind baseline $0.17, v1 eval $6.80, smoke test under $0.01). Total so far about $9.65.
 
 ## Asks
+
+- **Commit signing:** the SSH agent was empty after the restart, so tonight's commits are unsigned (signing switched off per command only; your git config is unchanged). To sign future commits again, run `ssh-add ~/.ssh/id_ed25519_github` once after a restart (tonight's pushed commits stay unsigned; rewriting main's history is not worth it).
 
 - **Blind audit, 150 tasks (46 of them shortcut-conflict tasks, all three cameras):** open out/v1/audit/index.html on the laptop (main checkout), answer, export the JSON, and say where it is; I score it with `vtf audit score`. The 12 stage-2 nearest-to-gripper tasks are ready at out/audit_s2/index.html.
 - **Shopping list:** 15 items, 23 pieces, in DEMO.md; print docs/twins/mat_A3.pdf at 100%.
