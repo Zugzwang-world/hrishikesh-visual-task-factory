@@ -54,8 +54,9 @@ Contracts land on main first: spec/scene.schema.json and spec/task_package.schem
 
 | Lane | Folders |
 | --- | --- |
-| Spec and sampler | packages/vtf/src/vtf/core, scene; spec/; recipes/ |
-| Render | packages/vtf-blender; packages/vtf/src/vtf/camera; assets/ |
+| Contracts (Coordinator) | packages/vtf/src/vtf/core; spec/*.schema.json; spec/examples/; packages/vtf/src/vtf/cli.py (each lane may edit only its own command function) |
+| Spec and sampler | packages/vtf/src/vtf/scene; recipes/ |
+| Render | packages/vtf-blender; packages/vtf/src/vtf/render (the bridge that calls Blender); packages/vtf/src/vtf/camera; assets/ |
 | Questions | packages/vtf/src/vtf/programs |
 | Validation and packaging | packages/vtf/src/vtf/validate, package |
 | Eval | packages/vtf/src/vtf/eval; configs/models.yaml |
@@ -90,7 +91,9 @@ Check versions, model names and APIs on the web (or with the scout) before relyi
 
 ```bash
 uv sync                              # install the workspace
-uv run vtf --help                    # CLI (stubs until stage 2)
+uv run vtf --help                    # CLI: generate, render, validate, eval, verify
+uv run python -m vtf.core.schemas    # regenerate spec/*.schema.json from the pydantic contracts
+uv run python spec/examples/make_fixtures.py   # regenerate the contract fixtures (no Blender)
 uv run pytest                        # tests
 uv run ruff check .                  # lint
 /Applications/Blender.app/Contents/MacOS/Blender -b -P packages/vtf-blender/scripts/smoke_render.py   # smoke render into out/smoke/

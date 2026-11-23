@@ -1,0 +1,104 @@
+{
+  "manifest_version": "0.1.0",
+  "scene_id": "scene_0000",
+  "scene_file": "scenes/scene_0000/scene.json",
+  "scene_sha256": "382508fd2f21a4e4f66c66961b9ca3043466f4e34c3ea6706f8c2490e61dfefd",
+  "settled_scene_file": "scene.settled.json",
+  "renderer": "fixture",
+  "blender_version": "none (vtf.core.raycast)",
+  "device": "CPU",
+  "device_name": "",
+  "samples": 1,
+  "seed": 0,
+  "denoise": false,
+  "cameras": [
+    {
+      "camera_id": "front",
+      "resolution": [
+        320,
+        240
+      ],
+      "beauty": "front/beauty.png",
+      "index": "front/index.png",
+      "depth": "front/depth.npy",
+      "depth_kind": "planar_z",
+      "amodal": {
+        "1": "front/amodal/1.png",
+        "2": "front/amodal/2.png",
+        "3": "front/amodal/3.png",
+        "4": "front/amodal/4.png",
+        "5": "front/amodal/5.png",
+        "6": "front/amodal/6.png",
+        "7": "front/amodal/7.png"
+      },
+      "K": [
+        [
+          248.888889,
+          0.0,
+          160.0
+        ],
+        [
+          0.0,
+          248.888889,
+          120.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "world_to_camera": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.642788,
+          -0.766044,
+          0.574533
+        ],
+        [
+          0.0,
+          0.766044,
+          -0.642788,
+          1.382091
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "render_seconds": 0.0,
+      "amodal_seconds": 0.0
+    }
+  ],
+  "settle": {
+    "frames": 0,
+    "substeps_per_frame": 0,
+    "seconds": 0.0,
+    "displacement_m": {
+      "obj_00": 0.01,
+      "obj_01": 0.01,
+      "obj_02": 0.01,
+      "obj_03": 0.01,
+      "obj_04": 0.01,
+      "obj_05": 0.01,
+      "obj_06": 0.01
+    },
+    "max_displacement_m": 0.01,
+    "off_table": []
+  },
+  "timings": {
+    "build": 0.0,
+    "settle": 0.0,
+    "render": 0.0,
+    "amodal": 0.0,
+    "total": 0.0
+  }
+}

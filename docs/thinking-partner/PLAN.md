@@ -14,12 +14,12 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P03 | Scene spec v0: pydantic SceneSpec (table, objects with asset ID, pose, scale, material; gripper; zones; cameras; lights; seed) plus JSON Schema export | M | spec/scene.schema.json generated; a sample scene file validates | todo |
-| P04 | Sampler v0: 5 to 10 procedural objects (boxes, cylinders, spheres) in distinct colours on a table, no overlaps, seeded | S | Same seed gives a byte-identical scene file | todo |
-| P05 | vtf-blender renderer v0: build the scene from the file, rigid-body settle, write settled poses back, render beauty, object-index and depth from one camera | L | One command turns a scene file into PNG, mask, depth and a settled scene file | todo |
-| P06 | Question programs v0: count, nearest to gripper, front-to-back; templates with two phrasings each; typed answers | M | Programs return answer plus the object IDs used as evidence | todo |
+| P03 | Scene spec v0: pydantic SceneSpec (table, objects with asset ID, pose, scale, material; gripper; zones; cameras; lights; seed) plus JSON Schema export | M | spec/scene.schema.json generated; a sample scene file validates | done |
+| P04 | Sampler v0: 5 to 10 procedural objects (boxes, cylinders, spheres) in distinct colours on a table, no overlaps, seeded | S | Same seed gives a byte-identical scene file | doing |
+| P05 | vtf-blender renderer v0: build the scene from the file, rigid-body settle, write settled poses back, render beauty, object-index and depth from one camera | L | One command turns a scene file into PNG, mask, depth and a settled scene file | doing |
+| P06 | Question programs v0: count, nearest to gripper, front-to-back; templates with two phrasings each; typed answers | M | Programs return answer plus the object IDs used as evidence | doing |
 | P07 | Gates v0 (G1 truth, G3 visibility from masks, G7 determinism) and the task package writer | M | out/run/tasks/ID/ holds image, task.json and gate results | todo |
-| P08 | Eval v0: one Anthropic model answers in JSON; typed scorer; SQLite cache | S | Accuracy printed for a small run; reruns hit the cache | todo |
+| P08 | Eval v0: one Anthropic model answers in JSON; typed scorer; SQLite cache | S | Accuracy printed for a small run; reruns hit the cache | doing |
 | P09 | First end-to-end run on about 20 tasks, plus a contact sheet (image, question, truth, model answer) saved for DEMO.md | S | Contact sheet exists; NOW.md says stage 2 done | todo |
 
 ## Stage 3: Core factory

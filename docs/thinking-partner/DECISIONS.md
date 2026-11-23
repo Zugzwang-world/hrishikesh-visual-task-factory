@@ -49,3 +49,19 @@ A dated log, newest first. Each entry says what was decided and why. Reversals g
 | Task Explorer | Built and hosted on Vercel |
 | Pitch | Technical and explicit: beyond 2D, exact 3D truth, robot perception for physical AI |
 | Fallback | Financial price charts, only if 3D blocks us |
+
+## 23 Nov 2026: Stage 2 contracts (P03)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Contract home | pydantic models in `packages/vtf/src/vtf/core/` (scene, render_manifest, task, program); JSON Schemas generated into `spec/` by `uv run python -m vtf.core.schemas`; a test fails when they go stale | One source of truth; lanes import the models, outsiders read the schemas. |
+| World conventions | Metres, Blender's Z-up right-handed world, quaternions wxyz; table centred on the origin with its top at z = table.height; object pose = centre of its local bounding box, dimensions = full extents | Matches Blender, so the renderer needs no conversions. |
+| Camera conventions | Scene file stores the Blender camera pose (looks down local -Z). The manifest's K and world-to-camera use the OpenCV convention (x right, y down, z forward; pixel origin at the image's top-left corner; horizontal sensor fit) | OpenCV is what downstream tools and robot stacks expect. Core computes the same matrices from the scene file, so validate can check the renderer against them. |
+| Depth | depth.npy holds planar camera-frame z in metres, float32, 0.0 where nothing is hit | Planar depth is what front-to-back and G2 compare; the manifest states `depth_kind`. |
+| Pass indices | Objects 1..999, table 1000, gripper 1001, background 0 | Leaves room for G2 to find the gripper and table in pixels later. |
+| Gripper | The scene file stores both the gripper parameters and its derived world-frame parts (`build_gripper`) | The renderer just builds boxes and a cylinder; no duplicated geometry convention. |
+| Physics | Settle parameters live in the scene file (`physics`) | They decide the settled poses, so they are part of the truth and of the hash. |
+| Answer vocabulary | Colours, shapes, synonyms and the shared normaliser live in `vtf.core.vocab` for v0 | Programs and scorer must share one normaliser. These are domain words in core; they move to the workcell pack in stage 3. |
+| Fixtures | `spec/examples/run_example/` is a full tiny run made by an analytic numpy ray caster (`vtf.core.raycast`), not Blender | Exact index, depth and amodal masks with no Blender, so every lane can build against the contracts; the ray caster also checks Blender's camera and poses. |
+| CLI wiring | `vtf generate/render/validate/verify/eval` call lane modules lazily (`vtf.scene.generate.generate_run`, `vtf.render.bridge.render_run`, `vtf.validate.pipeline.validate_run`, `vtf.validate.verify.verify_run`, `vtf.eval.runner.eval_run`) | Lanes work in parallel without editing one shared file. |
+| Eval model facts (scout, 23 Nov 2026) | `claude-sonnet-5-5` takes image input; send the image block before the text; structured JSON through `output_config.format`; temperature is not accepted (400) on this model | Record model ID and API version with each result; repeat runs can differ. |

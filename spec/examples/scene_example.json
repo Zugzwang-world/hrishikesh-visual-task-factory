@@ -1,0 +1,430 @@
+{
+  "meta": {
+    "spec_version": "0.1.0",
+    "scene_id": "scene_0000",
+    "generator_version": "fixture/hand-made 0.1.0",
+    "seed": 0,
+    "recipe_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "settled": false
+  },
+  "table": {
+    "size_xy": [
+      1.0,
+      0.7
+    ],
+    "height": 0.75,
+    "thickness": 0.03,
+    "material_id": "wood_simple",
+    "pass_index": 1000
+  },
+  "objects": [
+    {
+      "id": "obj_00",
+      "source": "primitive",
+      "shape": "box",
+      "category": "box",
+      "color_name": "red",
+      "rgb": [
+        0.5776,
+        0.013,
+        0.013
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.06,
+        0.06,
+        0.06
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          -0.22,
+          0.1,
+          0.79
+        ],
+        "rotation": [
+          0.984808,
+          0.0,
+          0.0,
+          0.173648
+        ]
+      },
+      "pass_index": 1
+    },
+    {
+      "id": "obj_01",
+      "source": "primitive",
+      "shape": "cylinder",
+      "category": "cylinder",
+      "color_name": "blue",
+      "rgb": [
+        0.013,
+        0.0802,
+        0.5776
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.05,
+        0.05,
+        0.08
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          0.05,
+          0.12,
+          0.8
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "pass_index": 2
+    },
+    {
+      "id": "obj_02",
+      "source": "primitive",
+      "shape": "sphere",
+      "category": "sphere",
+      "color_name": "green",
+      "rgb": [
+        0.0212,
+        0.3515,
+        0.0452
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.06,
+        0.06,
+        0.06
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          0.2,
+          -0.05,
+          0.79
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "pass_index": 3
+    },
+    {
+      "id": "obj_03",
+      "source": "primitive",
+      "shape": "cone",
+      "category": "cone",
+      "color_name": "yellow",
+      "rgb": [
+        0.8308,
+        0.6105,
+        0.013
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.06,
+        0.06,
+        0.08
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          -0.05,
+          -0.12,
+          0.8
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "pass_index": 4
+    },
+    {
+      "id": "obj_04",
+      "source": "primitive",
+      "shape": "cylinder",
+      "category": "cylinder",
+      "color_name": "red",
+      "rgb": [
+        0.5776,
+        0.013,
+        0.013
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          0.27,
+          0.2,
+          0.785
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "pass_index": 5
+    },
+    {
+      "id": "obj_05",
+      "source": "primitive",
+      "shape": "cylinder",
+      "category": "cylinder",
+      "color_name": "white",
+      "rgb": [
+        0.8308,
+        0.8308,
+        0.8308
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.07,
+        0.07,
+        0.04
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          -0.3,
+          -0.15,
+          0.78
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "pass_index": 6
+    },
+    {
+      "id": "obj_06",
+      "source": "primitive",
+      "shape": "sphere",
+      "category": "sphere",
+      "color_name": "orange",
+      "rgb": [
+        0.8714,
+        0.1878,
+        0.007
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "dimensions": [
+        0.045,
+        0.045,
+        0.045
+      ],
+      "scale": 1.0,
+      "pose": {
+        "position": [
+          0.2,
+          0.02,
+          0.7825
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "pass_index": 7
+    }
+  ],
+  "gripper": {
+    "tip": {
+      "position": [
+        0.02,
+        0.0,
+        0.9299999999999999
+      ],
+      "rotation": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "opening": 0.05,
+    "finger_length": 0.055,
+    "finger_width": 0.018,
+    "finger_thickness": 0.01,
+    "palm_size": [
+      0.09,
+      0.03,
+      0.025
+    ],
+    "arm_length": 0.25,
+    "arm_radius": 0.02,
+    "material_id": "metal_grey",
+    "pass_index": 1001,
+    "parts": [
+      {
+        "name": "finger_left",
+        "shape": "box",
+        "dimensions": [
+          0.01,
+          0.018,
+          0.055
+        ],
+        "pose": {
+          "position": [
+            -0.01,
+            0.0,
+            0.9575
+          ],
+          "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "finger_right",
+        "shape": "box",
+        "dimensions": [
+          0.01,
+          0.018,
+          0.055
+        ],
+        "pose": {
+          "position": [
+            0.05,
+            0.0,
+            0.9575
+          ],
+          "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "palm",
+        "shape": "box",
+        "dimensions": [
+          0.09,
+          0.03,
+          0.025
+        ],
+        "pose": {
+          "position": [
+            0.02,
+            0.0,
+            0.9975
+          ],
+          "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "arm",
+        "shape": "cylinder",
+        "dimensions": [
+          0.04,
+          0.04,
+          0.25
+        ],
+        "pose": {
+          "position": [
+            0.02,
+            0.0,
+            1.135
+          ],
+          "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ]
+  },
+  "zones": [],
+  "cameras": [
+    {
+      "id": "front",
+      "rig": "front",
+      "pose": {
+        "position": [
+          0.0,
+          -0.68944,
+          1.328509
+        ],
+        "rotation": [
+          0.906308,
+          0.422618,
+          -0.0,
+          -0.0
+        ]
+      },
+      "focal_mm": 28.0,
+      "sensor_width_mm": 36.0,
+      "resolution": [
+        320,
+        240
+      ],
+      "clip_start": 0.01,
+      "clip_end": 20.0
+    }
+  ],
+  "lighting": {
+    "hdri_id": "studio_small_09",
+    "strength": 1.0,
+    "rotation_deg": 0.0
+  },
+  "render": {
+    "engine": "CYCLES",
+    "samples": 128,
+    "seed": 0,
+    "device": "GPU",
+    "denoise": true
+  },
+  "physics": {
+    "settle_frames": 60,
+    "fps": 24,
+    "substeps_per_frame": 10,
+    "solver_iterations": 20,
+    "friction": 0.8,
+    "restitution": 0.0,
+    "linear_damping": 0.1,
+    "angular_damping": 0.6,
+    "collision_margin": 0.0005,
+    "density_kg_m3": 600.0
+  }
+}

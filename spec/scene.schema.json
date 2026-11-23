@@ -1,0 +1,784 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$defs": {
+    "CameraSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Camera id, e.g. front.",
+          "title": "Id",
+          "type": "string"
+        },
+        "rig": {
+          "default": "front",
+          "description": "front, overhead or gripper.",
+          "title": "Rig",
+          "type": "string"
+        },
+        "pose": {
+          "$ref": "#/$defs/Pose",
+          "description": "Blender camera pose: looks down local -Z, local +Y is up."
+        },
+        "focal_mm": {
+          "exclusiveMinimum": 0,
+          "title": "Focal Mm",
+          "type": "number"
+        },
+        "sensor_width_mm": {
+          "default": 36.0,
+          "description": "Sensor fit is horizontal.",
+          "exclusiveMinimum": 0,
+          "title": "Sensor Width Mm",
+          "type": "number"
+        },
+        "resolution": {
+          "description": "Width, height in pixels.",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Resolution",
+          "type": "array"
+        },
+        "clip_start": {
+          "default": 0.01,
+          "exclusiveMinimum": 0,
+          "title": "Clip Start",
+          "type": "number"
+        },
+        "clip_end": {
+          "default": 20.0,
+          "exclusiveMinimum": 0,
+          "title": "Clip End",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "pose",
+        "focal_mm",
+        "resolution"
+      ],
+      "title": "CameraSpec",
+      "type": "object"
+    },
+    "Gripper": {
+      "additionalProperties": false,
+      "description": "A static two-finger gripper. `parts` are derived from the parameters by `build_gripper`.\n\nTip frame: origin at the midpoint between the fingertips; local +Z points up the arm (the\napproach direction is -Z); local x is the finger-opening axis.",
+      "properties": {
+        "tip": {
+          "$ref": "#/$defs/Pose"
+        },
+        "opening": {
+          "description": "Gap between the fingers' inner faces, metres.",
+          "exclusiveMinimum": 0,
+          "title": "Opening",
+          "type": "number"
+        },
+        "finger_length": {
+          "exclusiveMinimum": 0,
+          "title": "Finger Length",
+          "type": "number"
+        },
+        "finger_width": {
+          "description": "Finger size along tip-local y.",
+          "exclusiveMinimum": 0,
+          "title": "Finger Width",
+          "type": "number"
+        },
+        "finger_thickness": {
+          "description": "Finger size along tip-local x.",
+          "exclusiveMinimum": 0,
+          "title": "Finger Thickness",
+          "type": "number"
+        },
+        "palm_size": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Palm Size",
+          "type": "array"
+        },
+        "arm_length": {
+          "exclusiveMinimum": 0,
+          "title": "Arm Length",
+          "type": "number"
+        },
+        "arm_radius": {
+          "exclusiveMinimum": 0,
+          "title": "Arm Radius",
+          "type": "number"
+        },
+        "material_id": {
+          "default": "metal_grey",
+          "title": "Material Id",
+          "type": "string"
+        },
+        "pass_index": {
+          "default": 1001,
+          "title": "Pass Index",
+          "type": "integer"
+        },
+        "parts": {
+          "description": "Primitive parts in world coordinates.",
+          "items": {
+            "$ref": "#/$defs/GripperPart"
+          },
+          "title": "Parts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tip",
+        "opening",
+        "finger_length",
+        "finger_width",
+        "finger_thickness",
+        "palm_size",
+        "arm_length",
+        "arm_radius",
+        "parts"
+      ],
+      "title": "Gripper",
+      "type": "object"
+    },
+    "GripperPart": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "enum": [
+            "box",
+            "cylinder"
+          ],
+          "title": "Shape",
+          "type": "string"
+        },
+        "dimensions": {
+          "description": "Full extents along the part's local axes, metres.",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "pose": {
+          "$ref": "#/$defs/Pose",
+          "description": "World pose of the part's centre."
+        }
+      },
+      "required": [
+        "name",
+        "shape",
+        "dimensions",
+        "pose"
+      ],
+      "title": "GripperPart",
+      "type": "object"
+    },
+    "Lighting": {
+      "additionalProperties": false,
+      "properties": {
+        "hdri_id": {
+          "description": "Poly Haven HDRI id, cached under assets/cache/<id>/.",
+          "title": "Hdri Id",
+          "type": "string"
+        },
+        "strength": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Strength",
+          "type": "number"
+        },
+        "rotation_deg": {
+          "default": 0.0,
+          "description": "HDRI rotation about world Z, degrees.",
+          "title": "Rotation Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "hdri_id"
+      ],
+      "title": "Lighting",
+      "type": "object"
+    },
+    "Physics": {
+      "additionalProperties": false,
+      "description": "Rigid-body settle parameters. Part of the truth, because they decide the settled poses.",
+      "properties": {
+        "settle_frames": {
+          "default": 60,
+          "exclusiveMinimum": 0,
+          "title": "Settle Frames",
+          "type": "integer"
+        },
+        "fps": {
+          "default": 24,
+          "exclusiveMinimum": 0,
+          "title": "Fps",
+          "type": "integer"
+        },
+        "substeps_per_frame": {
+          "default": 10,
+          "exclusiveMinimum": 0,
+          "title": "Substeps Per Frame",
+          "type": "integer"
+        },
+        "solver_iterations": {
+          "default": 20,
+          "exclusiveMinimum": 0,
+          "title": "Solver Iterations",
+          "type": "integer"
+        },
+        "friction": {
+          "default": 0.8,
+          "minimum": 0,
+          "title": "Friction",
+          "type": "number"
+        },
+        "restitution": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Restitution",
+          "type": "number"
+        },
+        "linear_damping": {
+          "default": 0.1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Linear Damping",
+          "type": "number"
+        },
+        "angular_damping": {
+          "default": 0.6,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Angular Damping",
+          "type": "number"
+        },
+        "collision_margin": {
+          "default": 0.0005,
+          "minimum": 0,
+          "title": "Collision Margin",
+          "type": "number"
+        },
+        "density_kg_m3": {
+          "default": 600.0,
+          "exclusiveMinimum": 0,
+          "title": "Density Kg M3",
+          "type": "number"
+        }
+      },
+      "title": "Physics",
+      "type": "object"
+    },
+    "Pose": {
+      "additionalProperties": false,
+      "description": "A rigid pose in the world frame.",
+      "properties": {
+        "position": {
+          "description": "Position in metres, world frame (Z up).",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "rotation": {
+          "default": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "description": "Unit quaternion in w, x, y, z order.",
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Rotation",
+          "type": "array"
+        }
+      },
+      "required": [
+        "position"
+      ],
+      "title": "Pose",
+      "type": "object"
+    },
+    "RenderSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "const": "CYCLES",
+          "default": "CYCLES",
+          "title": "Engine",
+          "type": "string"
+        },
+        "samples": {
+          "default": 128,
+          "exclusiveMinimum": 0,
+          "title": "Samples",
+          "type": "integer"
+        },
+        "seed": {
+          "default": 0,
+          "description": "Cycles sampling seed.",
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "device": {
+          "default": "GPU",
+          "description": "Default device; `vtf render --device` overrides.",
+          "enum": [
+            "GPU",
+            "CPU"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "denoise": {
+          "default": true,
+          "title": "Denoise",
+          "type": "boolean"
+        }
+      },
+      "title": "RenderSettings",
+      "type": "object"
+    },
+    "SceneMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "spec_version": {
+          "default": "0.1.0",
+          "description": "Version of this scene format.",
+          "title": "Spec Version",
+          "type": "string"
+        },
+        "scene_id": {
+          "description": "Stable scene name within a run, e.g. scene_0007.",
+          "title": "Scene Id",
+          "type": "string"
+        },
+        "generator_version": {
+          "description": "Sampler name and version that produced the file.",
+          "title": "Generator Version",
+          "type": "string"
+        },
+        "seed": {
+          "description": "Per-scene seed; with the recipe it reproduces this file exactly.",
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "recipe_hash": {
+          "description": "sha256 of the recipe's canonical JSON.",
+          "title": "Recipe Hash",
+          "type": "string"
+        },
+        "settled": {
+          "default": false,
+          "description": "False as sampled; True once the renderer's settle wrote poses back.",
+          "title": "Settled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scene_id",
+        "generator_version",
+        "seed",
+        "recipe_hash"
+      ],
+      "title": "SceneMeta",
+      "type": "object"
+    },
+    "SceneObject": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Stable id, e.g. obj_03.",
+          "pattern": "^obj_\\d{2,}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "default": "primitive",
+          "description": "primitive in v0; asset for Poly Haven models (stage 3).",
+          "enum": [
+            "primitive",
+            "asset"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Primitive name (box, cylinder, sphere, cone) or, for assets, the asset_id.",
+          "title": "Shape",
+          "type": "string"
+        },
+        "category": {
+          "description": "Noun used in questions and answers; equals shape for primitives.",
+          "title": "Category",
+          "type": "string"
+        },
+        "color_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Colour word used in questions, e.g. red.",
+          "title": "Color Name"
+        },
+        "rgb": {
+          "description": "Linear-light base colour, 0..1, as given to Principled BSDF.",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Rgb",
+          "type": "array"
+        },
+        "roughness": {
+          "default": 0.45,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Roughness",
+          "type": "number"
+        },
+        "metallic": {
+          "default": 0.0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Metallic",
+          "type": "number"
+        },
+        "dimensions": {
+          "description": "Full extents along local x, y, z in metres.",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Uniform scale applied to an asset.",
+          "exclusiveMinimum": 0,
+          "title": "Scale",
+          "type": "number"
+        },
+        "pose": {
+          "$ref": "#/$defs/Pose"
+        },
+        "pass_index": {
+          "description": "Object-index pass value.",
+          "maximum": 999,
+          "minimum": 1,
+          "title": "Pass Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "shape",
+        "category",
+        "color_name",
+        "rgb",
+        "dimensions",
+        "pose",
+        "pass_index"
+      ],
+      "title": "SceneObject",
+      "type": "object"
+    },
+    "Table": {
+      "additionalProperties": false,
+      "properties": {
+        "size_xy": {
+          "description": "Top size in metres along world x and y.",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Size Xy",
+          "type": "array"
+        },
+        "height": {
+          "description": "World z of the table's top surface, metres.",
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "thickness": {
+          "default": 0.03,
+          "description": "Top slab thickness, metres.",
+          "exclusiveMinimum": 0,
+          "title": "Thickness",
+          "type": "number"
+        },
+        "material_id": {
+          "default": "wood_simple",
+          "description": "Renderer material name.",
+          "title": "Material Id",
+          "type": "string"
+        },
+        "pass_index": {
+          "default": 1000,
+          "title": "Pass Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "size_xy",
+        "height"
+      ],
+      "title": "Table",
+      "type": "object"
+    },
+    "Zone": {
+      "additionalProperties": false,
+      "description": "A marked region on the table top (empty in v0; reach zones arrive in stage 3).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "shape": {
+          "enum": [
+            "rect",
+            "circle"
+          ],
+          "title": "Shape",
+          "type": "string"
+        },
+        "center_xy": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Center Xy",
+          "type": "array"
+        },
+        "size_xy": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Xy"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius"
+        },
+        "color_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color Name"
+        },
+        "rgb": {
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rgb"
+        }
+      },
+      "required": [
+        "id",
+        "shape",
+        "center_xy"
+      ],
+      "title": "Zone",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "$ref": "#/$defs/SceneMeta"
+    },
+    "table": {
+      "$ref": "#/$defs/Table"
+    },
+    "objects": {
+      "items": {
+        "$ref": "#/$defs/SceneObject"
+      },
+      "title": "Objects",
+      "type": "array"
+    },
+    "gripper": {
+      "$ref": "#/$defs/Gripper"
+    },
+    "zones": {
+      "items": {
+        "$ref": "#/$defs/Zone"
+      },
+      "title": "Zones",
+      "type": "array"
+    },
+    "cameras": {
+      "items": {
+        "$ref": "#/$defs/CameraSpec"
+      },
+      "title": "Cameras",
+      "type": "array"
+    },
+    "lighting": {
+      "$ref": "#/$defs/Lighting"
+    },
+    "render": {
+      "$ref": "#/$defs/RenderSettings"
+    },
+    "physics": {
+      "$ref": "#/$defs/Physics"
+    }
+  },
+  "required": [
+    "meta",
+    "table",
+    "objects",
+    "gripper",
+    "cameras",
+    "lighting"
+  ],
+  "title": "SceneSpec",
+  "type": "object"
+}

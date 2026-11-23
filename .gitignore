@@ -41,4 +41,4 @@ renders/
 *.blend~
 
 # Downloaded assets (Poly Haven cache)
-assets/cache/
+assets/cache

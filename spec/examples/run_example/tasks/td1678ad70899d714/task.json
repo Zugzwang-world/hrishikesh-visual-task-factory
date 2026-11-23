@@ -1,0 +1,59 @@
+{
+  "task_version": "0.1.0",
+  "task_id": "td1678ad70899d714",
+  "scene_id": "scene_0000",
+  "scene_hash": "df89b336fa88fadaae7578418c86a6f784038e7499d66094dc31c01fdc0105e2",
+  "camera_id": "front",
+  "image": "image.png",
+  "question": "Which is closer to the camera, the yellow cone or the blue cylinder?",
+  "family": "front_to_back",
+  "template_id": "front_to_back.p1",
+  "program": {
+    "name": "front_to_back",
+    "params": {
+      "a": "obj_03",
+      "b": "obj_01"
+    }
+  },
+  "answer": "yellow cone",
+  "answer_type": "object",
+  "answer_text": "yellow cone",
+  "tolerance": null,
+  "evidence_object_ids": [
+    "obj_03",
+    "obj_01"
+  ],
+  "gates": {
+    "G1": {
+      "pass": true,
+      "evidence": {
+        "fixture": true
+      }
+    },
+    "G3": {
+      "pass": true,
+      "evidence": {
+        "fixture": true
+      }
+    },
+    "G7": {
+      "pass": true,
+      "evidence": {
+        "fixture": true
+      }
+    }
+  },
+  "twin_of": null,
+  "difficulty": {
+    "n_objects": 7
+  },
+  "seed": 0,
+  "versions": {
+    "vtf": "0.0.1",
+    "spec": "0.1.0",
+    "task": "0.1.0",
+    "generator": "fixture/hand-made 0.1.0",
+    "programs": "fixture",
+    "renderer": "fixture"
+  }
+}

@@ -1,0 +1,369 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$defs": {
+    "CameraOutputs": {
+      "additionalProperties": false,
+      "properties": {
+        "camera_id": {
+          "title": "Camera Id",
+          "type": "string"
+        },
+        "resolution": {
+          "description": "Width, height in pixels.",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Resolution",
+          "type": "array"
+        },
+        "beauty": {
+          "description": "Relative path to beauty.png.",
+          "title": "Beauty",
+          "type": "string"
+        },
+        "index": {
+          "description": "Relative path to the 16-bit index.png.",
+          "title": "Index",
+          "type": "string"
+        },
+        "depth": {
+          "description": "Relative path to depth.npy (float32, metres).",
+          "title": "Depth",
+          "type": "string"
+        },
+        "depth_kind": {
+          "const": "planar_z",
+          "default": "planar_z",
+          "description": "Depth is camera-frame z (along the optical axis).",
+          "title": "Depth Kind",
+          "type": "string"
+        },
+        "amodal": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "str(pass_index) -> relative path of that object's amodal mask PNG.",
+          "title": "Amodal",
+          "type": "object"
+        },
+        "K": {
+          "description": "3x3 intrinsics, OpenCV convention, pixel origin top-left.",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            }
+          ],
+          "title": "K",
+          "type": "array"
+        },
+        "world_to_camera": {
+          "description": "4x4 world -> OpenCV camera frame (x right, y down, z forward).",
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            }
+          ],
+          "title": "World To Camera",
+          "type": "array"
+        },
+        "render_seconds": {
+          "minimum": 0,
+          "title": "Render Seconds",
+          "type": "number"
+        },
+        "amodal_seconds": {
+          "minimum": 0,
+          "title": "Amodal Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "camera_id",
+        "resolution",
+        "beauty",
+        "index",
+        "depth",
+        "amodal",
+        "K",
+        "world_to_camera",
+        "render_seconds",
+        "amodal_seconds"
+      ],
+      "title": "CameraOutputs",
+      "type": "object"
+    },
+    "SettleReport": {
+      "additionalProperties": false,
+      "properties": {
+        "frames": {
+          "title": "Frames",
+          "type": "integer"
+        },
+        "substeps_per_frame": {
+          "title": "Substeps Per Frame",
+          "type": "integer"
+        },
+        "seconds": {
+          "minimum": 0,
+          "title": "Seconds",
+          "type": "number"
+        },
+        "displacement_m": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "object id -> distance between spawn and settled position, metres.",
+          "title": "Displacement M",
+          "type": "object"
+        },
+        "max_displacement_m": {
+          "title": "Max Displacement M",
+          "type": "number"
+        },
+        "off_table": {
+          "description": "Objects whose settled centre left the table top.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Off Table",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frames",
+        "substeps_per_frame",
+        "seconds",
+        "displacement_m",
+        "max_displacement_m"
+      ],
+      "title": "SettleReport",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": {
+      "default": "0.1.0",
+      "title": "Manifest Version",
+      "type": "string"
+    },
+    "scene_id": {
+      "title": "Scene Id",
+      "type": "string"
+    },
+    "scene_file": {
+      "description": "Path of the input scene file as given to the renderer.",
+      "title": "Scene File",
+      "type": "string"
+    },
+    "scene_sha256": {
+      "description": "sha256 of the input scene file's bytes.",
+      "title": "Scene Sha256",
+      "type": "string"
+    },
+    "settled_scene_file": {
+      "default": "scene.settled.json",
+      "title": "Settled Scene File",
+      "type": "string"
+    },
+    "renderer": {
+      "default": "blender",
+      "description": "blender, or fixture for test data.",
+      "title": "Renderer",
+      "type": "string"
+    },
+    "blender_version": {
+      "title": "Blender Version",
+      "type": "string"
+    },
+    "device": {
+      "description": "Device actually used.",
+      "enum": [
+        "GPU",
+        "CPU"
+      ],
+      "title": "Device",
+      "type": "string"
+    },
+    "device_name": {
+      "default": "",
+      "title": "Device Name",
+      "type": "string"
+    },
+    "samples": {
+      "title": "Samples",
+      "type": "integer"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "denoise": {
+      "title": "Denoise",
+      "type": "boolean"
+    },
+    "cameras": {
+      "items": {
+        "$ref": "#/$defs/CameraOutputs"
+      },
+      "title": "Cameras",
+      "type": "array"
+    },
+    "settle": {
+      "$ref": "#/$defs/SettleReport"
+    },
+    "timings": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "description": "Seconds: build, settle, render, amodal, total (wall clock inside Blender).",
+      "title": "Timings",
+      "type": "object"
+    }
+  },
+  "required": [
+    "scene_id",
+    "scene_file",
+    "scene_sha256",
+    "blender_version",
+    "device",
+    "samples",
+    "seed",
+    "denoise",
+    "cameras",
+    "settle",
+    "timings"
+  ],
+  "title": "RenderManifest",
+  "type": "object"
+}

@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from vtf.core by `uv run python -m vtf.core.schemas`. Format version 0.1.0.",
+  "$defs": {
+    "GateResult": {
+      "additionalProperties": false,
+      "description": "One gate's verdict. Serialised as {\"pass\": bool, \"evidence\": {...}}.",
+      "properties": {
+        "pass": {
+          "title": "Pass",
+          "type": "boolean"
+        },
+        "evidence": {
+          "additionalProperties": true,
+          "title": "Evidence",
+          "type": "object"
+        }
+      },
+      "required": [
+        "pass"
+      ],
+      "title": "GateResult",
+      "type": "object"
+    },
+    "ProgramRef": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Registered program name, e.g. count_color.",
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "JSON-safe parameters.",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ProgramRef",
+      "type": "object"
+    },
+    "Versions": {
+      "additionalProperties": false,
+      "properties": {
+        "vtf": {
+          "title": "Vtf",
+          "type": "string"
+        },
+        "spec": {
+          "description": "SceneSpec version.",
+          "title": "Spec",
+          "type": "string"
+        },
+        "task": {
+          "default": "0.1.0",
+          "title": "Task",
+          "type": "string"
+        },
+        "generator": {
+          "description": "Sampler version.",
+          "title": "Generator",
+          "type": "string"
+        },
+        "programs": {
+          "description": "Question-program version.",
+          "title": "Programs",
+          "type": "string"
+        },
+        "renderer": {
+          "description": "Renderer and version, e.g. blender 5.3.0.",
+          "title": "Renderer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vtf",
+        "spec",
+        "generator",
+        "programs",
+        "renderer"
+      ],
+      "title": "Versions",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "task_version": {
+      "default": "0.1.0",
+      "title": "Task Version",
+      "type": "string"
+    },
+    "task_id": {
+      "description": "Content hash of the task's inputs and answer.",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "scene_id": {
+      "title": "Scene Id",
+      "type": "string"
+    },
+    "scene_hash": {
+      "description": "sha256 of the settled scene file's canonical JSON.",
+      "title": "Scene Hash",
+      "type": "string"
+    },
+    "camera_id": {
+      "title": "Camera Id",
+      "type": "string"
+    },
+    "image": {
+      "default": "image.png",
+      "description": "Path relative to the task folder.",
+      "title": "Image",
+      "type": "string"
+    },
+    "question": {
+      "title": "Question",
+      "type": "string"
+    },
+    "family": {
+      "title": "Family",
+      "type": "string"
+    },
+    "template_id": {
+      "title": "Template Id",
+      "type": "string"
+    },
+    "program": {
+      "$ref": "#/$defs/ProgramRef"
+    },
+    "answer": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      ],
+      "title": "Answer"
+    },
+    "answer_type": {
+      "enum": [
+        "int",
+        "object",
+        "set",
+        "bool"
+      ],
+      "title": "Answer Type",
+      "type": "string"
+    },
+    "answer_text": {
+      "title": "Answer Text",
+      "type": "string"
+    },
+    "tolerance": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "None means exact match.",
+      "title": "Tolerance"
+    },
+    "evidence_object_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Object Ids",
+      "type": "array"
+    },
+    "gates": {
+      "additionalProperties": {
+        "$ref": "#/$defs/GateResult"
+      },
+      "description": "Gate id (G1, G3, G7, ...) -> result.",
+      "title": "Gates",
+      "type": "object"
+    },
+    "twin_of": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Task id of the twin (null in v0).",
+      "title": "Twin Of"
+    },
+    "difficulty": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "title": "Difficulty",
+      "type": "object"
+    },
+    "seed": {
+      "description": "Per-scene seed.",
+      "title": "Seed",
+      "type": "integer"
+    },
+    "versions": {
+      "$ref": "#/$defs/Versions"
+    }
+  },
+  "required": [
+    "task_id",
+    "scene_id",
+    "scene_hash",
+    "camera_id",
+    "question",
+    "family",
+    "template_id",
+    "program",
+    "answer",
+    "answer_type",
+    "answer_text",
+    "evidence_object_ids",
+    "gates",
+    "seed",
+    "versions"
+  ],
+  "title": "TaskPackage",
+  "type": "object"
+}

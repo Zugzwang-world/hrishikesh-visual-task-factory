@@ -1,0 +1,11 @@
+{
+  "run_version": "0.1.0",
+  "recipe": "(hand-made fixture)",
+  "recipe_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "run_seed": 0,
+  "n": 1,
+  "generator_version": "fixture/hand-made 0.1.0",
+  "scenes": {
+    "scene_0000": 0
+  }
+}

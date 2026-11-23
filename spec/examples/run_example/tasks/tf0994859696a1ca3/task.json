@@ -1,0 +1,61 @@
+{
+  "task_version": "0.1.0",
+  "task_id": "tf0994859696a1ca3",
+  "scene_id": "scene_0000",
+  "scene_hash": "df89b336fa88fadaae7578418c86a6f784038e7499d66094dc31c01fdc0105e2",
+  "camera_id": "front",
+  "image": "image.png",
+  "question": "How many objects are on the table?",
+  "family": "count",
+  "template_id": "count_all.p1",
+  "program": {
+    "name": "count_all",
+    "params": {}
+  },
+  "answer": 7,
+  "answer_type": "int",
+  "answer_text": "7",
+  "tolerance": null,
+  "evidence_object_ids": [
+    "obj_00",
+    "obj_01",
+    "obj_02",
+    "obj_03",
+    "obj_04",
+    "obj_05",
+    "obj_06"
+  ],
+  "gates": {
+    "G1": {
+      "pass": true,
+      "evidence": {
+        "fixture": true
+      }
+    },
+    "G3": {
+      "pass": true,
+      "evidence": {
+        "fixture": true
+      }
+    },
+    "G7": {
+      "pass": true,
+      "evidence": {
+        "fixture": true
+      }
+    }
+  },
+  "twin_of": null,
+  "difficulty": {
+    "n_objects": 7
+  },
+  "seed": 0,
+  "versions": {
+    "vtf": "0.0.1",
+    "spec": "0.1.0",
+    "task": "0.1.0",
+    "generator": "fixture/hand-made 0.1.0",
+    "programs": "fixture",
+    "renderer": "fixture"
+  }
+}

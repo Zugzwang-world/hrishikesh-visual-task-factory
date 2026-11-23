@@ -1,0 +1,3 @@
+{"task_id": "tf0994859696a1ca3", "scene_id": "scene_0000", "camera_id": "front", "family": "count", "answer_type": "int", "path": "tasks/tf0994859696a1ca3/task.json"}
+{"task_id": "t80189f7efbb144ce", "scene_id": "scene_0000", "camera_id": "front", "family": "count", "answer_type": "int", "path": "tasks/t80189f7efbb144ce/task.json"}
+{"task_id": "td1678ad70899d714", "scene_id": "scene_0000", "camera_id": "front", "family": "front_to_back", "answer_type": "object", "path": "tasks/td1678ad70899d714/task.json"}
