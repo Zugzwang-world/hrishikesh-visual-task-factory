@@ -499,21 +499,32 @@ class _Planner:
             interior_area = ix * iy
         depth = info.rim_z_m - info.floor_z_m
         want = min(int(self.rng.integers(cr.items[0], cr.items[1] + 1)), info.capacity, room - 1)
+
+        def fits(probe: Item) -> bool:
+            """Fits the interior and is squat or short enough not to topple out."""
+            squat = probe.height <= 1.2 * min(probe.foot[0], probe.foot[1])
+            return footprint_radius(probe) <= inner_r - cr.wall_margin_m and (
+                squat or probe.height <= cr.max_height_ratio * depth
+            )
+
+        def ok(c: Candidate) -> bool:
+            if not c.can_go_in or c.container is not None:
+                return False
+            # Asset sizes are fixed (no draw): filter by fit before drawing.
+            return c.source == "primitive" or fits(Item(cand=c, colour=None, dims=self.dims(c)))
+
         used_area = 0.0
         tries = 0
         while len(box.children) < want and tries < 4 * want:
             tries += 1
-            cand = self.pick(lambda c: c.can_go_in and c.container is None, on_table=False)
+            cand = self.pick(ok, on_table=False)
             if cand is None:
                 break
             dims = self.dims(cand)
             probe = Item(cand=cand, colour=None, dims=dims)
-            radius = footprint_radius(probe)
-            area = math.pi * radius**2
-            squat = probe.height <= 1.2 * min(probe.foot[0], probe.foot[1])
+            area = math.pi * footprint_radius(probe) ** 2
             if (
-                radius > inner_r - cr.wall_margin_m
-                or (probe.height > cr.max_height_ratio * depth and not squat)
+                not fits(probe)
                 or used_area + area > cr.max_fill * interior_area
             ):
                 continue
