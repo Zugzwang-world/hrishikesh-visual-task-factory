@@ -11,7 +11,7 @@ $BLENDER -b --python-exit-code 1 -P packages/vtf-blender/scripts/render_scene.py
 $BLENDER -b -P packages/vtf-blender/scripts/smoke_render.py
 ```
 
-`uv run vtf render <run>` calls `render_scene.py` once per scene (`vtf.render.bridge`).
+`uv run vtf render <run>` (`vtf.render.bridge`) calls `render_scene.py --jobs <jobs.json>` once per batch of scenes (`--batch-size`, default 5), watches its `VTF_SCENE_START` / `VTF_SCENE_DONE` / `VTF_SCENE_FAILED` lines, kills Blender when one scene runs past `--timeout` (default 300 s) and restarts it for the rest, then applies each camera's quality dial core side (`vtf.camera`). Every camera in the scene file is rendered; `scene.glb` is exported unless `--no-gltf`.
 
 `src/vtf_blender/`:
 
@@ -20,5 +20,6 @@ $BLENDER -b -P packages/vtf-blender/scripts/smoke_render.py
 - `passes.py`: beauty on the requested device; object index, depth and amodal masks from 1-sample CPU renders (exact on re-render); K and world-to-camera.
 - `files.py`: EXR reading with OpenImageIO, PNG writing without metadata, stable JSON.
 - `device.py`: GPU (Metal, OptiX, CUDA, HIP, oneAPI) or CPU.
+- `export.py`: `scene.glb` for the Task Explorer, display only (not truth): plain materials, 256 px base-colour textures, decimated meshes, a painted table top with the grid and zones, the cameras; under 3 MB. glTF is Y-up: world z is glTF y, world y is glTF -z.
 
 Pass indices: objects 1..999, table top 1000, gripper 1001. Floor, table legs and world are 0, because the scene file does not model them.
