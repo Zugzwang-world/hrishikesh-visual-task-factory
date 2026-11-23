@@ -91,7 +91,14 @@ Check versions, model names and APIs on the web (or with the scout) before relyi
 
 ```bash
 uv sync                              # install the workspace
-uv run vtf --help                    # CLI: generate, render, validate, eval, verify
+uv run vtf --help                    # CLI: generate, render, validate, eval, report, verify
+uv run vtf generate --recipe recipes/first_scene.yaml --n 20 --seed 1 --out out/s2   # scene files
+uv run vtf render out/s2             # Blender per scene: beauty (GPU), index/depth/amodal (CPU)
+uv run vtf validate out/s2           # questions, gates G1/G3/G7, tasks/, manifest.jsonl, rejected.jsonl
+uv run vtf eval out/s2 --model claude-sonnet-5-5 --limit 20   # needs ANTHROPIC_API_KEY in .env
+uv run vtf report out/s2 --model claude-sonnet-5-5   # contact sheet
+uv run vtf verify out/s2 --sample 5  # re-sample, re-render, compare hashes and SSIM
+/Applications/Blender.app/Contents/MacOS/Blender -b -P packages/vtf-blender/scripts/render_scene.py -- --scene <scene.json> --out <dir> --device GPU   # one scene
 uv run python -m vtf.core.schemas    # regenerate spec/*.schema.json from the pydantic contracts
 uv run python spec/examples/make_fixtures.py   # regenerate the contract fixtures (no Blender)
 uv run pytest                        # tests

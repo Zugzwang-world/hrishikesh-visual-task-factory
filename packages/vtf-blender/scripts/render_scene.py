@@ -130,6 +130,10 @@ def main() -> None:
     scene_path = Path(args.scene)
     raw = scene_path.read_bytes()
     spec = json.loads(raw)
+    if spec["meta"].get("settled"):
+        raise ValueError(
+            "render the sampled scene.json, not a settled scene: settling twice would re-drop it"
+        )
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
     (out / MANIFEST).unlink(missing_ok=True)  # its presence means success

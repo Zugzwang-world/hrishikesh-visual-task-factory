@@ -35,7 +35,7 @@
           "type": "string"
         },
         "depth": {
-          "description": "Relative path to depth.npy (float32, metres).",
+          "description": "Relative path to depth.npy (float32, metres; floor and legs keep depth).",
           "title": "Depth",
           "type": "string"
         },

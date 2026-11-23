@@ -1,10 +1,11 @@
 """Cycles renders: beauty on the requested device; object index, depth and amodal masks from
 1-sample CPU renders, which are exact on re-render and equal the GPU index. Runs in Blender.
 
-The data passes keep the beauty render's resolution, pixel filter and seed, so the one sample per
-pixel lands where the beauty's first sample does. Amodal masks render each object alone (every
-other object, table, gripper, legs and floor hidden; no world), so the visible pixels of an
-object in index.png are always a subset of its amodal mask.
+The data passes keep the beauty render's resolution, pixel filter and seed. (Whether their one
+sample per pixel lands exactly where the beauty's first sample does is unverified; the index and
+amodal passes share one sampling pattern, which is what the visibility gate needs.) Amodal masks
+render each object alone (every other object, table, gripper, legs and floor hidden; no world),
+so the visible pixels of an object in index.png are always a subset of its amodal mask.
 """
 
 import time

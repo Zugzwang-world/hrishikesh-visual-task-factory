@@ -14,6 +14,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from vtf.core.hashing import sha256_file
 from vtf.core.io import read_manifest, read_scene
 from vtf.core.layout import RENDER_MANIFEST, RunLayout
 
@@ -120,14 +121,26 @@ def render_scene(
     except subprocess.TimeoutExpired as exc:
         output = exc.stdout.decode() if isinstance(exc.stdout, bytes) else (exc.stdout or "")
         log.write_text(output, encoding="utf-8")
+        manifest_path.unlink(missing_ok=True)  # never leave a manifest that looks valid
         return RenderResult(
             False, time.perf_counter() - start, None, f"timed out after {timeout:g} s", log
         )
     except Exception as exc:  # every failure is recorded in the result, not raised
         if not log.exists():
             log.write_text(f"{type(exc).__name__}: {exc}\n", encoding="utf-8")
+        manifest_path.unlink(missing_ok=True)  # never leave a manifest that looks valid
         return RenderResult(False, time.perf_counter() - start, None, str(exc), log)
     return RenderResult(True, time.perf_counter() - start, manifest_path, None, log)
+
+
+def _rendered_from(manifest_path: Path, scene_file: Path) -> bool:
+    """True when a valid manifest exists and was rendered from this exact scene file."""
+    if not manifest_path.exists():
+        return False
+    try:
+        return read_manifest(manifest_path).scene_sha256 == sha256_file(scene_file)
+    except Exception:  # unreadable or stale manifest: render again
+        return False
 
 
 def _load_report(path: Path) -> dict:
@@ -172,7 +185,9 @@ def render_run(
     for scene_id in scene_ids:
         if limit is not None and counts["ok"] + counts["failed"] >= limit:
             break
-        if layout.render_manifest(scene_id).exists() and not force:
+        if not force and _rendered_from(
+            layout.render_manifest(scene_id), layout.scene_file(scene_id)
+        ):
             counts["skipped"] += 1
             entry = dict(previous.get(scene_id, {}))
             entry.update(status="skipped", error=None)

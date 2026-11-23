@@ -7,7 +7,9 @@ The renderer (packages/vtf-blender, inside Blender) writes, per scene, into one 
     <camera_id>/beauty.png    8-bit RGB
     <camera_id>/index.png     16-bit single channel; pixel value = pass_index, 0 = background
                               (from a 1-sample CPU render, so it is exact on re-render)
-    <camera_id>/depth.npy     float32 (H, W); planar camera-frame depth in metres, 0.0 = no hit
+    <camera_id>/depth.npy     float32 (H, W); planar camera-frame depth in metres of whatever the
+                              ray hits, 0.0 = no hit. Floor and table legs are renderer props
+                              outside the scene file: index 0, but they keep their depth.
     <camera_id>/amodal/<pass_index>.png   8-bit single channel; 255 where the object, rendered
                                           alone, covers the pixel; 0 elsewhere
 
@@ -39,7 +41,9 @@ class CameraOutputs(_Model):
     resolution: tuple[int, int] = Field(description="Width, height in pixels.")
     beauty: str = Field(description="Relative path to beauty.png.")
     index: str = Field(description="Relative path to the 16-bit index.png.")
-    depth: str = Field(description="Relative path to depth.npy (float32, metres).")
+    depth: str = Field(
+        description="Relative path to depth.npy (float32, metres; floor and legs keep depth)."
+    )
     depth_kind: Literal["planar_z"] = Field(
         default="planar_z", description="Depth is camera-frame z (along the optical axis)."
     )

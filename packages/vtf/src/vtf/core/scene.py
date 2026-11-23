@@ -157,7 +157,9 @@ class Physics(_Model):
     on; the gripper and the table never move (the table is passive, the gripper is not simulated).
     """
 
-    settle_frames: int = Field(default=90, gt=0)
+    settle_frames: int = Field(
+        default=90, ge=2, description="At least 2, so motion at the end can be measured."
+    )
     fps: int = Field(default=24, gt=0)
     substeps_per_frame: int = Field(default=40, gt=0)
     solver_iterations: int = Field(default=20, gt=0)
