@@ -109,9 +109,14 @@ def check_g4(
     family = question.family
     ev: dict[str, Any] = {"family": family, "rig": rig}
     problems: list[str] = []
+    # A single candidate (e.g. one object in a relation's direction cone) has no runner-up, so
+    # there is no tie to measure: the answer is unique by construction (brief 05 scale run).
+    no_runner_up = result.margin is None and result.difficulty.get("n_candidates") == 1
+    if no_runner_up:
+        ev["no_runner_up"] = True
 
     m_thr = metric_threshold(family, rig)
-    if m_thr is not None:
+    if m_thr is not None and not no_runner_up:
         ev.update(metric_margin_m=result.margin, metric_threshold_m=m_thr)
         if result.margin is None:
             problems.append("margin_missing")
@@ -119,7 +124,7 @@ def check_g4(
             problems.append("metric_near_tie")
 
     p_thr = pixel_threshold(family)
-    if p_thr is not None:
+    if p_thr is not None and not (no_runner_up and result.margin_px is None):
         margin_px, source = result.margin_px, "program"
         if margin_px is None and family in IMAGE_POINT_FALLBACK:
             margin_px = _image_point_gap(scene, question.camera_id, result.evidence_object_ids)

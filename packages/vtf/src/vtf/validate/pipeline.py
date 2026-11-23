@@ -51,7 +51,7 @@ from vtf.validate.gates.g4_no_near_ties import check_g4
 from vtf.validate.gates.g7_determinism import check_g7
 from vtf.validate.pixels import CameraPasses
 
-VALIDATE_VERSION = "0.2.0"
+VALIDATE_VERSION = "0.2.1"
 GATES = ("G1", "G2", "G3", "G4", "G7")  # per question at validate time; G6 comes from twins
 ALL_GATES = ("G1", "G2", "G3", "G4", "G6", "G7")
 SCENE_VALIDATE_DIR = "validate"
@@ -60,7 +60,11 @@ SCENE_REJECTED = "rejected.jsonl"
 SCENE_REPORT = "report.json"
 G6_FILE = "g6.json"
 # A scene is used only if the settle came to rest (expert, 23 Nov 2026).
-MAX_SETTLE_DRIFT_M = 0.03
+MAX_SETTLE_DRIFT_M = 0.03  # objects placed on the table
+# Objects placed in or on another object may slide further while settling: contents run down a
+# curved bowl or basket floor to rest at its bottom. The settled pose is the truth either way;
+# the check only guards against physics glitches (brief 05 scale run, batch 1).
+MAX_SETTLE_DRIFT_NESTED_M = 0.10
 MAX_SUPPORT_GAP_M = 0.002
 # Render-vs-scene ray cast on every scene: about 0.8 s per camera for primitives at 1024x768 and
 # 0.1 to 0.5 s per camera for asset meshes (sampler lane, 1f312f0). Set below 1 to sample a
@@ -134,11 +138,19 @@ def settle_problems(manifest: RenderManifest, settled: SceneSpec | None = None) 
         problems["moving_at_end"] = s.moving_at_end
     if s.off_table:
         problems["off_table"] = s.off_table
-    if s.max_displacement_m > MAX_SETTLE_DRIFT_M:
-        problems["drift_m"] = s.max_displacement_m
     on_table = None
     if settled is not None:
         on_table = {o.id for o in settled.objects if o.placement.kind == "table"}
+        drift = {
+            k: v
+            for k, v in s.displacement_m.items()
+            if v > (MAX_SETTLE_DRIFT_M if k in on_table else MAX_SETTLE_DRIFT_NESTED_M)
+        }
+        if drift:
+            problems["drift_m"] = max(drift.values())
+            problems["drifted"] = sorted(drift)
+    elif s.max_displacement_m > MAX_SETTLE_DRIFT_M:
+        problems["drift_m"] = s.max_displacement_m
     gaps = {
         k: v
         for k, v in s.support_gap_m.items()
