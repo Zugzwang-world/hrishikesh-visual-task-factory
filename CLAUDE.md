@@ -56,6 +56,10 @@ The claude.ai Project syncs `docs/thinking-partner/` and this file from GitHub, 
 2. Update `DECISIONS.md`, `OPEN.md` or `DEMO.md` when they changed; add new findings to `RESEARCH.md`.
 3. Commit and push, so the Project sync stays fresh.
 
+## Tracker
+
+docs/thinking-partner/PLAN.md and CHECKLIST.md are the tracker. Mark a PLAN item doing when you start it and done when it is merged. Tick a CHECKLIST row as soon as its evidence exists, and link the evidence. Rewrite NOW.md, then push, after every merge and at the end of every session. Add, split or drop PLAN items whenever it helps.
+
 ## Founder communication
 
 - The founder is the only human. He works by voice, does no coding and no clerical work, and supervises.
