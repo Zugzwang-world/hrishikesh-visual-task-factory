@@ -93,7 +93,7 @@
    "triangles": 4012,
    "license": "CC0",
    "url": "https://polyhaven.com/a/lemon",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "food_lime_01",
@@ -155,7 +155,7 @@
    "triangles": 7743,
    "license": "CC0",
    "url": "https://polyhaven.com/a/food_avocado_01",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "food_kiwi_01",
@@ -186,7 +186,7 @@
    "triangles": 7748,
    "license": "CC0",
    "url": "https://polyhaven.com/a/food_kiwi_01",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "yellow_onion",
@@ -620,7 +620,7 @@
    "triangles": 3412,
    "license": "CC0",
    "url": "https://polyhaven.com/a/screwdriver",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "flathead_screwdriver",
@@ -651,7 +651,7 @@
    "triangles": 2300,
    "license": "CC0",
    "url": "https://polyhaven.com/a/flathead_screwdriver",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "cross_pein_hammer",
@@ -682,7 +682,7 @@
    "triangles": 2124,
    "license": "CC0",
    "url": "https://polyhaven.com/a/cross_pein_hammer",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "wooden_hammer_01",
@@ -713,7 +713,7 @@
    "triangles": 3617,
    "license": "CC0",
    "url": "https://polyhaven.com/a/wooden_hammer_01",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "combination_wrench",
@@ -775,7 +775,7 @@
    "triangles": 5390,
    "license": "CC0",
    "url": "https://polyhaven.com/a/adjustable_wrench",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "tongue_groove_pliers",
@@ -837,7 +837,7 @@
    "triangles": 4540,
    "license": "CC0",
    "url": "https://polyhaven.com/a/pliers",
-   "notes": "modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)"
+   "notes": "modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it"
   },
   {
    "id": "vintage_stapler",

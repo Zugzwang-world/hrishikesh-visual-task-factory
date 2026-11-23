@@ -17,7 +17,7 @@
 # never move in the settle and rest on the table top). Container interiors are in the asset's
 # centred local frame, heights above its lowest point.
 #
-# Models made standing on end (a screwdriver on its handle, a lemon on its tip) point `file` at a
+# Models made upright (a screwdriver on its handle, a lemon on its tip) point `file` at a
 # rest-pose variant lying on its side (assets/rest_pose.py), so the modelled orientation plus a
 # yaw is always a stable resting pose. colour_name is the word a person would use for the whole
 # object; null when there is none (multi-coloured or metallic).
@@ -78,7 +78,7 @@ assets:
     lookalike_group: citrus
     triangles: 4012
     url: https://polyhaven.com/a/lemon
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: food_lime_01
     source: polyhaven
@@ -112,7 +112,7 @@ assets:
     can_go_in_container: true
     triangles: 7743
     url: https://polyhaven.com/a/food_avocado_01
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: food_kiwi_01
     source: polyhaven
@@ -129,7 +129,7 @@ assets:
     can_go_in_container: true
     triangles: 7748
     url: https://polyhaven.com/a/food_kiwi_01
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: yellow_onion
     source: polyhaven
@@ -371,7 +371,7 @@ assets:
     lookalike_group: screwdriver
     triangles: 3412
     url: https://polyhaven.com/a/screwdriver
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: flathead_screwdriver
     source: polyhaven
@@ -389,7 +389,7 @@ assets:
     lookalike_group: screwdriver
     triangles: 2300
     url: https://polyhaven.com/a/flathead_screwdriver
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: cross_pein_hammer
     source: polyhaven
@@ -407,7 +407,7 @@ assets:
     lookalike_group: hammer
     triangles: 2124
     url: https://polyhaven.com/a/cross_pein_hammer
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: wooden_hammer_01
     source: polyhaven
@@ -425,7 +425,7 @@ assets:
     lookalike_group: hammer
     triangles: 3617
     url: https://polyhaven.com/a/wooden_hammer_01
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: combination_wrench
     source: polyhaven
@@ -460,7 +460,7 @@ assets:
     lookalike_group: wrench
     triangles: 5390
     url: https://polyhaven.com/a/adjustable_wrench
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: tongue_groove_pliers
     source: polyhaven
@@ -495,7 +495,7 @@ assets:
     lookalike_group: pliers
     triangles: 4540
     url: https://polyhaven.com/a/pliers
-    notes: modelled standing on end; file is the rest-pose variant from assets/rest_pose.py (lying on its side, 90 degrees about x)
+    notes: modelled upright; file is a rest-pose variant lying on its side (assets/rest_pose.py, 90 degrees about x), so the sampler must not tilt it
 
   - id: vintage_stapler
     source: polyhaven
