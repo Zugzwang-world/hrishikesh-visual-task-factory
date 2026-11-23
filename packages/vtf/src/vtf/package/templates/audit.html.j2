@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>{{ title }}</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #ffffff;
+  --sunken: #f0efec;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --line: rgba(11, 11, 11, 0.12);
+  --accent: #2a78d6;
+  --accent-ink: #ffffff;
+  --accent-wash: #e6f0fc;
+  --warn: #9a5b00;
+  --warn-wash: #fdf1da;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --sunken: #242422;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --line: rgba(255, 255, 255, 0.12);
+    --accent: #3987e5;
+    --accent-ink: #ffffff;
+    --accent-wash: #16263a;
+    --warn: #fab219;
+    --warn-wash: #2e2410;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --sunken: #242422; --ink: #f0efec; --ink-2: #c3c2b7;
+  --muted: #898781; --line: rgba(255, 255, 255, 0.12); --accent: #3987e5; --accent-ink: #fff;
+  --accent-wash: #16263a; --warn: #fab219; --warn-wash: #2e2410;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+
+header.top {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--page);
+  border-bottom: 1px solid var(--line);
+}
+.top-row { display: flex; align-items: center; gap: 12px; min-height: 56px; }
+.top-row h1 { font-size: 16px; font-weight: 600; margin: 0; flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.counter { font-variant-numeric: tabular-nums; color: var(--ink-2); font-size: 15px; white-space: nowrap; }
+.bar { height: 4px; background: var(--sunken); }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+
+.btn {
+  min-height: 48px; padding: 10px 18px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--surface);
+  font-weight: 500;
+}
+.btn:active { transform: scale(0.98); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; }
+.btn[disabled] { opacity: .4; cursor: default; }
+.btn:focus-visible, .chip:focus-visible, .num:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.figure {
+  margin: 16px 0 0; background: var(--sunken); border-radius: var(--radius);
+  overflow: hidden; display: flex; justify-content: center;
+}
+.figure img { display: block; width: 100%; height: auto; max-height: 58vh; object-fit: contain; cursor: zoom-in; }
+.hint { color: var(--muted); font-size: 13px; margin: 6px 2px 0; }
+.meta { color: var(--muted); font-size: 13px; margin: 16px 0 4px; letter-spacing: .02em; }
+.question { font-size: 21px; line-height: 1.35; font-weight: 600; margin: 0 0 16px; }
+
+.choices { display: grid; gap: 10px; }
+.grid-num { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); }
+.grid-bool { grid-template-columns: 1fr 1fr; }
+.grid-chips { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.num, .chip {
+  min-height: 56px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--surface); font-size: 19px; font-weight: 500; padding: 8px 10px;
+  font-variant-numeric: tabular-nums;
+}
+.chip { font-size: 16px; text-align: left; padding: 10px 14px; }
+.grid-bool .num { min-height: 72px; font-size: 22px; }
+.num[aria-pressed="true"], .chip[aria-pressed="true"] {
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+}
+.free { display: flex; gap: 10px; margin-top: 12px; }
+.free input {
+  flex: 1; min-width: 0; min-height: 52px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--surface); padding: 10px 14px; font-size: 17px;
+}
+.unit { align-self: center; color: var(--ink-2); }
+.aside { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
+.flag[aria-pressed="true"] { background: var(--warn-wash); border-color: var(--warn); color: var(--warn); }
+.note { flex: 1 1 220px; min-height: 48px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--surface); padding: 10px 14px; }
+.saved { color: var(--ink-2); font-size: 14px; min-height: 20px; margin-top: 10px; }
+
+footer.nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  background: var(--page); border-top: 1px solid var(--line);
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+}
+.nav-row { display: flex; gap: 10px; }
+.nav-row .btn { flex: 1; }
+
+.panel { display: none; margin: 16px 0; padding: 16px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius); }
+.panel.open { display: block; }
+.panel h2 { font-size: 17px; margin: 0 0 8px; }
+.panel p { margin: 6px 0 12px; color: var(--ink-2); font-size: 15px; }
+.panel textarea { width: 100%; min-height: 120px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--page); padding: 10px; font: 13px/1.4 ui-monospace, Menlo, monospace; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+.warn { background: var(--warn-wash); color: var(--warn); padding: 10px 14px; border-radius: 10px; margin: 12px 0; display: none; }
+.done { text-align: center; padding: 40px 0; display: none; }
+.done h2 { font-size: 24px; margin: 0 0 8px; }
+
+.zoom { position: fixed; inset: 0; z-index: 20; background: #000; display: none; overflow: auto; -webkit-overflow-scrolling: touch; }
+.zoom.open { display: block; }
+.zoom img { display: block; max-width: none; width: 200%; cursor: zoom-out; }
+.zoom .close { position: fixed; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 21;
+  background: rgba(0,0,0,.6); color: #fff; border-color: rgba(255,255,255,.3); }
+@media (min-width: 900px) { .zoom img { width: auto; max-width: none; } }
+</style>
+</head>
+<body>
+<script type="application/json" id="audit-data">{{ data_json }}</script>
+
+<header class="top">
+  <div class="wrap top-row">
+    <h1 id="title">{{ title }}</h1>
+    <span class="counter" id="counter" aria-live="polite">1 / {{ n }}</span>
+    <button class="btn ghost" id="menu-btn" aria-expanded="false" aria-controls="menu">Save / load</button>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+</header>
+
+<main class="wrap">
+  <div class="warn" id="storage-warn">This browser is not keeping answers between visits. Export before you close the page.</div>
+
+  <section class="panel" id="menu" aria-label="Save and load answers">
+    <h2>Save your answers</h2>
+    <p>Answers are kept in this browser. Export them as a file and send it back; import a file to continue on another device.</p>
+    <div class="row">
+      <button class="btn primary" id="export-btn">Export answers (.json)</button>
+      <button class="btn" id="copy-btn">Copy to clipboard</button>
+      <label class="btn" for="import-file" id="import-label">Import a file</label>
+      <input type="file" id="import-file" accept=".json,application/json" hidden>
+    </div>
+    <textarea id="json-box" aria-label="Answers as JSON" spellcheck="false" placeholder="Exported answers appear here; paste answers here to import."></textarea>
+    <div class="row">
+      <button class="btn" id="paste-btn">Import pasted text</button>
+      <button class="btn ghost" id="first-open-btn">Go to first unanswered</button>
+    </div>
+    <p id="menu-msg" aria-live="polite"></p>
+  </section>
+
+  <section id="task">
+    <div class="figure"><img id="img" alt="Task image" decoding="async"></div>
+    <p class="hint">Tap the image to zoom.</p>
+    <p class="meta" id="meta"></p>
+    <p class="question" id="question"></p>
+    <div id="controls"></div>
+    <div class="aside">
+      <button class="btn flag" id="flag" aria-pressed="false">Can't tell</button>
+      <input class="note" id="note" type="text" placeholder="Note (optional)" autocomplete="off">
+    </div>
+    <p class="saved" id="saved" aria-live="polite"></p>
+  </section>
+
+  <section class="done" id="done">
+    <h2>All tasks answered</h2>
+    <p id="done-text"></p>
+    <div class="row" style="justify-content:center">
+      <button class="btn primary" id="done-export">Export answers (.json)</button>
+      <button class="btn" id="done-back">Review answers</button>
+    </div>
+  </section>
+</main>
+
+<footer class="nav">
+  <div class="wrap nav-row">
+    <button class="btn" id="prev">Back</button>
+    <button class="btn" id="skip">Next unanswered</button>
+    <button class="btn primary" id="next">Next</button>
+  </div>
+</footer>
+
+<div class="zoom" id="zoom" role="dialog" aria-label="Zoomed image">
+  <button class="btn close" id="zoom-close">Close</button>
+  <img id="zoom-img" alt="Task image, zoomed">
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("audit-data").textContent);
+  var TASKS = DATA.tasks;
+  var KEY = "vtf-audit:" + DATA.audit_id;
+  var memory = { answers: {}, pos: 0 };
+  var storageOk = true;
+  var state = load();
+  var $ = function (id) { return document.getElementById(id); };
+
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.answers) return parsed;
+      }
+      window.localStorage.setItem(KEY + ":probe", "1");
+      window.localStorage.removeItem(KEY + ":probe");
+    } catch (e) {
+      storageOk = false;
+    }
+    return memory;
+  }
+  function save() {
+    if (!storageOk) return;
+    try { window.localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { storageOk = false; $("storage-warn").style.display = "block"; }
+  }
+  function answered(id) {
+    var a = state.answers[id];
+    return !!a && (a.answer !== null && a.answer !== undefined && a.answer !== "" || a.flag);
+  }
+  function countAnswered() {
+    var n = 0;
+    for (var i = 0; i < TASKS.length; i++) if (answered(TASKS[i].id)) n++;
+    return n;
+  }
+  function entry(id) {
+    if (!state.answers[id]) state.answers[id] = { answer: null, flag: false, note: "" };
+    return state.answers[id];
+  }
+  function setAnswer(value, advance) {
+    var t = TASKS[state.pos];
+    var e = entry(t.id);
+    e.answer = value;
+    e.at = new Date().toISOString();
+    save();
+    paint();
+    flash("Saved");
+    if (advance) setTimeout(function () { go(state.pos + 1); }, 220);
+  }
+  function flash(text) {
+    var s = $("saved");
+    s.textContent = text;
+    clearTimeout(flash.timer);
+    flash.timer = setTimeout(function () { s.textContent = currentStatus(); }, 1200);
+  }
+  function currentStatus() {
+    var t = TASKS[state.pos];
+    if (!t) return "";
+    var e = state.answers[t.id];
+    if (!e || !answered(t.id)) return "Not answered yet.";
+    if (e.answer === null || e.answer === undefined || e.answer === "") return "Marked can't tell.";
+    return "Your answer: " + show(e.answer);
+  }
+  function show(v) {
+    if (Array.isArray(v)) return v.length ? v.join(", ") : "none";
+    if (v === true) return "yes";
+    if (v === false) return "no";
+    return String(v);
+  }
+
+  function button(label, pressed, onClick, cls) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = cls || "num";
+    b.textContent = label;
+    b.setAttribute("aria-pressed", pressed ? "true" : "false");
+    b.addEventListener("click", onClick);
+    return b;
+  }
+  function freeInput(placeholder, value, mode, onSave, unit) {
+    var row = document.createElement("div");
+    row.className = "free";
+    var input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = placeholder;
+    input.autocomplete = "off";
+    input.setAttribute("autocapitalize", "none");
+    if (mode) input.inputMode = mode;
+    input.value = value == null ? "" : value;
+    input.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); onSave(input.value); } });
+    row.appendChild(input);
+    if (unit) { var u = document.createElement("span"); u.className = "unit"; u.textContent = unit; row.appendChild(u); }
+    row.appendChild(button("Save", false, function () { onSave(input.value); }, "btn primary"));
+    return row;
+  }
+
+  function controls(t, e) {
+    var box = $("controls");
+    box.innerHTML = "";
+    var cur = e ? e.answer : null;
+    var grid = document.createElement("div");
+    if (t.type === "bool") {
+      grid.className = "choices grid-bool";
+      grid.appendChild(button("Yes", cur === true, function () { setAnswer(true, true); }));
+      grid.appendChild(button("No", cur === false, function () { setAnswer(false, true); }));
+      box.appendChild(grid);
+    } else if (t.type === "int") {
+      grid.className = "choices grid-num";
+      for (var i = 0; i <= 20; i++) {
+        (function (k) { grid.appendChild(button(String(k), cur === k, function () { setAnswer(k, true); })); })(i);
+      }
+      box.appendChild(grid);
+      var other = typeof cur === "number" && cur > 20 ? String(cur) : "";
+      box.appendChild(freeInput("More than 20? Type the number", other, "numeric", function (v) {
+        var k = parseInt(v, 10);
+        if (!isNaN(k) && k >= 0) setAnswer(k, true); else flash("Type a whole number");
+      }));
+    } else if (t.type === "number") {
+      box.appendChild(freeInput("Your estimate", cur, "decimal", function (v) {
+        var x = parseFloat(String(v).replace(",", "."));
+        if (!isNaN(x)) setAnswer(x, true); else flash("Type a number");
+      }, t.unit || ""));
+    } else if (t.type === "object") {
+      if (t.options && t.options.length) {
+        grid.className = "choices grid-chips";
+        t.options.forEach(function (name) {
+          grid.appendChild(button(name, cur === name, function () { setAnswer(name, true); }, "chip"));
+        });
+        box.appendChild(grid);
+      }
+      var typed = cur && (!t.options || t.options.indexOf(cur) < 0) ? cur : "";
+      box.appendChild(freeInput(t.options && t.options.length ? "Or type a name" : "Type the object, e.g. its colour and shape", typed, "text", function (v) {
+        v = String(v).trim();
+        if (v) setAnswer(v, true); else flash("Type a name");
+      }));
+    } else if (t.type === "set") {
+      var chosen = Array.isArray(cur) ? cur.slice() : [];
+      if (t.options && t.options.length) {
+        grid.className = "choices grid-chips";
+        t.options.forEach(function (name) {
+          grid.appendChild(button(name, chosen.indexOf(name) >= 0, function (ev) {
+            var i = chosen.indexOf(name);
+            if (i >= 0) chosen.splice(i, 1); else chosen.push(name);
+            ev.currentTarget.setAttribute("aria-pressed", i >= 0 ? "false" : "true");
+          }, "chip"));
+        });
+        box.appendChild(grid);
+        var row = document.createElement("div");
+        row.className = "free";
+        row.appendChild(button("None of them", Array.isArray(cur) && cur.length === 0, function () { setAnswer([], true); }, "btn"));
+        row.appendChild(button("Save selection", false, function () {
+          if (!chosen.length) { flash("Pick at least one, or None of them"); return; }
+          setAnswer(chosen.slice().sort(), true);
+        }, "btn primary"));
+        box.appendChild(row);
+      } else {
+        box.appendChild(freeInput("Names separated by commas, or none", Array.isArray(cur) ? cur.join(", ") : "", "text", function (v) {
+          v = String(v).trim();
+          if (!v) { flash("Type names, or none"); return; }
+          if (/^(none|nothing|no objects?)$/i.test(v)) { setAnswer([], true); return; }
+          setAnswer(v.split(",").map(function (s) { return s.trim(); }).filter(Boolean).sort(), true);
+        }));
+      }
+    } else {
+      box.appendChild(freeInput("Your answer", cur, "text", function (v) { v = String(v).trim(); if (v) setAnswer(v, true); }));
+    }
+  }
+
+  function paint() {
+    var done = state.pos >= TASKS.length;
+    $("task").style.display = done ? "none" : "block";
+    $("done").style.display = done ? "block" : "none";
+    var n = countAnswered();
+    $("counter").textContent = (done ? TASKS.length : state.pos + 1) + " / " + TASKS.length + "  ·  " + n + " answered";
+    $("bar").style.width = (100 * n / TASKS.length) + "%";
+    $("prev").disabled = state.pos <= 0;
+    $("next").textContent = state.pos >= TASKS.length - 1 ? "Finish" : "Next";
+    $("next").disabled = done;
+    if (done) {
+      $("done-text").textContent = n + " of " + TASKS.length + " answered. Export the file and send it back.";
+      return;
+    }
+    var t = TASKS[state.pos];
+    var e = state.answers[t.id];
+    if ($("img").getAttribute("src") !== t.img) $("img").setAttribute("src", t.img);
+    $("meta").textContent = "Task " + (state.pos + 1) + "  ·  " + t.rig + " camera";
+    $("question").textContent = t.q;
+    controls(t, e);
+    $("flag").setAttribute("aria-pressed", e && e.flag ? "true" : "false");
+    $("note").value = e && e.note ? e.note : "";
+    $("saved").textContent = currentStatus();
+    var next = TASKS[state.pos + 1];
+    if (next) { var pre = new Image(); pre.src = next.img; }
+  }
+  function go(i) {
+    state.pos = Math.max(0, Math.min(TASKS.length, i));
+    save();
+    paint();
+    window.scrollTo(0, 0);
+  }
+  function firstOpen() {
+    for (var i = 0; i < TASKS.length; i++) if (!answered(TASKS[i].id)) return i;
+    return TASKS.length;
+  }
+  function nextOpen() {
+    for (var k = 1; k <= TASKS.length; k++) {
+      var i = (state.pos + k) % TASKS.length;
+      if (!answered(TASKS[i].id)) return i;
+    }
+    return TASKS.length;
+  }
+
+  function exportPayload() {
+    var answers = {};
+    TASKS.forEach(function (t) { if (state.answers[t.id]) answers[t.id] = state.answers[t.id]; });
+    return {
+      audit_id: DATA.audit_id, audit_version: DATA.audit_version, run: DATA.run,
+      exported_at: new Date().toISOString(), n_tasks: TASKS.length, n_answered: countAnswered(),
+      task_ids: TASKS.map(function (t) { return t.id; }), answers: answers
+    };
+  }
+  function exportFile() {
+    var text = JSON.stringify(exportPayload(), null, 2);
+    $("json-box").value = text;
+    try {
+      var blob = new Blob([text], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "audit_answers_" + DATA.audit_id + ".json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 500);
+      msg("Exported " + countAnswered() + " answers. If no file appeared, copy the text below.");
+    } catch (err) {
+      msg("Download is blocked here: copy the text below instead.");
+    }
+  }
+  function importText(text) {
+    var data;
+    try { data = JSON.parse(text); } catch (e) { msg("That is not valid JSON."); return; }
+    if (data.audit_id && data.audit_id !== DATA.audit_id) { msg("That file belongs to another audit (" + data.audit_id + ")."); return; }
+    var incoming = data.answers || {};
+    var ids = {};
+    TASKS.forEach(function (t) { ids[t.id] = true; });
+    var n = 0;
+    Object.keys(incoming).forEach(function (id) {
+      if (ids[id] && incoming[id] && typeof incoming[id] === "object") { state.answers[id] = incoming[id]; n++; }
+    });
+    save();
+    paint();
+    msg("Imported " + n + " answers.");
+  }
+  function msg(text) { $("menu-msg").textContent = text; }
+
+  $("next").addEventListener("click", function () { go(state.pos + 1); });
+  $("prev").addEventListener("click", function () { go(state.pos - 1); });
+  $("skip").addEventListener("click", function () { go(nextOpen()); });
+  $("flag").addEventListener("click", function () {
+    var t = TASKS[state.pos];
+    var e = entry(t.id);
+    e.flag = !e.flag;
+    e.at = new Date().toISOString();
+    save();
+    paint();
+    if (e.flag) $("note").focus();
+  });
+  $("note").addEventListener("input", function () {
+    var t = TASKS[state.pos];
+    entry(t.id).note = $("note").value;
+    save();
+  });
+  $("menu-btn").addEventListener("click", function () {
+    var open = !$("menu").classList.contains("open");
+    $("menu").classList.toggle("open", open);
+    $("menu-btn").setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) $("json-box").value = JSON.stringify(exportPayload(), null, 2);
+  });
+  $("export-btn").addEventListener("click", exportFile);
+  $("done-export").addEventListener("click", exportFile);
+  $("done-back").addEventListener("click", function () { go(0); });
+  $("copy-btn").addEventListener("click", function () {
+    var text = JSON.stringify(exportPayload(), null, 2);
+    $("json-box").value = text;
+    var fallback = function () { $("json-box").select(); try { document.execCommand("copy"); msg("Copied."); } catch (e) { msg("Select the text below and copy it."); } };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { msg("Copied."); }, fallback);
+    } else { fallback(); }
+  });
+  $("import-file").addEventListener("change", function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () { importText(String(r.result)); };
+    r.readAsText(f);
+    ev.target.value = "";
+  });
+  $("paste-btn").addEventListener("click", function () { importText($("json-box").value); });
+  $("first-open-btn").addEventListener("click", function () { go(firstOpen()); });
+
+  $("img").addEventListener("click", function () {
+    $("zoom-img").src = $("img").getAttribute("src");
+    $("zoom").classList.add("open");
+  });
+  var closeZoom = function () { $("zoom").classList.remove("open"); };
+  $("zoom-close").addEventListener("click", closeZoom);
+  $("zoom-img").addEventListener("click", closeZoom);
+
+  document.addEventListener("keydown", function (ev) {
+    var tag = (ev.target && ev.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA") return;
+    if (ev.key === "Escape") closeZoom();
+    else if (ev.key === "ArrowRight") go(state.pos + 1);
+    else if (ev.key === "ArrowLeft") go(state.pos - 1);
+    else if (TASKS[state.pos] && TASKS[state.pos].type === "bool" && (ev.key === "y" || ev.key === "n")) setAnswer(ev.key === "y", true);
+  });
+
+  if (!storageOk) $("storage-warn").style.display = "block";
+  if (typeof state.pos !== "number" || state.pos > TASKS.length) state.pos = 0;
+  paint();
+})();
+</script>
+</body>
+</html>
