@@ -106,8 +106,9 @@ def wrong_candidates(info: dict[str, Any]) -> int:
     """How many wrong answers a conflict task offers (chance of the shortcut = 1 / this).
 
     Yes/no and two-object questions offer one; object questions every other nameable object in
-    the view (minus the anchor or occluder, which cannot be the answer); set questions the sets
-    one object away from the truth (one per object)."""
+    the view (minus the anchor or occluder, which cannot be the answer; for relation not only
+    the objects inside the direction cone, since a model can name any visible object); set
+    questions the sets one object away from the truth (one per object)."""
     task = info["task"]
     k = len(task.scene_objects or [])
     fam = info["family"]
@@ -116,8 +117,8 @@ def wrong_candidates(info: dict[str, Any]) -> int:
     if fam == "nearest_to_gripper":
         return max(1, k - 1)
     if fam == "relation":
-        n = info.get("n_candidates")
-        return max(1, (n - 1) if n else k - 2)
+        # any visible object but the anchor can be named, as for nearest and occlusion
+        return max(1, k - 2)
     if fam == "occlusion":
         return max(1, k - 2)
     if task.answer_type == "set":
@@ -653,23 +654,45 @@ def verdicts(out: dict[str, Any]) -> list[str]:
             f"3D truth, {pts(bc['conflict']['accuracy'])}% when it conflicts; gap "
             f"{pts(g['points'])} points{rng(g['ci95'])}."
         )
-    caps = [
-        (m["label"] + " " + m["effort"], m["capture_object_choice"]) for m in out["models"].values()
+
+    def ratio_txt(c: dict) -> str:
+        r = c["ratio_ci95"]
+        return f"{c['ratio']:.2f}x" + (f", 95% CI {r[0]:.2f} to {r[1]:.2f}" if r else "")
+
+    parts = [
+        f"{m['label']} {m['effort']} {pts(c['capture_share'])}% vs {pts(c['chance_share'])}% "
+        f"({ratio_txt(c)})"
+        for m in out["models"].values()
+        if (c := m["capture"])["capture_share"] is not None
     ]
-    if caps:
-
-        def ratio_txt(c: dict) -> str:
-            r = c["ratio_ci95"]
-            return f"{c['ratio']}x" + (f", 95% CI {r[0]:.1f} to {r[1]:.1f}" if r else "")
-
-        parts = [
-            f"{n} {pts(c['capture_share'])}% vs {pts(c['chance_share'])}% chance ({ratio_txt(c)})"
-            for n, c in caps
-            if c["capture_share"] is not None
-        ]
+    if parts:
         lines.append(
-            "Object-choice questions (nearest to gripper, relation, occlusion): share of wrong "
-            "answers that name the 2D-shortcut object: " + "; ".join(parts) + "."
+            "Shortcut capture: of the conflict tasks each model got wrong, the share answered "
+            "with exactly the 2D-shortcut answer, against chance: " + "; ".join(parts) + "."
+        )
+    near = [
+        f"{m['label']} {m['effort']} {c['shortcut_picks']} of {c['answered_misses']} "
+        f"(chance {pts(c['chance_share'])}%)"
+        for m in out["models"].values()
+        if (c := m["capture_by_family"].get("nearest_to_gripper")) and c["answered_misses"]
+    ]
+    if near:
+        others = []
+        for f in ("relation", "occlusion", "reachability"):
+            picks = misses = 0
+            chance = 0.0
+            for m in out["models"].values():
+                c = m["capture_by_family"].get(f)
+                if c and c["answered_misses"]:
+                    picks += c["shortcut_picks"]
+                    misses += c["answered_misses"]
+                    chance += c["chance_share"] * c["answered_misses"]
+            if misses:
+                others.append(f"{fam(f)} {picks} of {misses} (chance {chance / misses * 100:.0f}%)")
+        lines.append(
+            "The pull is strongest for 'nearest to the gripper', where wrong answers name the "
+            "object nearest in the image: " + "; ".join(near) + ". Other object families, all "
+            "models pooled: " + "; ".join(others) + "."
         )
     ok = [m for m in out["models"].values() if survives(m)]
     allm = list(out["models"].values())
