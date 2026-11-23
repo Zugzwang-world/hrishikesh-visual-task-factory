@@ -63,7 +63,9 @@ export function cameraPose(cam: CameraData): CameraPose | null {
   };
 }
 
-/** Project a Blender-world point into the camera image (pixels of `resolution`), or null. */
+/** Project a Blender-world point into the camera image (pixels of `resolution`), or null. A camera
+ * whose quality dials in lens distortion (k1) gets it here too, as vtf.camera.dial.distort_points
+ * applies it to the image: k1 on normalised coordinates, then the zoom that fills the frame. */
 export function projectPoint(cam: CameraData, p: Vec3): [number, number] | null {
   if (!cam.world_to_camera || !cam.K) return null;
   const m = cam.world_to_camera;
@@ -72,7 +74,18 @@ export function projectPoint(cam: CameraData, p: Vec3): [number, number] | null 
   const z = m[2][0] * p[0] + m[2][1] * p[1] + m[2][2] * p[2] + m[2][3];
   if (z <= 1e-6) return null;
   const K = cam.K;
-  return [K[0][0] * (x / z) + K[0][2], K[1][1] * (y / z) + K[1][2]];
+  const [fx, fy, cx, cy] = [K[0][0], K[1][1], K[0][2], K[1][2]];
+  let [xn, yn] = [x / z, y / z];
+  const k1 = cam.quality?.distortion_k1 ?? 0;
+  if (k1) {
+    const [hx, hy] = [cx / fx, cy / fy];
+    const rb2 = k1 < 0 ? hx * hx + hy * hy : Math.min(hx, hy) ** 2;
+    const denom = 1 + k1 * rb2;
+    const s = denom > 0 ? 1 / denom : 1;
+    const mag = s * (1 + k1 * (xn * xn + yn * yn));
+    [xn, yn] = [xn * mag, yn * mag];
+  }
+  return [fx * xn + cx, fy * yn + cy];
 }
 
 /** Camera frustum corners in Blender world at depth d (for drawing the rig). */
