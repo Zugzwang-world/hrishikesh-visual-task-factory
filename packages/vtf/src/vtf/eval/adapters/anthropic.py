@@ -1,5 +1,6 @@
 """Anthropic Messages API adapter, on the official SDK.
 
+- Credentials: ANTHROPIC_API_KEY only (the runner loads the repo-root .env); no other fallback.
 - API version: the SDK's default (anthropic 2.x sends anthropic-version 2026-10-21).
 - One user turn: the image (base64 PNG, native resolution) first, then the question text.
 - No temperature, top_p or top_k: the 2026-10-21 API rejects them on every model.
@@ -14,6 +15,7 @@
 """
 
 import base64
+import os
 import threading
 import time
 from pathlib import Path
@@ -65,12 +67,16 @@ class AnthropicAdapter(Adapter):
         self.structured_error: str | None = None
         self._lock = threading.Lock()
         if client is None:
-            try:
-                client = anthropic.Anthropic(timeout=timeout_s, max_retries=max_retries)
-            except (anthropic.AnthropicError, TypeError) as exc:
+            # Only the project key: without it the SDK would fall back to other credentials on
+            # this machine (an `ant` login profile, say) and bill a different account.
+            api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+            if not api_key:
                 raise FatalAdapterError(
-                    f"cannot create the Anthropic client ({exc}); set ANTHROPIC_API_KEY in .env"
-                ) from exc
+                    "ANTHROPIC_API_KEY is not set: add it to the repo-root .env"
+                )
+            client = anthropic.Anthropic(
+                api_key=api_key, timeout=timeout_s, max_retries=max_retries
+            )
         self.client = client
         self.api_version = getattr(client, "default_headers", {}).get("anthropic-version")
 

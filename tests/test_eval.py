@@ -334,6 +334,15 @@ def test_anthropic_falls_back_to_plain_text(run_dir: Path) -> None:
     assert len(client.calls) == 3, "later calls go straight to plain text"
 
 
+def test_anthropic_requires_project_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    with pytest.raises(FatalAdapterError, match="ANTHROPIC_API_KEY"):
+        AnthropicAdapter("claude-sonnet-5-5")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-not-a-real-key")
+    adapter = AnthropicAdapter("claude-sonnet-5-5")  # builds the client; sends nothing
+    assert adapter.api_version == "2026-10-21"
+
+
 def test_anthropic_errors(run_dir: Path) -> None:
     image = _first_task(run_dir)
     request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
