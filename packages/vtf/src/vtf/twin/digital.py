@@ -127,7 +127,10 @@ def twin_scene(
     data["gripper"]["parts"] = []  # virtual: nothing to photograph
     # A lime dropped into the bowl is still rolling at the recipe's 90 frames (validate rejects
     # all four bowl layouts as moving_at_end); a real one stops, so the twin settles longer, and
-    # longer still with something in the bowl (the tape roll still slid at 240 frames).
+    # longer still with something in the bowl. 240 frames settle three bowl layouts; in L08
+    # (scene_0027) the tape roll still creeps about 0.005 mm a frame across the bowl floor at 600
+    # frames, and more damping (angular 0.5, linear 0.3) did not stop it either, so validate
+    # rejects that layout (moving_at_end) and it gives no tasks.
     nested = any(o["placement"]["kind"] == "in" for o in data["objects"])
     frames = TWIN_SETTLE_FRAMES_NESTED if nested else TWIN_SETTLE_FRAMES
     data["physics"]["settle_frames"] = max(data["physics"]["settle_frames"], frames)
