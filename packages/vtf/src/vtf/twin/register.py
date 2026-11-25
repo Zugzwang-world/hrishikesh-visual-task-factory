@@ -63,9 +63,9 @@ LUM_TOL = 0.18  # |photo - expected| / illumination
 CHROMA_TOL = 0.045  # chromaticity distance from the paper's
 SILHOUETTE_GROW_PX = 12  # paper samples for the illumination fit stay this far from objects
 # A white object on the white mat differs from the paper only by shading, about as much as a
-# shadow does, so the mat comparison cannot place it (digital twins: the tape roll and the spray
-# bottle were missed or misplaced in 11 of 36 views). Their placement is shown on the overlay for
-# a human check, not enforced.
+# shadow does, so the mat comparison cannot place it (digital twins, first try: 18 of 36 correct
+# views failed only because the tape roll or the spray bottle was missed or put 2 to 9 cm away).
+# Their placement is shown on the overlay for a human check, not enforced.
 LOW_CONTRAST_COLOURS = frozenset({"white"})
 
 Matrix3 = list[list[float]]

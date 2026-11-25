@@ -40,6 +40,7 @@ MISPLACED_RUN = "misplaced"
 MISPLACE_SHIFT_M = 0.04
 MISPLACE_MIN_GAP_M = 0.015
 TWIN_SETTLE_FRAMES = 240  # 10 s at 24 fps
+TWIN_SETTLE_FRAMES_NESTED = 600  # 25 s when an object sits in the bowl
 RESOLUTION = (1024, 768)
 SENSOR_WIDTH_MM = 36.0
 FOCAL_MM = 26.0  # about a phone's 1x camera on a 36 mm sensor (recipes/physical_twin.yaml)
@@ -125,8 +126,11 @@ def twin_scene(
     data["table"]["material_id"] = TWIN_MAT_MATERIAL
     data["gripper"]["parts"] = []  # virtual: nothing to photograph
     # A lime dropped into the bowl is still rolling at the recipe's 90 frames (validate rejects
-    # all four bowl layouts as moving_at_end); a real one stops, so the twin settles longer.
-    data["physics"]["settle_frames"] = max(data["physics"]["settle_frames"], TWIN_SETTLE_FRAMES)
+    # all four bowl layouts as moving_at_end); a real one stops, so the twin settles longer, and
+    # longer still with something in the bowl (the tape roll still slid at 240 frames).
+    nested = any(o["placement"]["kind"] == "in" for o in data["objects"])
+    frames = TWIN_SETTLE_FRAMES_NESTED if nested else TWIN_SETTLE_FRAMES
+    data["physics"]["settle_frames"] = max(data["physics"]["settle_frames"], frames)
     data["cameras"] = [c.model_dump(mode="json") for c in cameras]
     difficulty = {
         k: v for k, v in data["meta"]["difficulty"].items() if not k.startswith("quality_")

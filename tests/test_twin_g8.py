@@ -18,6 +18,7 @@ from vtf.twin.digital import (
     PHOTO_SPOTS,
     TWIN_MAT_MATERIAL,
     TWIN_SETTLE_FRAMES,
+    TWIN_SETTLE_FRAMES_NESTED,
     default_texture_path,
     digital_twin_scene,
     misplaced_scene,
@@ -98,7 +99,10 @@ def test_digital_twin_scene_changes_only_mat_gripper_cameras(twin_run: Path) -> 
     assert twin.objects == src.objects and twin.lighting == src.lighting
     assert twin.meta.seed == src.meta.seed and twin.meta.scene_id == sid
     assert twin.table.material_id == TWIN_MAT_MATERIAL and twin.gripper.parts == []
-    assert twin.physics.settle_frames == TWIN_SETTLE_FRAMES
+    nested = any(o.placement.kind == "in" for o in src.objects)
+    assert twin.physics.settle_frames == (
+        TWIN_SETTLE_FRAMES_NESTED if nested else TWIN_SETTLE_FRAMES
+    )
     assert [c.id for c in twin.cameras] == [s.id for s in PHOTO_SPOTS]
     for cam in src.cameras:  # the recipe's fixed spots are the guide's front and overhead
         assert twin.camera(cam.id).pose == cam.pose
