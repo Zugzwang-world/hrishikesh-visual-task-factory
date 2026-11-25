@@ -28,12 +28,12 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 | The 2D-proximity miss: scene 0, gripper tip directly above the black box, model answers "green cone" | Findings beat: why robots need exact depth | Found in stage 2 (`out/s2`, task te10076218634b219); make a callout image in stage 4 |
 | Turntable GIFs of 2–3 scenes | Hook, README, slides | To do (stage 3) |
 | Clutter ladder: same scene at 3, 10, 25 objects | Variation story | To do (stage 3) |
-| Counterfactual twin pair (before/after, answer flips) | Originality beat | To do (stage 3) |
+| Counterfactual twin pair (before/after, answer flips) | Originality beat | Finding done (25 Nov): [docs/media/twin_flip.png](../media/twin_flip.png): on 484 twin pairs both answers right for 34% (Haiku) to 52% (Opus high); given the original right, 9 to 15% repeat the old answer; a before/after image pair still to make for the slides (demo run) |
 | Gate report screenshot and a rejected-task example | Proof beat | Report done (docs/reports/v1); screenshot to take for the slides |
 | `vtf verify` terminal recording | Proof beat | To do (stage 3) |
 | Skill x model accuracy chart with intervals | Findings | Claude part done: accuracy by family, camera and shortcut split per model, with scene-bootstrap intervals, in [findings.md](../reports/v1/findings.md); other providers wait for keys |
-| Breaking-point curves per difficulty control | Findings | To do (stage 4) |
-| Model risk card (one per model) | Findings | To do (stage 4) |
+| Breaking-point curves per difficulty control | Findings | Done (25 Nov): [docs/media/breaking_point.png](../media/breaking_point.png): hidden evidence costs every Claude setting 10 to 13 points; a harsh camera costs Sonnet and Opus 12 to 16; odds x0.73 to x0.83 per 10 more objects |
+| Model risk card (one per model) | Findings | Done (25 Nov): [docs/reports/v1/risk_cards.md](../reports/v1/risk_cards.md), one column per Claude setting with two example images each |
 | Physical-twin photo next to its render and layout | Physical-twin beat | To do (alongside 3–4) |
 | Rendered-to-real gap chart | Physical-twin beat | To do (stage 4) |
 | Task Explorer v1, live | Live demo | **Done (brief 06):** https://vtf-task-explorer.vercel.app, frozen v1 with Haiku, Sonnet, Opus high and Opus xhigh answers plus the blind baseline, and a **Conflict gallery** (https://vtf-task-explorer.vercel.app/?view=gallery): 12 scenes where every model took the 2D shortcut, with the true answer (blue) and the shortcut object (orange) marked on the image and in 3D. Demo path: open the gallery, pick "nearest to gripper", rotate the 3D view to show the true nearest object. Rebuild: the export command in web/README.md, then `vercel deploy --prod --yes` in web/ |
