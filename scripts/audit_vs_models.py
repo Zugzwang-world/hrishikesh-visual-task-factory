@@ -65,14 +65,19 @@ def main() -> None:
     ]
     human = {t: t not in miss_ids for t in audited}
 
+    # the 1,567-task sweep, plus scripts/twin_sweep.py's answers (the twin pairs and the one
+    # task of the refreshed audit, sample_v2, that no model had answered)
     models: dict[str, dict[str, Any]] = {}
     for key, name, effort in MODELS:
-        path = run / "sweep" / key / "results.jsonl"
-        if path.is_file():
-            models[key] = {
-                "label": f"{name} ({effort})",
-                "answers": {r["task_id"]: bool(r["correct"]) for r in read_jsonl(path)},
-            }
+        got: dict[str, bool] = {}
+        for folder in ("sweep", "sweep_twins"):
+            path = run / folder / key / "results.jsonl"
+            if path.is_file():
+                for r in read_jsonl(path):
+                    if r.get("error") != "no reply":
+                        got.setdefault(r["task_id"], bool(r["correct"]))
+        if got:
+            models[key] = {"label": f"{name} ({effort})", "answers": got}
 
     rows = []
     for t in audited:

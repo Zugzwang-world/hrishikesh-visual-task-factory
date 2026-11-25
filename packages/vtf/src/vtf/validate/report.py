@@ -776,6 +776,79 @@ def findings_section(path: Path) -> dict[str, Any] | None:
         "n_tasks": f.get("tasks_common"),
         "n_spatial": f.get("spatial_common"),
         "scenes": f.get("scenes"),
+        "breaking": breaking_section(f.get("breaking_point")),
+        "twins": twin_flip_section(f.get("twin_flip")),
+        "robustness_verdicts": f.get("verdicts_robustness", []),
+        "risk_cards": bool(f.get("risk_cards")),
+    }
+
+
+MODEL_NAMES = {
+    "claude-haiku-5-5": "Haiku 5.5 · high",
+    "claude-sonnet-5-5": "Sonnet 5.5 · high",
+    "claude-opus-5-5": "Opus 5.5 · high",
+    "claude-opus-5-5-xhigh": "Opus 5.5 · xhigh",
+}
+
+
+def breaking_section(bp: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Breaking points (scripts/robustness_findings.py): accuracy per difficulty bin and model,
+    raw with its 95% interval and the family-adjusted value in brackets."""
+    if not bp:
+        return None
+    axes = []
+    for ax in bp["axes"].values():
+        keys = list(ax["models"])
+        rows = []
+        for b, label in enumerate(ax["bins"]):
+            first = ax["models"][keys[0]]["raw"][b]
+            cells = []
+            for k in keys:
+                r, a = ax["models"][k]["raw"][b], ax["models"][k]["adjusted"][b]
+                if not r["n"]:
+                    cells.append("–")
+                    continue
+                c = r.get("ci95")
+                cells.append(
+                    _pct(r["accuracy"])
+                    + (f" ({100 * c[0]:.0f}–{100 * c[1]:.0f})" if c else "")
+                    + (f" [{_pct(a['accuracy'])}]" if a.get("accuracy") is not None else "")
+                )
+            rows.append({"bin": label, "n": first["n"], "cells": cells})
+        axes.append(
+            {"title": ax["title"], "models": [MODEL_NAMES.get(k, k) for k in keys], "rows": rows}
+        )
+    return {"chart": bp.get("chart"), "axes": axes, "n_tasks": bp.get("n_tasks")}
+
+
+def twin_flip_section(tf: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Counterfactual twin pairs: does each model's answer change when the truth changes?"""
+    if not tf or not tf.get("models"):
+        return None
+
+    def cell(s: dict[str, Any]) -> str:
+        c = s.get("ci95")
+        return _pct(s["share"]) + (f" ({100 * c[0]:.0f}–{100 * c[1]:.0f})" if c else "")
+
+    rows = []
+    for k, m in tf["models"].items():
+        g = m["given_original_right"]
+        rows.append(
+            {
+                "name": MODEL_NAMES.get(k, k),
+                "pairs": m["pairs"],
+                "both": cell(m["both_right"]),
+                "twin_only": cell(m["twin_only"]),
+                "sticks": cell(m["sticks"]),
+                "other": cell(m["other"]),
+                "given": f"{_pct(g['follows']['share'])} / {_pct(g['sticks']['share'])}",
+            }
+        )
+    return {
+        "chart": tf.get("chart"),
+        "rows": rows,
+        "pairs_total": tf.get("pairs_total"),
+        "scenes": tf.get("scenes"),
     }
 
 

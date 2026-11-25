@@ -205,6 +205,27 @@ code { font: 13px ui-monospace, Menlo, monospace; }
 <td>{{ pct(r.capture.capture_share) }} vs {{ pct(r.capture.chance_share) }}{% if r.capture.ratio %}, {{ r.capture.ratio }}x{% endif %}</td>
 <td>{{ pct(r.capture_obj.capture_share) }} vs {{ pct(r.capture_obj.chance_share) }}{% if r.capture_obj.ratio %}, {{ r.capture_obj.ratio }}x{% endif %}{% if r.capture_obj.ratio_ci95 %} ({{ r.capture_obj.ratio_ci95[0] | round(2) }} to {{ r.capture_obj.ratio_ci95[1] | round(2) }}){% endif %}</td></tr>{% endfor %}
 </tbody></table></div>
+{% if findings.robustness_verdicts %}<h3>Breaking points and counterfactual twins</h3>
+<ul>{% for v in findings.robustness_verdicts %}<li>{{ v }}</li>{% endfor %}</ul>{% endif %}
+{% if findings.breaking %}
+<h3 id="breaking-points">Breaking points: do the difficulty controls move accuracy?</h3>
+<p class="why">The same {{ findings.breaking.n_tasks }} answers per model, binned from easy to hard on three axes the factory controls: objects on the table, how much of the evidence objects is visible, and the camera quality level. Each cell: accuracy (95% interval from a bootstrap over scenes) and, in brackets, the family-adjusted accuracy (each family's own average removed), so a bin full of hard families does not look hard by itself.</p>
+{% if findings.breaking.chart %}<div class="card"><img src="{{ findings.breaking.chart }}" alt="Accuracy per model on three difficulty axes: objects on the table, evidence visible, camera quality" style="width:100%;height:auto;display:block"></div>{% endif %}
+{% for ax in findings.breaking.axes %}
+<div class="scroll"><table><caption>{{ ax.title }}</caption><thead><tr><th>Bin</th><th>n</th>{% for m in ax.models %}<th>{{ m }}</th>{% endfor %}</tr></thead><tbody>
+{% for row in ax.rows %}<tr><td>{{ row.bin }}</td><td>{{ row.n }}</td>{% for c in row.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table></div>
+{% endfor %}
+{% endif %}
+{% if findings.twins %}
+<h3 id="twin-flips">Counterfactual twins: does the answer change when the truth changes?</h3>
+<p class="why">Each G6 pair is a task and its twin: one evidence object moved, the scene re-rendered, the same program re-run and a new answer ({{ findings.twins.pairs_total }} pairs). Every model answered both tasks of every pair. <em>Sticks</em>: on the twin, the model gives the answer that was true before the move. Intervals from a bootstrap over the {{ findings.twins.scenes }} source scenes.</p>
+{% if findings.twins.chart %}<div class="card"><img src="{{ findings.twins.chart }}" alt="Share of twin pairs per model: both right, twin right only, sticks to the old answer, other" style="width:100%;height:auto;display:block"></div>{% endif %}
+<div class="scroll"><table><thead><tr><th>Model · effort</th><th>Pairs</th><th>Both right</th><th>Twin right, original wrong</th><th>Sticks to the old answer</th><th>Other</th><th>Given original right: follows / sticks</th></tr></thead><tbody>
+{% for r in findings.twins.rows %}<tr><td>{{ r.name }}</td><td>{{ r.pairs }}</td><td>{{ r.both }}</td><td>{{ r.twin_only }}</td><td>{{ r.sticks }}</td><td>{{ r.other }}</td><td>{{ r.given }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+{% if findings.risk_cards %}<p class="why">Risk cards per model setting (risk, severity, trigger conditions, error types, examples, mitigation): <a href="risk_cards.md">risk_cards.md</a>.</p>{% endif %}
 {% endif %}
 
 <h2 id="audit">Founder audit</h2>

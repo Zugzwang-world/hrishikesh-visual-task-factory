@@ -600,3 +600,50 @@ def test_findings_section_reads_findings_json(tmp_path: Path) -> None:
     section = findings_section(path)
     assert section is not None and section["verdicts"] == ["v"]
     assert "Opus 5.5 · xhigh" in str(section["chart"]) and section["table"][0]["odds_ratio"] == 0.3
+    assert section["breaking"] is None and section["twins"] is None
+
+
+def test_findings_section_breaking_points_and_twins() -> None:
+    from vtf.validate.report import breaking_section, twin_flip_section
+
+    empty = {"n": 0, "accuracy": None, "ci95": None}
+    bp = {
+        "chart": "../../media/breaking_point.png",
+        "n_tasks": 10,
+        "axes": {
+            "objects": {
+                "title": "Objects on the table",
+                "bins": ["2–5", "6–10"],
+                "models": {
+                    "claude-opus-5-5": {
+                        "raw": [{"n": 5, "accuracy": 0.6, "ci95": [0.4, 0.8]}, empty],
+                        "adjusted": [{"accuracy": 0.62}, {"accuracy": None}],
+                    }
+                },
+            }
+        },
+    }
+    sec = breaking_section(bp)
+    assert sec["axes"][0]["models"] == ["Opus 5.5 · high"]
+    assert sec["axes"][0]["rows"][0]["cells"] == ["60% (40–80) [62%]"]
+    assert sec["axes"][0]["rows"][1]["cells"] == ["–"]
+    share = {"share": 0.25, "ci95": [0.1, 0.4]}
+    tf = {
+        "chart": "../../media/twin_flip.png",
+        "pairs_total": 4,
+        "scenes": 2,
+        "models": {
+            "claude-haiku-5-5": {
+                "pairs": 4,
+                "both_right": {"share": 0.5, "ci95": None},
+                "twin_only": share,
+                "sticks": share,
+                "other": {"share": 0.0, "ci95": None},
+                "given_original_right": {"follows": {"share": 0.75}, "sticks": {"share": 0.25}},
+            }
+        },
+    }
+    rows = twin_flip_section(tf)["rows"]
+    assert rows[0]["name"] == "Haiku 5.5 · high" and rows[0]["both"] == "50%"
+    assert rows[0]["sticks"] == "25% (10–40)" and rows[0]["given"] == "75% / 25%"
+    assert breaking_section(None) is None and twin_flip_section({"models": {}}) is None
