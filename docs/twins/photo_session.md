@@ -1,6 +1,6 @@
 # Physical twins: photo session
 
-12 layouts, three photos each, about 60 minutes. You need the printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a tape measure and a box or a stack of books. A printable copy of this guide is [photo_session.pdf](photo_session.pdf).
+11 layouts, three photos each, about 55 minutes (skip L08: see its card). You need the printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a tape measure and a box or a stack of books. A printable copy of this guide is [photo_session.pdf](photo_session.pdf).
 
 ## Once, before you start
 
@@ -102,13 +102,9 @@ Photos: front, overhead, side (names optional; if you name them: L06_front.jpg, 
 
 Photos: front, overhead, side (names optional; if you name them: L07_front.jpg, L07_overhead.jpg, L07_side.jpg).
 
-### L08: sheet page 9 (scene_0027)
+### L08: skip (sheet page 9, scene_0027)
 
-1. brown bowl at (-1.6, -1.7)
-2. brown kiwi at (+11.0, +3.1)
-3. white tape at (-3.4, -2.2), in the bowl
-
-Photos: front, overhead, side (names optional; if you name them: L08_front.jpg, L08_overhead.jpg, L08_side.jpg).
+Do not photograph this layout. In the physics simulation the tape roll keeps sliding in the bowl, so its digital twin never settles and the layout gives no questions (11 layouts give 154 tasks without it).
 
 ### L09: sheet page 10 (scene_0028)
 

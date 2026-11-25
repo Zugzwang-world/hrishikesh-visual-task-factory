@@ -356,5 +356,8 @@
       }
     }
   },
-  "full_list_pieces": 23
+  "full_list_pieces": 23,
+  "skip": {
+    "scene_0027": "In the physics simulation the tape roll keeps sliding in the bowl, so its digital twin never settles and the layout gives no questions (11 layouts give 154 tasks without it)."
+  }
 }

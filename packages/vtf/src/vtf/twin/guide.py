@@ -33,13 +33,19 @@ class LayoutCard:
     scene_id: str
     sheet_page: int
     objects: list[tuple[int, str, str, str]]  # number, name, "(x, y) cm", note
+    skip: str = ""  # why this layout is not photographed ("" = photograph it)
 
 
 def _cm(v: float) -> str:
     return f"{v:+.1f}".replace("+0.0", "0").replace("-0.0", "0")
 
 
-def layout_cards(run: Path, scene_ids: list[str]) -> list[LayoutCard]:
+def layout_cards(
+    run: Path, scene_ids: list[str], skip: dict[str, str] | None = None
+) -> list[LayoutCard]:
+    """One card per selected layout; `skip` (scene id -> reason, from selection.json) keeps the
+    layout's label and sheet page but tells the founder not to photograph it."""
+    skip = skip or {}
     lay = RunLayout(run)
     cards = []
     for i, sid in enumerate(scene_ids):
@@ -49,7 +55,7 @@ def layout_cards(run: Path, scene_ids: list[str]) -> list[LayoutCard]:
             note = "in the bowl" if p.obj.placement.kind == "in" else ""
             objs.append((p.number, p.obj.name, f"({_cm(p.centre_cm[0])}, {_cm(p.centre_cm[1])})",
                          note))  # fmt: skip
-        cards.append(LayoutCard(layout_label(i), sid, i + 2, objs))
+        cards.append(LayoutCard(layout_label(i), sid, i + 2, objs, skip.get(sid, "")))
     return cards
 
 
@@ -125,11 +131,20 @@ AFTER = (
 )
 
 
+def _todo(cards: list[LayoutCard]) -> str:
+    shoot = [c for c in cards if not c.skip]
+    skipped = [c.label for c in cards if c.skip]
+    text = f"{len(shoot)} layouts, three photos each, about {len(shoot) * 5} minutes"
+    if skipped:
+        text += f" (skip {', '.join(skipped)}: see its card)"
+    return text
+
+
 def write_markdown(path: Path, cards: list[LayoutCard]) -> Path:
     lines = [
         "# Physical twins: photo session",
         "",
-        f"{len(cards)} layouts, three photos each, about {len(cards) * 5} minutes. You need the "
+        f"{_todo(cards)}. You need the "
         "printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a "
         "tape measure and a box or a stack of books. A printable copy of this guide is "
         f"[{PDF_FILE}]({PDF_FILE}).",
@@ -152,6 +167,10 @@ def write_markdown(path: Path, cards: list[LayoutCard]) -> Path:
               "Positions are in cm from the middle of the mat: x to the right, y toward the back "
               "edge, as printed on the mat's grid.", ""]  # fmt: skip
     for c in cards:
+        if c.skip:
+            lines.append(f"### {c.label}: skip (sheet page {c.sheet_page}, {c.scene_id})")
+            lines += ["", f"Do not photograph this layout. {c.skip}", ""]
+            continue
         lines.append(f"### {c.label}: sheet page {c.sheet_page} ({c.scene_id})")
         lines.append("")
         for num, name, where, note in c.objects:
@@ -318,7 +337,7 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
     pdf = _Pdf(path)
     pdf.heading("Physical twins: photo session", 18)
     pdf.para(
-        f"{len(cards)} layouts, three photos each, about {len(cards) * 5} minutes. You need the "
+        f"{_todo(cards)}. You need the "
         "printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a "
         "tape measure and a box or a stack of books."
     )
@@ -340,6 +359,17 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
     pdf.para("Positions in cm from the middle of the mat: x to the right, y toward the back edge, "
              "as printed on the grid.", 9.5)  # fmt: skip
     for card in cards:
+        if card.skip:
+            pdf.need(14)
+            pdf.y -= 5
+            pdf.font(11.5, True)
+            pdf.c.drawString(MARGIN, pdf.y, f"{card.label}   skip (sheet page {card.sheet_page})")
+            pdf.y -= 1.5
+            pdf.para(f"Do not photograph this layout. {card.skip}", 9.5)
+            pdf.c.setStrokeGray(0.8)
+            pdf.c.line(MARGIN, pdf.y, PAGE_W - MARGIN, pdf.y)
+            pdf.c.setStrokeGray(0)
+            continue
         pdf.need(14 + 5 * len(card.objects))
         pdf.y -= 5
         pdf.font(11.5, True)
@@ -376,7 +406,7 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
 
 
 def make_guide(run: Path, selection: dict, out_dir: Path) -> list[Path]:
-    cards = layout_cards(run, list(selection["scene_ids"]))
+    cards = layout_cards(run, list(selection["scene_ids"]), selection.get("skip"))
     out_dir = Path(out_dir)
     md = write_markdown(out_dir / MD_FILE, cards)
     pdf = write_pdf(out_dir / PDF_FILE, cards)

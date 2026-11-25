@@ -238,6 +238,10 @@ def test_guide_writes_markdown_and_pdf(twin_run: Path, tmp_path: Path) -> None:
     assert pdf.read_bytes()[:4] == b"%PDF"
     again = make_guide(twin_run, {"scene_ids": ids}, tmp_path / "again")
     assert again[1].read_bytes() == pdf.read_bytes()
+    md, _ = make_guide(twin_run, {"scene_ids": ids, "skip": {ids[1]: "No settle."}}, tmp_path / "s")
+    text = md.read_text()
+    assert text.startswith("# Physical twins") and "1 layouts, three photos" in text
+    assert "### L02: skip" in text and "No settle." in text and "L02_front.jpg" not in text
 
 
 def test_sim_to_real_statistics() -> None:
