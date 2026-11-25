@@ -211,4 +211,4 @@ def _print(r: dict, echo: Callable[[str], Any]) -> None:
     run = r["run"]
     echo(f"  look at: {run}/report/index.html, {run}/report/contact_sheet.png, "
          f"{run}/tasks/<task_id>/task.json, {run}/rejected.jsonl")  # fmt: skip
-    echo(f"  next: uv run vtf verify {run} --sample 2 --device cpu   (re-render, compare hashes)")
+    echo(f"  next: uv run vtf verify {run} --sample 2   (re-sample, re-render, compare every hash)")

@@ -184,6 +184,10 @@ uv run python assets/fetch_manifest.py         # the CC0 Poly Haven models (abou
 uv run vtf verify-showcase out/v1              # 3 scenes: once on the GPU, twice on the CPU
 ```
 
+## Known issue: simplified materials on some objects
+
+`vtf verify` found a renderer bug after the freeze. Scenes were rendered in batches, one Blender process per batch, and after each render the export of the 3D-viewer model (`scene.glb`) swapped the scene's object materials for simplified ones in place, on asset meshes the process keeps for later scenes. So an object already drawn by an earlier scene in the same process shows its base-colour texture at 256 px without normal, roughness or metal maps (a brass pot looks matte, a printed label blurs). This can affect 248 of the 261 scenes. Geometry, masks, depth and every answer are unaffected: they come from the scene file and the data passes. v1 stays as frozen; details in {GITHUB}/blob/main/docs/reports/v1/verify_showcase.md.
+
 ## Frozen hashes
 
 Dataset v1 was frozen on 24 Nov 2026 at {frozen["scenes_in_v1"]} (code {frozen["code_commit"].split()[0]}, Blender {frozen["versions"]["blender"]}, recipe `{frozen["recipe"]}`, run seed {frozen["run_seed"]}).
@@ -202,8 +206,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--run", type=Path, default=Path("out/v1"))
     parser.add_argument("--out", type=Path, default=Path("out/hf_release"))
+    parser.add_argument("--card-only", action="store_true", help="Rewrite README.md only.")
     args = parser.parse_args()
     run, out = args.run, args.out
+    if args.card_only:
+        frozen = check_frozen(run)
+        stats = {
+            "base_scenes": sum(1 for p in (out / "scenes").iterdir() if p.is_dir()),
+            "twin_scenes": sum(1 for p in (out / "twins").iterdir() if p.is_dir()),
+        }
+        (out / "README.md").write_text(card(frozen, stats))
+        print(f"hf_release: rewrote {out / 'README.md'}")
+        return
     if os.stat(run).st_dev != os.stat(out.parent if out.parent.exists() else ".").st_dev:
         raise SystemExit("--out must be on the same disk as --run (hard links)")
     frozen = check_frozen(run)

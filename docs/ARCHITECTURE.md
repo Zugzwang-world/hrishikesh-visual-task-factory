@@ -55,7 +55,7 @@ Run folders follow one layout (`packages/vtf/src/vtf/core/layout.py`): `run.json
 - Every random draw comes from `derive_seed(run seed, purpose, ...)`, a sha256 of the parts, so scenes, question choice, twin sampling, the camera dial's noise and every eval sample are pure functions of the seed.
 - A task ID is a content hash of the scene file hash, camera, template, question, program, answer and code versions (`vtf.package.writer.make_task_id`). The eval cache is keyed by task ID, model key and prompt version, so a rerun reuses every reply.
 - `vtf` never imports `bpy`. Blender runs as a separate process and talks to the core only through files: scene JSON in; images, masks, depth and the settled scene out. The settled poses are written back to `scene.settled.json`, and every answer is computed from that file.
-- Rule C, measured on frozen v1 in [docs/reports/v1/verify_showcase.md](reports/v1/verify_showcase.md): scene files, settled scenes, answers, masks and depth are exact on re-render; GPU beauty images match at SSIM 0.999 or above; CPU beauty images are byte-identical.
+- Rule C, measured on frozen v1 in [docs/reports/v1/verify_showcase.md](reports/v1/verify_showcase.md): scene files, settled scenes, answers, G7 hashes, masks and depth are exact on every re-render; beauty images are near-exact (GPU SSIM 0.998 or above; two CPU renders differ by a few colour levels in under 0.01% of pixels). A beauty image also depends on the scenes rendered before it in the same Blender process (the scene.glb export changes cached asset materials in place), so reproducing a v1 image means replaying its render batch.
 
 ## Where each gate sits
 

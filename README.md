@@ -17,7 +17,7 @@ On frozen dataset v1, every Claude model we tested loses about 25 points when th
 - Shortcut agrees vs conflicts: Haiku 5.5 high 55% vs 30%, Sonnet 5.5 high 68% vs 44%, Opus 5.5 high 72% vs 46%, Opus 5.5 xhigh 74% vs 48% (the same 558 and 234 spatial tasks for every model; 95% intervals from a bootstrap over scenes).
 - The gap survives controls: inside the same family and camera, conflict tasks score 25 to 28 points lower; a logistic regression holding visible fraction, near-tie margin, object count, camera quality and family fixed gives conflict odds ratios of 0.22 to 0.29.
 - More thinking does not close it: Opus 5.5 at xhigh effort thinks about twice as long on conflict tasks as at high, and the gap moves by 0 points (-5 to +5). Larger models raise conflict accuracy (Haiku to Opus +16 points) but not the gap.
-- When Sonnet and Opus get a conflict task wrong, 64 to 68% of their wrong answers are exactly the 2D-shortcut answer, about 1.4 times chance; on "which object is closest to the gripper", 22 of Opus xhigh's 27 misses name the object nearest in the image.
+- When Sonnet and Opus get a conflict task wrong, 64 to 68% of their wrong answers are exactly the 2D-shortcut answer, 1.4 to 1.5 times chance; on "which object is closest to the gripper", 22 of Opus xhigh's 27 misses name the object nearest in the image.
 
 Why it matters: a robot that trusts the 2D impression grasps the wrong object or reaches into the wrong place. Full analysis: [docs/reports/v1/findings.md](docs/reports/v1/findings.md).
 
@@ -32,7 +32,7 @@ Supporting findings: breaking-point curves and counterfactual twins (see [findin
 
 ## Dataset v1 in numbers
 
-300 scenes rendered from `recipes/v1.yaml` with seed 1; 261 passed the physics settle check; 7,013 candidate questions; **3,181 tasks shipped** in 12 families from 3 cameras (front 1,253, overhead 1,235, gripper 693), including 484 counterfactual twins. 424 are spatial tasks where the 2D shortcut conflicts with the 3D truth. Every rejection is logged with its reason. Scenes have 3 to 25 of 44 everyday objects (40 Poly Haven CC0 models and 4 procedural scale references), stacks, containers, reach zones, look-alikes, four lighting conditions and four camera-quality levels from clean to CCTV.
+300 scenes rendered from `recipes/v1.yaml` with seed 1; 261 passed the physics settle check and validation; 7,013 candidate questions; **3,181 tasks shipped** in 12 families from 3 cameras (front 1,253, overhead 1,235, gripper 693), including 484 counterfactual twins. 424 are spatial tasks where the 2D shortcut conflicts with the 3D truth. Every rejection is logged with its reason. Scenes have 3 to 25 of 44 everyday objects (40 Poly Haven CC0 models and 4 procedural scale references), stacks, containers, reach zones, look-alikes, four lighting conditions and four camera-quality levels from clean to CCTV.
 
 ## How it works
 
