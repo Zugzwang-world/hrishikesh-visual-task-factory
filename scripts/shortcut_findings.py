@@ -767,6 +767,7 @@ def markdown(out: dict[str, Any], run: Path, chart_rel: str) -> str:
         "## Headline",
         "",
         *[f"- {v}" for v in out["verdicts"]],
+        *[f"- {v}" for v in out.get("verdicts_robustness", [])],
         "",
         f"![Accuracy on conflict vs non-conflict tasks per model]({chart_rel})",
         "",
@@ -973,9 +974,11 @@ def markdown(out: dict[str, Any], run: Path, chart_rel: str) -> str:
 
         L.append(f"| {n} | {tk(t['no_conflict'])} | {tk(t['conflict'])} | {tk(t['n/a'])} |")
 
+    extra, nxt = robustness_sections(out)
+    L += extra
     L += [
         "",
-        "## 5. Human comparison",
+        f"## {nxt}. Human comparison",
         "",
         "Pending the founder's blind audit of the 150 audit tasks (all models answered them). "
         "When the export is in, `uv run python scripts/audit_vs_models.py --run out/v1 "
@@ -1023,6 +1026,19 @@ def markdown(out: dict[str, Any], run: Path, chart_rel: str) -> str:
         "",
     ]
     return "\n".join(L)
+
+
+ROBUSTNESS_KEYS = ("breaking_point", "twin_flip", "risk_cards", "verdicts_robustness")
+
+
+def robustness_sections(out: dict[str, Any]) -> tuple[list[str], int]:
+    """Sections 5 on (breaking points, twins, risk cards) when scripts/robustness_findings.py
+    has added them to findings.json; else nothing."""
+    if not any(k in out for k in ROBUSTNESS_KEYS):
+        return [], 5
+    from robustness_findings import markdown_sections
+
+    return markdown_sections(out, 5)
 
 
 def gallery(models: dict[str, list[dict]], tasks: dict[str, dict], n: int = 12) -> list[dict]:
@@ -1177,6 +1193,10 @@ def main() -> None:
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
+    old = out_dir / "findings.json"
+    if old.is_file():  # keep what scripts/robustness_findings.py added
+        prev = json.loads(old.read_text())
+        out.update({k: prev[k] for k in ROBUSTNESS_KEYS if k in prev})
     (out_dir / "findings.json").write_text(json.dumps(strip(out), indent=2) + "\n")
     chart_png = Path(args.media) / "shortcut_conflict_accuracy.png"
     try:
