@@ -744,6 +744,41 @@ def fam(f: str) -> str:
     return FAMILY_NAMES.get(f, f)
 
 
+SCALE_STATED = Path(__file__).resolve().parents[1] / "docs/reports/v1/scale_stated.json"
+
+
+def scale_section(nxt: int) -> tuple[list[str], int]:
+    """Brief VTF-08: distance and free space with the scale stated (scripts/scale_findings.py)."""
+    if not SCALE_STATED.is_file():
+        return [], nxt
+    data = json.loads(SCALE_STATED.read_text())
+
+    def pp(e: dict) -> str:
+        c = e["stated_minus_not_ci95"]
+        rng = f" ({c[0] * 100:+.0f} to {c[1] * 100:+.0f})" if c else ""
+        return f"{e['stated_minus_not'] * 100:+.0f}{rng}"
+
+    parts = []
+    for m in data["models"].values():
+        s = m["splits"]
+        a, b = s["all"]["not_stated"]["accuracy"], s["all"]["stated"]["accuracy"]
+        by = f"distance {pp(s['distance'])}, free space {pp(s['free_space'])}"
+        parts.append(f"{m['label']} {a * 100:.0f}% to {b * 100:.0f}%, {pp(s['all'])} points ({by})")
+    return [
+        "",
+        f"## {nxt}. Scale stated",
+        "",
+        "v1's distance and free-space questions never said what scale the image shows. The "
+        f"{data['tasks']} such tasks among the 1,567 eval and 150 audit tasks were asked again "
+        "with one sentence in front: the 1 cm grid with bold lines every 10 cm, or, on scenes "
+        "without the grid, the reference object's exact size. Paired, same tasks, 95% scene "
+        "intervals: " + "; ".join(parts) + ". Stating the scale helps Sonnet and Haiku on "
+        "distance; Opus at either effort already reads the scale; free space does not move. "
+        "Details: [scale_stated.md](scale_stated.md). From programs 0.3.0 every new distance "
+        "and free-space question carries the sentence; frozen v1 is unchanged.",
+    ], nxt + 1
+
+
 def markdown(out: dict[str, Any], run: Path, chart_rel: str) -> str:
     ms = list(out["models"].values())
     names = [f"{m['label']} {m['effort']}" for m in ms]
@@ -976,6 +1011,8 @@ def markdown(out: dict[str, Any], run: Path, chart_rel: str) -> str:
 
     extra, nxt = robustness_sections(out)
     L += extra
+    scale, nxt = scale_section(nxt)
+    L += scale
     L += [
         "",
         f"## {nxt}. Human comparison",

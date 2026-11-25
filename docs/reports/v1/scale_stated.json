@@ -1,0 +1,574 @@
+{
+  "run": "out/v1",
+  "tasks": 272,
+  "models": {
+    "claude-haiku-5-5": {
+      "label": "Haiku 5.5 (high)",
+      "paired_tasks": 272,
+      "splits": {
+        "all": {
+          "not_stated": {
+            "n": 272,
+            "correct": 122,
+            "accuracy": 0.4485,
+            "ci95": [
+              0.3875,
+              0.5093
+            ]
+          },
+          "stated": {
+            "n": 272,
+            "correct": 136,
+            "accuracy": 0.5,
+            "ci95": [
+              0.4406,
+              0.5588
+            ]
+          },
+          "stated_minus_not": 0.0515,
+          "stated_minus_not_ci95": [
+            -0.007,
+            0.109
+          ],
+          "flipped_to_right": 36,
+          "flipped_to_wrong": 22
+        },
+        "distance": {
+          "not_stated": {
+            "n": 124,
+            "correct": 20,
+            "accuracy": 0.1613,
+            "ci95": [
+              0.1007,
+              0.2301
+            ]
+          },
+          "stated": {
+            "n": 124,
+            "correct": 35,
+            "accuracy": 0.2823,
+            "ci95": [
+              0.2,
+              0.3613
+            ]
+          },
+          "stated_minus_not": 0.121,
+          "stated_minus_not_ci95": [
+            0.0315,
+            0.217
+          ],
+          "flipped_to_right": 26,
+          "flipped_to_wrong": 11
+        },
+        "free_space": {
+          "not_stated": {
+            "n": 148,
+            "correct": 102,
+            "accuracy": 0.6892,
+            "ci95": [
+              0.6107,
+              0.7616
+            ]
+          },
+          "stated": {
+            "n": 148,
+            "correct": 101,
+            "accuracy": 0.6824,
+            "ci95": [
+              0.6063,
+              0.76
+            ]
+          },
+          "stated_minus_not": -0.0068,
+          "stated_minus_not_ci95": [
+            -0.0696,
+            0.0552
+          ],
+          "flipped_to_right": 10,
+          "flipped_to_wrong": 11
+        },
+        "grid": {
+          "not_stated": {
+            "n": 128,
+            "correct": 54,
+            "accuracy": 0.4219,
+            "ci95": [
+              0.3303,
+              0.5102
+            ]
+          },
+          "stated": {
+            "n": 128,
+            "correct": 65,
+            "accuracy": 0.5078,
+            "ci95": [
+              0.4175,
+              0.5943
+            ]
+          },
+          "stated_minus_not": 0.0859,
+          "stated_minus_not_ci95": [
+            0.014,
+            0.1626
+          ],
+          "flipped_to_right": 17,
+          "flipped_to_wrong": 6
+        },
+        "reference": {
+          "not_stated": {
+            "n": 144,
+            "correct": 68,
+            "accuracy": 0.4722,
+            "ci95": [
+              0.3877,
+              0.563
+            ]
+          },
+          "stated": {
+            "n": 144,
+            "correct": 71,
+            "accuracy": 0.4931,
+            "ci95": [
+              0.4118,
+              0.5755
+            ]
+          },
+          "stated_minus_not": 0.0209,
+          "stated_minus_not_ci95": [
+            -0.0629,
+            0.1043
+          ],
+          "flipped_to_right": 19,
+          "flipped_to_wrong": 16
+        }
+      }
+    },
+    "claude-sonnet-5-5": {
+      "label": "Sonnet 5.5 (high)",
+      "paired_tasks": 272,
+      "splits": {
+        "all": {
+          "not_stated": {
+            "n": 272,
+            "correct": 138,
+            "accuracy": 0.5074,
+            "ci95": [
+              0.4449,
+              0.5719
+            ]
+          },
+          "stated": {
+            "n": 272,
+            "correct": 164,
+            "accuracy": 0.6029,
+            "ci95": [
+              0.5414,
+              0.6607
+            ]
+          },
+          "stated_minus_not": 0.0955,
+          "stated_minus_not_ci95": [
+            0.0373,
+            0.1527
+          ],
+          "flipped_to_right": 51,
+          "flipped_to_wrong": 25
+        },
+        "distance": {
+          "not_stated": {
+            "n": 124,
+            "correct": 32,
+            "accuracy": 0.2581,
+            "ci95": [
+              0.1818,
+              0.3409
+            ]
+          },
+          "stated": {
+            "n": 124,
+            "correct": 57,
+            "accuracy": 0.4597,
+            "ci95": [
+              0.3694,
+              0.5462
+            ]
+          },
+          "stated_minus_not": 0.2016,
+          "stated_minus_not_ci95": [
+            0.0857,
+            0.3047
+          ],
+          "flipped_to_right": 39,
+          "flipped_to_wrong": 14
+        },
+        "free_space": {
+          "not_stated": {
+            "n": 148,
+            "correct": 106,
+            "accuracy": 0.7162,
+            "ci95": [
+              0.6378,
+              0.7906
+            ]
+          },
+          "stated": {
+            "n": 148,
+            "correct": 107,
+            "accuracy": 0.723,
+            "ci95": [
+              0.641,
+              0.7985
+            ]
+          },
+          "stated_minus_not": 0.0068,
+          "stated_minus_not_ci95": [
+            -0.0516,
+            0.0685
+          ],
+          "flipped_to_right": 12,
+          "flipped_to_wrong": 11
+        },
+        "grid": {
+          "not_stated": {
+            "n": 128,
+            "correct": 67,
+            "accuracy": 0.5234,
+            "ci95": [
+              0.4242,
+              0.6149
+            ]
+          },
+          "stated": {
+            "n": 128,
+            "correct": 84,
+            "accuracy": 0.6562,
+            "ci95": [
+              0.5611,
+              0.7373
+            ]
+          },
+          "stated_minus_not": 0.1328,
+          "stated_minus_not_ci95": [
+            0.0513,
+            0.2202
+          ],
+          "flipped_to_right": 27,
+          "flipped_to_wrong": 10
+        },
+        "reference": {
+          "not_stated": {
+            "n": 144,
+            "correct": 71,
+            "accuracy": 0.4931,
+            "ci95": [
+              0.4084,
+              0.5828
+            ]
+          },
+          "stated": {
+            "n": 144,
+            "correct": 80,
+            "accuracy": 0.5556,
+            "ci95": [
+              0.4773,
+              0.6337
+            ]
+          },
+          "stated_minus_not": 0.0625,
+          "stated_minus_not_ci95": [
+            -0.02,
+            0.1412
+          ],
+          "flipped_to_right": 24,
+          "flipped_to_wrong": 15
+        }
+      }
+    },
+    "claude-opus-5-5": {
+      "label": "Opus 5.5 (high)",
+      "paired_tasks": 272,
+      "splits": {
+        "all": {
+          "not_stated": {
+            "n": 272,
+            "correct": 170,
+            "accuracy": 0.625,
+            "ci95": [
+              0.5655,
+              0.6818
+            ]
+          },
+          "stated": {
+            "n": 272,
+            "correct": 172,
+            "accuracy": 0.6324,
+            "ci95": [
+              0.5739,
+              0.6891
+            ]
+          },
+          "stated_minus_not": 0.0074,
+          "stated_minus_not_ci95": [
+            -0.0463,
+            0.0614
+          ],
+          "flipped_to_right": 29,
+          "flipped_to_wrong": 27
+        },
+        "distance": {
+          "not_stated": {
+            "n": 124,
+            "correct": 63,
+            "accuracy": 0.5081,
+            "ci95": [
+              0.4215,
+              0.5983
+            ]
+          },
+          "stated": {
+            "n": 124,
+            "correct": 62,
+            "accuracy": 0.5,
+            "ci95": [
+              0.4141,
+              0.5935
+            ]
+          },
+          "stated_minus_not": -0.0081,
+          "stated_minus_not_ci95": [
+            -0.1161,
+            0.1008
+          ],
+          "flipped_to_right": 22,
+          "flipped_to_wrong": 23
+        },
+        "free_space": {
+          "not_stated": {
+            "n": 148,
+            "correct": 107,
+            "accuracy": 0.723,
+            "ci95": [
+              0.6408,
+              0.7956
+            ]
+          },
+          "stated": {
+            "n": 148,
+            "correct": 110,
+            "accuracy": 0.7432,
+            "ci95": [
+              0.6667,
+              0.817
+            ]
+          },
+          "stated_minus_not": 0.0202,
+          "stated_minus_not_ci95": [
+            -0.0267,
+            0.073
+          ],
+          "flipped_to_right": 7,
+          "flipped_to_wrong": 4
+        },
+        "grid": {
+          "not_stated": {
+            "n": 128,
+            "correct": 85,
+            "accuracy": 0.6641,
+            "ci95": [
+              0.5736,
+              0.746
+            ]
+          },
+          "stated": {
+            "n": 128,
+            "correct": 88,
+            "accuracy": 0.6875,
+            "ci95": [
+              0.5984,
+              0.7669
+            ]
+          },
+          "stated_minus_not": 0.0234,
+          "stated_minus_not_ci95": [
+            -0.0552,
+            0.0968
+          ],
+          "flipped_to_right": 13,
+          "flipped_to_wrong": 10
+        },
+        "reference": {
+          "not_stated": {
+            "n": 144,
+            "correct": 85,
+            "accuracy": 0.5903,
+            "ci95": [
+              0.518,
+              0.6645
+            ]
+          },
+          "stated": {
+            "n": 144,
+            "correct": 84,
+            "accuracy": 0.5833,
+            "ci95": [
+              0.5067,
+              0.6615
+            ]
+          },
+          "stated_minus_not": -0.007,
+          "stated_minus_not_ci95": [
+            -0.0855,
+            0.0725
+          ],
+          "flipped_to_right": 16,
+          "flipped_to_wrong": 17
+        }
+      }
+    },
+    "claude-opus-5-5-xhigh": {
+      "label": "Opus 5.5 (xhigh)",
+      "paired_tasks": 272,
+      "splits": {
+        "all": {
+          "not_stated": {
+            "n": 272,
+            "correct": 181,
+            "accuracy": 0.6654,
+            "ci95": [
+              0.6085,
+              0.7241
+            ]
+          },
+          "stated": {
+            "n": 272,
+            "correct": 183,
+            "accuracy": 0.6728,
+            "ci95": [
+              0.6157,
+              0.728
+            ]
+          },
+          "stated_minus_not": 0.0074,
+          "stated_minus_not_ci95": [
+            -0.0508,
+            0.0618
+          ],
+          "flipped_to_right": 31,
+          "flipped_to_wrong": 29
+        },
+        "distance": {
+          "not_stated": {
+            "n": 124,
+            "correct": 68,
+            "accuracy": 0.5484,
+            "ci95": [
+              0.4632,
+              0.6343
+            ]
+          },
+          "stated": {
+            "n": 124,
+            "correct": 72,
+            "accuracy": 0.5806,
+            "ci95": [
+              0.4914,
+              0.6667
+            ]
+          },
+          "stated_minus_not": 0.0322,
+          "stated_minus_not_ci95": [
+            -0.0708,
+            0.1328
+          ],
+          "flipped_to_right": 24,
+          "flipped_to_wrong": 20
+        },
+        "free_space": {
+          "not_stated": {
+            "n": 148,
+            "correct": 113,
+            "accuracy": 0.7635,
+            "ci95": [
+              0.6929,
+              0.8311
+            ]
+          },
+          "stated": {
+            "n": 148,
+            "correct": 111,
+            "accuracy": 0.75,
+            "ci95": [
+              0.6712,
+              0.8258
+            ]
+          },
+          "stated_minus_not": -0.0135,
+          "stated_minus_not_ci95": [
+            -0.0704,
+            0.0429
+          ],
+          "flipped_to_right": 7,
+          "flipped_to_wrong": 9
+        },
+        "grid": {
+          "not_stated": {
+            "n": 128,
+            "correct": 90,
+            "accuracy": 0.7031,
+            "ci95": [
+              0.6131,
+              0.7876
+            ]
+          },
+          "stated": {
+            "n": 128,
+            "correct": 91,
+            "accuracy": 0.7109,
+            "ci95": [
+              0.6274,
+              0.7891
+            ]
+          },
+          "stated_minus_not": 0.0078,
+          "stated_minus_not_ci95": [
+            -0.0645,
+            0.0811
+          ],
+          "flipped_to_right": 11,
+          "flipped_to_wrong": 10
+        },
+        "reference": {
+          "not_stated": {
+            "n": 144,
+            "correct": 91,
+            "accuracy": 0.6319,
+            "ci95": [
+              0.5637,
+              0.7092
+            ]
+          },
+          "stated": {
+            "n": 144,
+            "correct": 92,
+            "accuracy": 0.6389,
+            "ci95": [
+              0.5635,
+              0.7153
+            ]
+          },
+          "stated_minus_not": 0.007,
+          "stated_minus_not_ci95": [
+            -0.0809,
+            0.0895
+          ],
+          "flipped_to_right": 20,
+          "flipped_to_wrong": 19
+        }
+      }
+    }
+  },
+  "prompt_versions": {
+    "not_stated": "0.2.0",
+    "stated": "0.2.0+scale.1"
+  }
+}

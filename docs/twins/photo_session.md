@@ -1,6 +1,6 @@
 # Physical twins: photo session
 
-11 layouts, three photos each, about 55 minutes (skip L08: see its card). You need the printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a tape measure and a box or a stack of books. A printable copy of this guide is [photo_session.pdf](photo_session.pdf).
+3 hero layouts first, then 11 layouts; three photos each, 42 in all, about 70 minutes (skip L08: see its card). You need the printed mat, the shopping-list items, the layout sheets (hero_layouts.pdf and layouts.pdf), a phone, a tape measure and a box or a stack of books. A printable copy of this guide is [photo_session.pdf](photo_session.pdf).
 
 ## Once, before you start
 
@@ -8,7 +8,7 @@
 2. Tape the mat flat on a plain table, front edge toward you (the edge that says FRONT EDGE). Tape along the paper's edges so it does not curl, never over the black corner squares.
 3. Light: daylight or ordinary room light. No desk lamp pointing at the mat, no flash. Do not let your own shadow fall on the mat.
 4. Phone camera: the normal 1x lens, no zoom, no portrait mode, no filters, held sideways (landscape). If it is an iPhone, set Settings, Camera, Formats to Most Compatible so photos are JPEG (HEIC also works on this Mac).
-5. Lay out the eight items from the shopping list and the layout sheets (docs/twins/layouts.pdf): one page per layout, page 2 is L01.
+5. Lay out the items from the shopping list (docs/twins/shopping_list.md) and the layout sheets: docs/twins/hero_layouts.pdf for the hero layouts H1 to H3 (page 2 is H1), then docs/twins/layouts.pdf (page 2 is L01).
 
 ## The three phone spots
 
@@ -41,9 +41,45 @@ The same three spots for every layout. Measure heights from the table top to the
 3. Take three photos: front, overhead, side (the spots above). One photo each is enough; retake one if it is blurred.
 4. Tick the layout off and go to the next one.
 
+## Hero layouts (H1 to H3): shoot these first
+
+1. Shoot the hero layouts H1 to H3 first: they are the ones built to fool the models, and one of them goes in the video.
+2. Front spot only, three photos: one on the spot, one with the phone moved about 3 cm to the left, one about 3 cm to the right. Keep all four black corner squares in every photo.
+3. Place their objects within half a centimetre of the sheet: these questions are about gaps of a few centimetres. Everything else is as for any layout; nothing else on the mat.
+
 ## The layouts
 
 Positions are in cm from the middle of the mat: x to the right, y toward the back edge, as printed on the mat's grid.
+
+### H1: hero_layouts.pdf page 2 (hero_0297)
+
+1. white tape at (+12.6, -4.4)
+2. white bottle at (-8.5, +3.9)
+3. brown onion at (-11.1, -5.7)
+4. brown kiwi at (+5.0, +4.2)
+5. green lime at (+2.6, -5.5)
+
+Photos: three from the front spot (on it, 3 cm left, 3 cm right) (names optional; if you name them: H1_front_1.jpg, H1_front_2.jpg, H1_front_3.jpg).
+
+### H2: hero_layouts.pdf page 3 (hero_0062)
+
+1. purple bottle at (+9.8, -5.3)
+2. white tape at (-12.0, -3.1)
+3. green lime at (-12.1, +6.0)
+4. brown onion at (+8.8, +4.5)
+5. brown kiwi at (-3.7, -1.5)
+
+Photos: three from the front spot (on it, 3 cm left, 3 cm right) (names optional; if you name them: H2_front_1.jpg, H2_front_2.jpg, H2_front_3.jpg).
+
+### H3: hero_layouts.pdf page 4 (hero_0232)
+
+1. green lime at (-0.7, -5.6)
+2. brown kiwi at (-8.1, +2.4)
+3. white tape at (-13.0, -6.7)
+4. yellow lemon at (+7.9, +4.2)
+5. brown onion at (+10.0, -4.6)
+
+Photos: three from the front spot (on it, 3 cm left, 3 cm right) (names optional; if you name them: H3_front_1.jpg, H3_front_2.jpg, H3_front_3.jpg).
 
 ### L01: sheet page 2 (scene_0001)
 
@@ -149,15 +185,18 @@ Photos: front, overhead, side (names optional; if you name them: L12_front.jpg, 
 
 | Layout | Sheet page | Scene file |
 | --- | --- | --- |
-| L01 | 2 | out/twins/scenes/scene_0001/scene.json |
-| L02 | 3 | out/twins/scenes/scene_0006/scene.json |
-| L03 | 4 | out/twins/scenes/scene_0008/scene.json |
-| L04 | 5 | out/twins/scenes/scene_0012/scene.json |
-| L05 | 6 | out/twins/scenes/scene_0015/scene.json |
-| L06 | 7 | out/twins/scenes/scene_0019/scene.json |
-| L07 | 8 | out/twins/scenes/scene_0021/scene.json |
-| L08 | 9 | out/twins/scenes/scene_0027/scene.json |
-| L09 | 10 | out/twins/scenes/scene_0028/scene.json |
-| L10 | 11 | out/twins/scenes/scene_0030/scene.json |
-| L11 | 12 | out/twins/scenes/scene_0034/scene.json |
-| L12 | 13 | out/twins/scenes/scene_0035/scene.json |
+| H1 | hero_layouts.pdf 2 | out/twins_hero_digital/scenes/hero_0297/scene.json |
+| H2 | hero_layouts.pdf 3 | out/twins_hero_digital/scenes/hero_0062/scene.json |
+| H3 | hero_layouts.pdf 4 | out/twins_hero_digital/scenes/hero_0232/scene.json |
+| L01 | layouts.pdf 2 | out/twins/scenes/scene_0001/scene.json |
+| L02 | layouts.pdf 3 | out/twins/scenes/scene_0006/scene.json |
+| L03 | layouts.pdf 4 | out/twins/scenes/scene_0008/scene.json |
+| L04 | layouts.pdf 5 | out/twins/scenes/scene_0012/scene.json |
+| L05 | layouts.pdf 6 | out/twins/scenes/scene_0015/scene.json |
+| L06 | layouts.pdf 7 | out/twins/scenes/scene_0019/scene.json |
+| L07 | layouts.pdf 8 | out/twins/scenes/scene_0021/scene.json |
+| L08 | layouts.pdf 9 | out/twins/scenes/scene_0027/scene.json |
+| L09 | layouts.pdf 10 | out/twins/scenes/scene_0028/scene.json |
+| L10 | layouts.pdf 11 | out/twins/scenes/scene_0030/scene.json |
+| L11 | layouts.pdf 12 | out/twins/scenes/scene_0034/scene.json |
+| L12 | layouts.pdf 13 | out/twins/scenes/scene_0035/scene.json |

@@ -155,7 +155,8 @@ HERO_STEPS = (
     "them goes in the video.",
     "Front spot only, three photos: one on the spot, one with the phone moved about 3 cm to the "
     "left, one about 3 cm to the right. Keep all four black corner squares in every photo.",
-    "Everything else is as for any layout: objects on their spots, nothing else on the mat.",
+    "Place their objects within half a centimetre of the sheet: these questions are about gaps of "
+    "a few centimetres. Everything else is as for any layout; nothing else on the mat.",
 )
 
 AFTER = (

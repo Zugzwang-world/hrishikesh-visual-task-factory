@@ -2,6 +2,31 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 25 Nov 2026: Brief VTF-08, Phase 1 (trap check, hero layouts, scale stated)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Audit folder | out/v1/audit is never touched while the founder audits; the 150 audit task IDs come from the committed copy docs/reports/v1/audit_v2_sample.json | Founder instruction. |
+| Scale sentence where there is no grid | The brief's grid sentence on the 128 grid tasks; on the 144 tasks with no grid (scale from a procedural cube, block, cylinder or ball), that object's exact size by name instead ("The cube is exactly 5 cm on each side.", sizes from the scene file, so a 72% look-alike block reads 7.2 by 7.2 cm) | 53% of the 272 distance and free-space tasks have no grid; the grid sentence would be false there. |
+| Sentence placement | In front of the question | The reader learns the scale before the question. |
+| Scale-stated condition | vtf.eval.scale; prompt version 0.2.0+scale.1 in the cache key; results in out/v1/sweep_scale/ by a new driver, scripts/ask_sweep.py (Message Batches, standard request body, resumable) | Kept apart from frozen v1; same harness, only the question text changes. |
+| Task set for the re-ask | The 1,567 sweep tasks plus the 150 audit tasks (1,568 unique; 1 refreshed audit task not in the sweep), distance and free space only: 272 tasks x 4 settings | The brief. 0 errors, $8.68. |
+| Programs 0.3.0 | The scale sentence is part of every new distance and free-space question (templates.scale_sentence, added in compile); PROGRAMS_VERSION 0.2.2 to 0.3.0, so every new task ID changes; frozen v1 is not regenerated | The brief: quick recipe, twins and any new run carry it from now on. |
+| Twins re-validated on 0.3.0 | out/twins_digital re-validated in place before the trap check (the 0.2.2 manifest kept beside it): still 154 tasks, the same 8 conflict tasks, new IDs | The trap check and Phase 2 must ask the questions the photos will get. |
+| Audit vs models | scripts/audit_vs_models.py takes distance and free-space model answers from sweep_scale/ first (--scale-not-stated for the originals) | The brief: compare the founder's audit on the scale-stated results. |
+| Trap check | Sonnet 5.5 high and Opus 5.5 high on all 154 twin tasks: 8 conflict tasks, 1 fooled both (L01 side, relation); so hero layouts | The brief's threshold is 3. $0.92. |
+| Hero recipe | recipes/hero_twin.yaml: the 15-asset pool, 5 to 7 objects, no duplicates, nothing in the bowl, fill ratio 0.6; questions free_space, front_to_back, relation only (distance has no shortcut, so it can never be a conflict and would only take one of five slots) | More nameable objects and trap-capable questions per photo; bowl contents do not settle (L08). |
+| Sampling | scripts/hero_layouts.py sample: seed by seed (808), skipping seeds that do not fit (vtf generate stops at the first); 103 of 400 fit, 102 with 5 objects, 1 with 6, none with 7 | 7 objects with 1.5 cm gaps do not fit the 31 x 19 cm placement area. |
+| Screening | Questions run on the exact mesh ray cast of each front-spot twin, no Blender, poses as sampled; rank by the chance a conflict is asked, weighted by how often each family fooled the models on v1's front rig | Render only the promising layouts (5 s each). |
+| Clean traps | After seeing round 1, a second round for traps a viewer agrees with: free space decided by the gap (not a blocker), front-to-back between objects under 12 cm (not a tall bottle's raised centre), relation never (the 30-degree cone) | A trap that looks wrong on film would hurt the demo. 17 clean conflicts in 103 layouts; 1 of 15 asked fooled both models. |
+| Pinned questions | <run>/pinned_questions.json (scene id to {program, params}): compile proposes them first on every camera; same programs and gates; part of the validation key only when present (earlier keys unchanged); selection.json carries each hero layout's pins and vtf twin register writes them into the sibling run | Clean traps are rarely in the seeded draw of five; pins test them, and make every hero photo ask its trap. No contract change. |
+| Hero picks | H1 hero_0297 (the clean trap: tape between the bottle and the lime, truth yes, both models no; plus a blocked-gap trap; no new piece), H2 hero_0062 (the same question, truth no, blocker 3.5 cm deep; purple bottle), H3 hero_0232 (blocker 2.7 cm; lemon), by hand with `pick --ids` | Clean trap first; then the blocked-gap traps deep enough to survive hand placement, with the fewest new pieces. Not kept: hero_0315 (tall-bottle front-to-back; blocker 1.6 cm), hero_0244 and hero_0371 (relation by the cone), hero_0394 (a duck Sonnet calls orange). |
+| Film layout | H1, front spot, "Is there room to place the tape on the table between the bottle and the lime?" | Checkable on the grid (6.9 cm gap, 4.5 cm tape), nothing in the way, no new piece. |
+| Hero photos | Front spot only, three photos each (on the spot, 3 cm left, 3 cm right), objects within half a centimetre; names H1_front_1.jpg etc. (register reads L01 to L12 and H1 to H3) | Three draws per layout; the H1 gap is 0.4 cm above the program's yes margin. |
+| Purple bottle | The bleach_bottle shopping hint said white; the asset and every question call it purple; hint now "a purple plastic bottle" | Same mismatch VTF-07 fixed for the blue can. |
+| Dry run | H1 and H2 renders as stand-in photos through vtf twin register (out/twins_hero_dryrun): both pass G8, H1 by name, H2 recognised by its objects, every pinned question asked | Phase 2 readiness checked before the photos. |
+| Findings note | findings.md section 8 "Scale stated" (inserted by hand, and generated by shortcut_findings.scale_section from now on); Human comparison becomes section 9 | The brief: a short note. |
+
 ## 25 Nov 2026: Brief VTF-07 (unattended product completion)
 
 | Decision | Choice | Why |

@@ -39,9 +39,13 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 | Task Explorer v1, live | Live demo | **Done (brief 06; verification panel added 25 Nov):** https://vtf-task-explorer.vercel.app, frozen v1 with Haiku, Sonnet, Opus high and Opus xhigh answers plus the blind baseline, and a **Conflict gallery** (https://vtf-task-explorer.vercel.app/?view=gallery): 12 scenes where every model took the 2D shortcut, with the true answer (blue) and the shortcut object (orange) marked on the image and in 3D. Demo path: open the gallery, pick "nearest to gripper", rotate the 3D view to show the true nearest object. Rebuild: the export command in web/README.md, then `vercel deploy --prod --yes` in web/ |
 | Task Explorer screen recording | Live-demo backup | To do (demo run). The Explorer now opens with a "How it's verified" panel (G1 to G7 with the v1 numbers, links to VALIDATION, findings, risk cards and the verify showcase) |
 
-## Physical twins: shopping list (P19, trimmed 25 Nov for 12 layouts)
+## Physical twins: the trap to film (VTF-08)
 
-Print docs/twins/mat_A3.pdf at 100% (or the four tiles of mat_A4_tiled.pdf), then buy these 6 kinds of item, 8 pieces in all. Each stands in for one 3D asset; anything within a fifth of the size given is fine. Pick plain items close to the colour given, because questions name objects by colour. Full sizes and ranges: docs/twins/shopping_list.md. Layouts to build: docs/twins/layouts.pdf (12 scenes, chosen in docs/twins/selection.json).
+Hero layout H1 (hero_0297), front spot: "Is there room to place the tape on the table between the bottle and the lime?" The answer is yes (a 6.9 cm gap, a 4.5 cm tape, nothing in the way, checkable on the printed grid); Sonnet 5.5 and Opus 5.5 both say no on the digital twin, because the tape, nearer the lens, looks bigger than the gap. H2 asks the same question with the opposite truth (the kiwi sits in the gap) and both models say yes. Render: [docs/twins/media/H1_hero_0297_front.jpg](../twins/media/H1_hero_0297_front.jpg); details: [docs/twins/trap_check.md](../twins/trap_check.md). The real photo goes beside it after the session.
+
+## Physical twins: shopping list (P19, trimmed 25 Nov for 12 layouts; 2 pieces added for the hero layouts)
+
+Print docs/twins/mat_A3.pdf at 100% (or the four tiles of mat_A4_tiled.pdf), then buy these 8 kinds of item, 10 pieces in all. Each stands in for one 3D asset; anything within a fifth of the size given is fine. Pick plain items close to the colour given, because questions name objects by colour. Full sizes and ranges: docs/twins/shopping_list.md. Layouts to build: docs/twins/layouts.pdf (12 scenes, chosen in docs/twins/selection.json).
 
 1. Three limes, about 6 cm across and 7.5 cm long (food_lime_01).
 2. One large kiwi fruit, about 7 by 9 cm (food_kiwi_01).
@@ -49,5 +53,7 @@ Print docs/twins/mat_A3.pdf at 100% (or the four tiles of mat_A4_tiled.pdf), the
 4. One small bowl, wooden if possible, about 13 cm across and 7 cm tall (wooden_bowl_02).
 5. One white trigger spray bottle, about 23 cm tall (multi_cleaner_bottle).
 6. One small white roll of medical or masking tape, about 4.5 cm across (medical_tape).
+7. NEW for the hero layouts: one lemon, about 9.5 by 7 cm (lemon).
+8. NEW for the hero layouts: one purple plastic bottle (fabric softener, detergent or bleach), about 29 cm tall (bleach_bottle).
 
 Also: sticky tape, and a phone stand or a stack of books for the two camera spots.

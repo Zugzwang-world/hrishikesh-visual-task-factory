@@ -9,6 +9,7 @@ How models answer the tasks and how answers are scored. The same prompts, JSON s
 - **Structured output:** the reply must match a JSON schema `{"answer": <typed value>}`. If a provider rejects the schema, the adapter retries once without it and the scorer extracts the JSON from the text.
 - **Prompt version 0.2.0** is part of the cache key; a test hashes every prompt and schema and fails until the version is bumped, so a cached reply is never reused for a changed prompt.
 - **Blind mode** (G5 baseline, `--blind`): the same model and settings with no image and a best-guess prompt; filed under `<model>__blind` with its own prompt version (0.2.0+blind.1), never mixed with image runs.
+- **Scale stated** (`vtf.eval.scale`, `scripts/ask_sweep.py --condition scale`): tasks made before programs 0.3.0 get the sentence that states the scale in front of their distance or free-space question (the 1 cm grid, or the reference object's exact size); everything else is the standard request. Cached under prompt version 0.2.0+scale.1 and filed under `<run>/sweep_scale/`, never mixed with the original answers. From programs 0.3.0 the sentence is part of the question itself. Result: [reports/v1/scale_stated.md](reports/v1/scale_stated.md).
 
 ## Scoring
 

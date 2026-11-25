@@ -9,6 +9,10 @@ Run it once the founder has exported the audit page's JSON:
   uv run python scripts/audit_vs_models.py --run <out/v1> --answers <audit export .json>
 
 Writes docs/reports/v1/human_vs_models.json and .md (and <run>/audit/score.json via the scorer).
+
+Distance and free-space answers come from the "scale stated" condition (<run>/sweep_scale/,
+brief VTF-08): the founder audits with the grid scale known, so the models must have it too.
+--scale-not-stated uses the original answers instead.
 """
 
 import argparse
@@ -49,6 +53,8 @@ def main() -> None:
     ap.add_argument("--answers", required=True)
     ap.add_argument("--out", default="docs/reports/v1")
     ap.add_argument("--audit-dir", default=None, help="default <run>/audit")
+    ap.add_argument("--scale-not-stated", action="store_true",
+                    help="distance, free space: original answers, not sweep_scale/")  # fmt: skip
     args = ap.parse_args()
     run = Path(args.run).resolve()
 
@@ -66,11 +72,14 @@ def main() -> None:
     human = {t: t not in miss_ids for t in audited}
 
     # the 1,567-task sweep, plus scripts/twin_sweep.py's answers (the twin pairs and the one
-    # task of the refreshed audit, sample_v2, that no model had answered)
+    # task of the refreshed audit, sample_v2, that no model had answered); first, for distance
+    # and free space, the scale-stated answers (scripts/ask_sweep.py --condition scale)
+    folders = ("sweep", "sweep_twins") if args.scale_not_stated else (
+        "sweep_scale", "sweep", "sweep_twins")  # fmt: skip
     models: dict[str, dict[str, Any]] = {}
     for key, name, effort in MODELS:
         got: dict[str, bool] = {}
-        for folder in ("sweep", "sweep_twins"):
+        for folder in folders:
             path = run / folder / key / "results.jsonl"
             if path.is_file():
                 for r in read_jsonl(path):
@@ -138,7 +147,12 @@ def main() -> None:
         "",
         f"The founder answered {len(rows)} of the 150 blind audit tasks without seeing the truth. "
         "Every answer is scored by the same scorer as the models. Intervals are 95%, from a "
-        "bootstrap over scenes.",
+        "bootstrap over scenes. "
+        + ("Distance and free-space model answers are the original ones (scale not stated)."
+           if args.scale_not_stated else
+           "Distance and free-space model answers come from the scale-stated condition (the "
+           "question names the grid's 1 cm squares, or the reference object's size), as the "
+           "founder saw the grid's scale too."),  # fmt: skip
         "",
         "| Who | All tasks | Shortcut conflicts | No conflict | Non-spatial |",
         "| --- | --- | --- | --- | --- |",

@@ -50,6 +50,7 @@ from vtf.twin.register import (
     run_g8,
     working_photo,
 )
+from vtf.validate.pipeline import PINNED_FILE
 
 PHOTO_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".heif"}
 NAME_RE = re.compile(r"^(L\d{2}|H\d)(?:[_\- ]+([A-Za-z]+))?", re.IGNORECASE)
@@ -204,6 +205,11 @@ def register_inbox(
 
     # Sibling scenes: one per layout with an accepted photo, a camera per photo.
     sim = RunLayout(out / "sim")
+    pins = {h["scene_id"]: h["pinned"] for h in (selection.get("hero") or {}).get("layouts", [])
+            if h.get("pinned")}  # fmt: skip
+    if pins:  # hero layouts: their trap questions are asked first on every photo
+        sim.root.mkdir(parents=True, exist_ok=True)
+        (sim.root / PINNED_FILE).write_text(json.dumps(pins, indent=1, sort_keys=True) + "\n")
     for label, items in accepted.items():
         lay = by_label[label]
         cams = [r.camera for r, _ in items]

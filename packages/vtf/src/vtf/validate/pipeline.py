@@ -52,6 +52,16 @@ from vtf.validate.gates.g7_determinism import check_g7
 from vtf.validate.pixels import CameraPasses
 
 VALIDATE_VERSION = "0.2.1"
+PINNED_FILE = "pinned_questions.json"  # <run>/: scene_id -> [{program, params}] asked first
+
+
+def pinned_questions(run_root: Path, scene_id: str) -> list[dict]:
+    """A run's pinned questions for one scene (brief VTF-08: the hero layouts' trap questions),
+    proposed before the seeded draw on every camera of that scene."""
+    path = Path(run_root) / PINNED_FILE
+    if not path.is_file():
+        return []
+    return list(json.loads(path.read_text()).get(scene_id, []))
 GATES = ("G1", "G2", "G3", "G4", "G7")  # per question at validate time; G6 comes from twins
 ALL_GATES = ("G1", "G2", "G3", "G4", "G6", "G7")
 SCENE_VALIDATE_DIR = "validate"
@@ -205,17 +215,18 @@ def code_versions() -> dict:
     return {"vtf": VTF_VERSION, "programs": PROGRAMS_VERSION, "validate": VALIDATE_VERSION}
 
 
-def validation_key(scene_file: Path, render_dir: Path) -> str:
+def validation_key(scene_file: Path, render_dir: Path, pinned: list[dict] | None = None) -> str:
     manifest_path = render_dir / layout.RENDER_MANIFEST
     manifest = read_manifest(manifest_path)
-    return sha256_json(
-        {
-            "scene": sha256_file(scene_file),
-            "manifest": sha256_file(manifest_path),
-            "settled": sha256_file(render_dir / manifest.settled_scene_file),
-            "versions": code_versions(),
-        }
-    )
+    key = {
+        "scene": sha256_file(scene_file),
+        "manifest": sha256_file(manifest_path),
+        "settled": sha256_file(render_dir / manifest.settled_scene_file),
+        "versions": code_versions(),
+    }
+    if pinned:  # absent when nothing is pinned, so earlier keys stay valid
+        key["pinned"] = pinned
+    return sha256_json(key)
 
 
 def is_rendered(scene_file: Path, render_dir: Path) -> bool:
@@ -353,7 +364,8 @@ def validate_scene(
     vdir = scene_validate_dir(lay.scene_dir(scene_id))
     if not is_rendered(scene_file, rdir):
         return "not_rendered"
-    key = validation_key(scene_file, rdir)
+    pinned = pinned_questions(lay.root, scene_id)
+    key = validation_key(scene_file, rdir, pinned)
     previous = read_json(vdir / SCENE_REPORT, {}) or {}
     old_rows = read_rows(vdir / SCENE_ACCEPTED)
     if (
@@ -407,8 +419,9 @@ def validate_scene(
                     )
                 )
                 continue
+            extra = {"pinned": pinned} if pinned else {}  # runs without pins: the call as before
             questions = compile_questions(
-                settled, cam_out.camera_id, question_seed(settled, cam_out.camera_id)
+                settled, cam_out.camera_id, question_seed(settled, cam_out.camera_id), **extra
             )
             for q in questions:
                 families[q.family]["candidates"] += 1

@@ -51,7 +51,8 @@ CANDIDATES: tuple[Candidate, ...] = (
               "strong colour: questions call it just \"can\")", 1, "tall"),
     Candidate("multi_cleaner_bottle", "Spray bottle", "a white trigger spray bottle "
               "(kitchen cleaner)", 1, "tall"),
-    Candidate("bleach_bottle", "Bleach bottle", "a white bleach or detergent bottle", 1, "tall"),
+    Candidate("bleach_bottle", "Purple bottle", "a purple plastic bottle (fabric softener, "
+              "detergent or bleach; questions call it the purple bottle)", 1, "tall"),
     Candidate("medical_tape", "Tape roll", "a small white roll of medical or masking tape", 1,
               "wide"),
     Candidate("rubber_duck_toy", "Rubber duck", "a yellow rubber duck (baby aisle)", 1),

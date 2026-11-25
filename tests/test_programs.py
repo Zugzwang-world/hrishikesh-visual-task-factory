@@ -685,3 +685,18 @@ def test_scale_sentence() -> None:
     q = "Is there room?"
     assert with_scale(q, GRID_SCALE_SENTENCE) == f"{GRID_SCALE_SENTENCE} {q}"
     assert with_scale(with_scale(q, GRID_SCALE_SENTENCE), GRID_SCALE_SENTENCE).count("grid") == 1
+
+
+def test_pinned_questions_come_first() -> None:
+    """Pinned questions (brief VTF-08: a hero layout's trap) are proposed before the seeded
+    draw, count toward the limit and are never asked twice."""
+    from vtf.programs import compile_questions
+
+    scene = read_scene(FIXTURE)
+    plain = [q for q in compile_questions(scene, CAM, 3) if q.result is not None]
+    last = plain[-1].program  # a question the seeded draw accepts last
+    pin = {"program": last.name, "params": last.params}
+    pinned = [q for q in compile_questions(scene, CAM, 3, pinned=[pin]) if q.result is not None]
+    assert pinned[0].program == last
+    assert sum(q.program == last for q in pinned) == 1
+    assert len(pinned) == len(plain)

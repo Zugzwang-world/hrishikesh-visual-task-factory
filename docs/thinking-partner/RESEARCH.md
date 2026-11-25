@@ -37,6 +37,12 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 
 ## New research
 
+### 25 Nov 2026: what fools the models on a real-looking tabletop (VTF-08 Phase 1)
+
+- Stating the scale matters for some models: with "1 cm squares, bold lines every 10 cm" (or the reference object's size) in front of the question, Sonnet 5.5 gains 10 points on v1's 272 distance and free-space tasks (+20 on distance), Haiku 5.5 gains 5, Opus 5.5 at high and xhigh gains nothing (it already reads the scale). About a tenth of answers flip either way between two asks of the same task, whatever the sentence. docs/reports/v1/scale_stated.md.
+- On the physical-twin set (few objects, no gripper) the 2D-shortcut trap is rare: 8 conflict tasks in 154, and only one fooled both Sonnet and Opus.
+- Free-space traps that fool both models are mostly blocked gaps (a third object partly in the gap; the models say there is room). Clean gap traps rarely fool them: of 15 where a tall tin or can looks too big for a gap it fits, both models answered 14 right. The one that worked is a small item nearer the camera than the gap (hero H1: the tape looks wider than the 6.9 cm gap it fits). docs/twins/trap_check.md.
+
 ### 25 Nov 2026: Breaking points and counterfactual twins on frozen v1 (brief VTF-07)
 
 - Difficulty controls move accuracy for every Claude setting we tested (family-adjusted, fixed level pairs, scene-bootstrap intervals): evidence under 60% visible vs fully visible costs 10 to 13 points; a harsh camera vs clean costs Sonnet and Opus 12 to 16 points but not detectably Haiku; CCTV vs clean costs Haiku and Sonnet 8 to 9 points but not detectably either Opus setting; odds of a right answer x0.73 to x0.83 per 10 more objects (all intervals below 1). Full tables: [findings.md](../reports/v1/findings.md) sections 5 and 6.

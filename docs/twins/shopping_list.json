@@ -3,6 +3,34 @@
   "tolerance": 0.2,
   "items": [
     {
+      "asset_id": "lemon",
+      "item": "Lemons",
+      "hint": "lemons",
+      "quantity": 1,
+      "category": "lemon",
+      "colour": "yellow",
+      "size_m": [
+        0.0687,
+        0.0954,
+        0.0683
+      ],
+      "range_m": [
+        [
+          0.055,
+          0.0824
+        ],
+        [
+          0.0763,
+          0.1145
+        ],
+        [
+          0.0546,
+          0.082
+        ]
+      ],
+      "new": 1
+    },
+    {
       "asset_id": "food_lime_01",
       "item": "Limes",
       "hint": "limes",
@@ -138,6 +166,34 @@
       ]
     },
     {
+      "asset_id": "bleach_bottle",
+      "item": "Purple bottle",
+      "hint": "a purple plastic bottle (fabric softener, detergent or bleach; questions call it the purple bottle)",
+      "quantity": 1,
+      "category": "bottle",
+      "colour": "purple",
+      "size_m": [
+        0.0884,
+        0.0612,
+        0.2937
+      ],
+      "range_m": [
+        [
+          0.0707,
+          0.1061
+        ],
+        [
+          0.049,
+          0.0734
+        ],
+        [
+          0.235,
+          0.3524
+        ]
+      ],
+      "new": 1
+    },
+    {
       "asset_id": "medical_tape",
       "item": "Tape roll",
       "hint": "a small white roll of medical or masking tape",
@@ -165,5 +221,5 @@
       ]
     }
   ],
-  "scope": "Only what the 12 layouts in layouts.pdf need (scene_0001, scene_0006, scene_0008, scene_0012, scene_0015, scene_0019, scene_0021, scene_0027, scene_0028, scene_0030, scene_0034, scene_0035; chosen in selection.json)."
+  "scope": "Only what the 12 layouts in layouts.pdf need (scene_0001, scene_0006, scene_0008, scene_0012, scene_0015, scene_0019, scene_0021, scene_0027, scene_0028, scene_0030, scene_0034, scene_0035; chosen in selection.json). Plus the 3 hero layouts in hero_layouts.pdf (H1, H2, H3), shot first."
 }

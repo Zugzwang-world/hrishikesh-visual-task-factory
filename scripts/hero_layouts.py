@@ -17,7 +17,8 @@ spot), so a real photo where Claude takes the 2D shortcut is unlikely. Here:
   tasks    the conflict tasks of the rendered hero twins -> out/twins_hero_digital/conflict_ids.json
   pick     after Sonnet and Opus answered them (scripts/ask_sweep.py --name trap_hero): keep up to
            3 layouts where both models give the shortcut answer on at least one conflict question
-           (fallback: one model); write the hero block of docs/twins/selection.json
+           (fallback: one model; --ids gives the order by hand); write the hero block of
+           docs/twins/selection.json and the hero sheets docs/twins/hero_layouts.pdf
 
 Every step is a pure function of the recipe, the seed and the code.
 """
@@ -42,6 +43,7 @@ from vtf.scene.generate import generator_version, sample_any
 from vtf.scene.recipe import load_recipe
 from vtf.scene.sampler_v1 import LayoutError
 from vtf.twin.digital import spot, spot_camera, twin_scene
+from vtf.validate.pipeline import PINNED_FILE
 
 RECIPE = Path("recipes/hero_twin.yaml")
 SAMPLED = Path("out/twins_hero")
@@ -109,19 +111,46 @@ def screen_scene(scene) -> dict[str, Any]:
             ok += 1
             if res.shortcut_conflict:
                 conflicts.append({"params": params, "slots": slots, "answer": res.answer,
-                                  "shortcut": res.shortcut_answer})  # fmt: skip
-        fams[fam] = {"passing": ok, "conflicts": len(conflicts), "examples": conflicts[:3]}
+                                  "shortcut": res.shortcut_answer,
+                                  "clean": clean_conflict(fam, res, twin)})  # fmt: skip
+        n_clean = sum(c["clean"] for c in conflicts)
+        conflicts.sort(key=lambda c: not c["clean"])
+        fams[fam] = {"passing": ok, "conflicts": len(conflicts), "clean": n_clean,
+                     "examples": conflicts[:3]}  # fmt: skip
     # chance that none of the (up to 2) asked questions per family is a conflict
-    p_none = 1.0
-    expected_fooled = 0.0
+    p_none = p_none_clean = 1.0
+    expected_fooled = expected_clean = 0.0
     for fam, f in fams.items():
         if f["passing"]:
-            share = f["conflicts"] / f["passing"]
+            share, clean = f["conflicts"] / f["passing"], f["clean"] / f["passing"]
             k = min(ASKED_PER_FAMILY, f["passing"])
             p_none *= (1 - share) ** k
+            p_none_clean *= (1 - clean) ** k
             expected_fooled += k * share * FOOL_WEIGHT[fam]
+            expected_clean += k * clean * FOOL_WEIGHT[fam]
     return {"families": fams, "p_conflict_asked": round(1 - p_none, 3),
-            "expected_fooled": round(expected_fooled, 3)}  # fmt: skip
+            "p_clean_asked": round(1 - p_none_clean, 3),
+            "expected_fooled": round(expected_fooled, 3),
+            "expected_clean": round(expected_clean, 3)}  # fmt: skip
+
+
+TALL_M = 0.12  # front_to_back: an object this tall moves its centre well above the table
+
+
+def clean_conflict(family: str, res, scene) -> bool:
+    """A conflict a viewer would agree with at a glance (the video needs one):
+    free_space decided by the gap itself (no object in the way; a blocked corridor is open to
+    "there is room beside it"); front_to_back between objects under TALL_M (otherwise the truth
+    can rest on a tall object's raised centre while its base is behind); relation never (the
+    30-degree cone of "directly to the left" is not what a viewer sees)."""
+    trace = res.trace
+    if family == "free_space":
+        dec = next(s for s in trace if s.get("step") == "decision")
+        return dec["reason"] == "gap"
+    if family == "front_to_back":
+        ids = [s["object_id"] for s in trace if "planar_depth_m" in s]
+        return all(scene.object(i).dimensions[2] < TALL_M for i in ids)
+    return False
 
 
 def pieces_needed(scene, have: dict[str, int]) -> dict[str, int]:
@@ -140,9 +169,10 @@ def cmd_screen(args: argparse.Namespace) -> None:
                "new_pieces": pieces_needed(scene, have)}  # fmt: skip
         row["n_new_pieces"] = sum(row["new_pieces"].values())
         rows.append(row)
-        print(f"{sid}: expected fooled {row['expected_fooled']}, p(conflict asked) "
-              f"{row['p_conflict_asked']}, new pieces {row['n_new_pieces']}", flush=True)
-    rows.sort(key=lambda r: (-r["expected_fooled"], r["n_new_pieces"], r["scene_id"]))
+        print(f"{sid}: expected fooled {row['expected_fooled']} (clean {row['expected_clean']}), "
+              f"new pieces {row['n_new_pieces']}", flush=True)  # fmt: skip
+    rows.sort(key=lambda r: (-r["expected_clean"], -r["expected_fooled"], r["n_new_pieces"],
+                             r["scene_id"]))  # fmt: skip
     (SAMPLED / "screen.json").write_text(json.dumps(rows, indent=1) + "\n")
     print(f"hero screen: {len(rows)} layouts -> {SAMPLED / 'screen.json'}")
 
@@ -150,14 +180,46 @@ def cmd_screen(args: argparse.Namespace) -> None:
 # --- digital ----------------------------------------------------------------------------------
 
 
+PROGRAM_OF = {"free_space": "room_between", "front_to_back": "front_to_back",
+              "relation": "relation"}  # fmt: skip
+
+
+def write_pins(run: Path, pins: dict[str, list[dict]]) -> None:
+    """Merge pinned questions into <run>/pinned_questions.json (vtf.validate.pipeline)."""
+    path = run / PINNED_FILE
+    data = json.loads(path.read_text()) if path.is_file() else {}
+    for sid, items in pins.items():
+        have = data.setdefault(sid, [])
+        have += [p for p in items if p not in have]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n")
+
+
 def cmd_digital(args: argparse.Namespace) -> None:
+    """Front-spot twins of the top layouts. --clean takes the layouts with a clean conflict and
+    pins those questions (asked first on every camera), since the seeded draw rarely asks them."""
     lay, dst = RunLayout(SAMPLED), RunLayout(DIGITAL)
-    ids = args.ids or [r["scene_id"] for r in json.loads((SAMPLED / "screen.json").read_text())
-                       if r["n_new_pieces"] <= args.max_new][: args.top]  # fmt: skip
-    for sid in ids:
+    rows = json.loads((SAMPLED / "screen.json").read_text())
+    if args.ids:
+        pick = [r for r in rows if r["scene_id"] in args.ids]
+    elif args.clean:
+        pick = [r for r in rows if r["expected_clean"] > 0 and r["n_new_pieces"] <= args.max_new]
+    else:
+        pick = [r for r in rows if r["n_new_pieces"] <= args.max_new]
+    pick = pick[: args.top]
+    pins: dict[str, list[dict]] = {}
+    for r in pick:
+        sid = r["scene_id"]
         scene = read_scene(lay.scene_file(sid))
         write_model(dst.scene_file(hero_id(sid)), front_twin(scene, hero_id(sid)))
-    print(f"hero digital: {len(ids)} front-spot twins -> {dst.scenes_dir}: {ids}")
+        if args.clean:
+            pins[hero_id(sid)] = [{"program": PROGRAM_OF[fam], "params": e["params"]}
+                                  for fam, f in r["families"].items()
+                                  for e in f["examples"] if e["clean"]]  # fmt: skip
+    if pins:
+        write_pins(DIGITAL, pins)
+    print(f"hero digital: {len(pick)} front-spot twins -> {dst.scenes_dir}: "
+          f"{[r['scene_id'] for r in pick]}; pinned {sum(map(len, pins.values()))} questions")
 
 
 # --- tasks and pick ---------------------------------------------------------------------------
@@ -195,7 +257,8 @@ def shortcut_table(run: Path, name: str, models: list[str]) -> list[dict]:
         task = read_task(run / row["path"])
         rec = {"task_id": tid, "scene_id": row["scene_id"], "camera_id": row["camera_id"],
                "family": row["family"], "question": task.question, "truth": task.answer,
-               "shortcut_answer": task.shortcut_answer, "models": {}}  # fmt: skip
+               "shortcut_answer": task.shortcut_answer,
+               "program": task.program.model_dump(mode="json"), "models": {}}  # fmt: skip
         for m in models:
             r = replies[m][tid]
             rec["models"][m] = {"parsed": r["parsed"], "correct": r["correct"],
@@ -221,6 +284,11 @@ def cmd_pick(args: argparse.Namespace) -> None:
     both = sorted((s for s, recs in by_scene.items() if any(r["fooled_both"] for r in recs)),
                   key=rank)  # fmt: skip
     kept = both[:3]
+    if args.ids:  # an explicit order (logged in DECISIONS.md); each must have fooled both
+        bad = [s for s in args.ids if s not in both]
+        if bad:
+            raise SystemExit(f"not fooled both on any conflict question: {bad}")
+        kept = list(args.ids)[:3]
     fallback = None
     if not kept:
         one = sorted((s for s, recs in by_scene.items() if any(r["fooled_any"] for r in recs)),
@@ -237,7 +305,11 @@ def cmd_pick(args: argparse.Namespace) -> None:
         "layouts": [
             {"label": f"H{i + 1}", "scene_id": sid, "sampled_scene_id": screen[sid]["scene_id"],
              "fooled_both": [r["task_id"] for r in by_scene[sid] if r["fooled_both"]],
-             "fooled_any": [r["task_id"] for r in by_scene[sid] if r["fooled_any"]]}
+             "fooled_any": [r["task_id"] for r in by_scene[sid] if r["fooled_any"]],
+             # asked first on every photo of the layout (vtf twin register writes them to the
+             # sibling run), so the trap question is on each photo, not left to the seeded draw
+             "pinned": [{"program": r["program"]["name"], "params": r["program"]["params"]}
+                        for r in by_scene[sid] if r["fooled_both"]]}  # fmt: skip
             for i, sid in enumerate(kept)
         ],  # fmt: skip
         "film": "H1" if kept else None,
@@ -248,6 +320,15 @@ def cmd_pick(args: argparse.Namespace) -> None:
     }
     SELECTION.write_text(json.dumps(sel, indent=2) + "\n")
     (DIGITAL / "trap_table.json").write_text(json.dumps(table, indent=1) + "\n")
+    if kept:
+        from vtf.twin.layouts import make_layouts
+
+        quantities = dict(sel["pieces_to_buy"])
+        for a, n in sel["hero"]["new_pieces"].items():
+            quantities[a] = quantities.get(a, 0) + n
+        sampled = [screen[s]["scene_id"] for s in kept]
+        make_layouts(SAMPLED, SELECTION.parent / "hero_layouts.pdf", scene_ids=sampled,
+                     quantities=quantities)  # fmt: skip
     print(json.dumps(sel["hero"], indent=1))
 
 
@@ -259,6 +340,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--top", type=int, default=8)
     p.add_argument("--max-new", type=int, default=3, help="most new pieces a hero layout may need")
     p.add_argument("--ids", nargs="*", default=None)
+    p.add_argument("--clean", action="store_true", help="digital: layouts with a clean conflict")
     p.add_argument("--name", default="trap_hero")
     p.add_argument("--models", nargs="+", default=["claude-sonnet-5-5", "claude-opus-5-5"])
     args = p.parse_args(argv)

@@ -359,5 +359,95 @@
   "full_list_pieces": 23,
   "skip": {
     "scene_0027": "In the physics simulation the tape roll keeps sliding in the bowl, so its digital twin never settles and the layout gives no questions (11 layouts give 154 tasks without it)."
+  },
+  "hero": {
+    "brief": "VTF-08 Phase 1: hero layouts for the front phone spot, shot first",
+    "recipe": "recipes/hero_twin.yaml",
+    "sampled_run": "out/twins_hero",
+    "twins_run": "out/twins_hero_digital",
+    "spots": [
+      "front"
+    ],
+    "layouts": [
+      {
+        "label": "H1",
+        "scene_id": "hero_0297",
+        "sampled_scene_id": "scene_0297",
+        "fooled_both": [
+          "t1de0a07cb5279b9c",
+          "t7c43ce8da31ed080"
+        ],
+        "fooled_any": [
+          "t1de0a07cb5279b9c",
+          "t7c43ce8da31ed080"
+        ],
+        "pinned": [
+          {
+            "program": "room_between",
+            "params": {
+              "a": "obj_01",
+              "b": "obj_04",
+              "item": "obj_00"
+            }
+          },
+          {
+            "program": "room_between",
+            "params": {
+              "item": "obj_03",
+              "a": "obj_00",
+              "b": "obj_01"
+            }
+          }
+        ]
+      },
+      {
+        "label": "H2",
+        "scene_id": "hero_0062",
+        "sampled_scene_id": "scene_0062",
+        "fooled_both": [
+          "t138102b779fe3538"
+        ],
+        "fooled_any": [
+          "t138102b779fe3538"
+        ],
+        "pinned": [
+          {
+            "program": "room_between",
+            "params": {
+              "item": "obj_01",
+              "a": "obj_00",
+              "b": "obj_02"
+            }
+          }
+        ]
+      },
+      {
+        "label": "H3",
+        "scene_id": "hero_0232",
+        "sampled_scene_id": "scene_0232",
+        "fooled_both": [
+          "t4eb87915fd81e8f7"
+        ],
+        "fooled_any": [
+          "t4eb87915fd81e8f7"
+        ],
+        "pinned": [
+          {
+            "program": "room_between",
+            "params": {
+              "item": "obj_01",
+              "a": "obj_02",
+              "b": "obj_03"
+            }
+          }
+        ]
+      }
+    ],
+    "film": "H1",
+    "fallback": null,
+    "new_pieces": {
+      "bleach_bottle": 1,
+      "lemon": 1
+    }
   }
 }

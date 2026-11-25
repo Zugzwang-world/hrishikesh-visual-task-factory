@@ -238,8 +238,11 @@ One page, one column per model setting: [risk_cards.md](risk_cards.md). Error ty
 
 'Names an object not in the scene' is mostly a real object misidentified (the pot called a bowl, the can a jar, the kiwi a potato). Unreadable answers are replies the scorer cannot read, mostly names outside its vocabulary (a potato, a jar), so the two columns overlap. A few are true synonyms the scorer lacks (pitcher for jug, stone for rock, ball for a baseball): 2 to 11 answers per model, at most 0.7 points of accuracy; they are not counted as objects outside the scene.
 
+## 8. Scale stated
 
-## 8. Human comparison
+v1's distance and free-space questions never said what scale the image shows. The 272 such tasks among the 1,567 eval and 150 audit tasks were asked again with one sentence in front: the 1 cm grid with bold lines every 10 cm, or, on scenes without the grid, the reference object's exact size. Paired, same tasks, 95% scene intervals: Haiku 5.5 (high) 45% to 50%, +5 (-1 to +11) points (distance +12 (+3 to +22), free space -1 (-7 to +6)); Sonnet 5.5 (high) 51% to 60%, +10 (+4 to +15) points (distance +20 (+9 to +30), free space +1 (-5 to +7)); Opus 5.5 (high) 62% to 63%, +1 (-5 to +6) points (distance -1 (-12 to +10), free space +2 (-3 to +7)); Opus 5.5 (xhigh) 67% to 67%, +1 (-5 to +6) points (distance +3 (-7 to +13), free space -1 (-7 to +4)). Stating the scale helps Sonnet and Haiku on distance; Opus at either effort already reads the scale; free space does not move. Details: [scale_stated.md](scale_stated.md). From programs 0.3.0 every new distance and free-space question carries the sentence; frozen v1 is unchanged.
+
+## 9. Human comparison
 
 Pending the founder's blind audit of the 150 audit tasks (all models answered them). When the export is in, `uv run python scripts/audit_vs_models.py --run out/v1 --answers <export.json>` scores it with the same scorer and writes human_vs_models.md beside this file.
 

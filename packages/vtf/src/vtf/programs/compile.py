@@ -224,12 +224,20 @@ def family_order(families: list[str], weights: dict[str, float],
 
 
 def compile_questions(
-    scene: SceneSpec, camera_id: str, seed: int, max_questions: int = 5
+    scene: SceneSpec,
+    camera_id: str,
+    seed: int,
+    max_questions: int = 5,
+    pinned: list[dict[str, Any]] | None = None,
 ) -> list[CompiledQuestion]:
     """Propose, phrase and run candidate questions; same inputs give identical output.
 
     Returns the accepted questions and every rejected candidate, in proposal order. At most
     min(max_questions, scene.questions.max_per_camera) are accepted.
+
+    `pinned` ({program, params} dicts, e.g. a hero layout's trap question; brief VTF-08) are
+    proposed first, in order, and count toward the limit; they pass the same programs and gates
+    as any candidate, and are never proposed twice.
     """
     if not scene.meta.settled:
         raise ValueError(f"{scene.meta.scene_id}: programs run on a settled scene only")
@@ -274,6 +282,18 @@ def compile_questions(
             return False
         out.append(CompiledQuestion(**base, result=result))
         return True
+
+    pins = [(p["program"], dict(p["params"])) for p in pinned or []]
+    for program, params in pins:
+        if accepted >= limit or cam.rig not in FAMILIES[PROGRAMS[program].family].rigs:
+            continue
+        ids = {o.id for o in scene.objects}
+        slots = {k: proposer.name(v) if v in ids else str(v) for k, v in params.items()}
+        if propose((program, params, slots)):
+            accepted += 1
+    if pins:
+        for family, queue in queues.items():
+            queues[family] = [c for c in queue if (c[0], c[1]) not in pins]
 
     for _ in range(ROUNDS):
         for family in order:

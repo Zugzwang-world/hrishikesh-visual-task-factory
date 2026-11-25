@@ -1,51 +1,57 @@
 # NOW
 
-**Updated:** 25 Nov 2026, 18:50 IST (end of the unattended run, brief VTF-07)
-**Stage:** **Stage 5, demo pack, on frozen v1.** Everything a judge runs and reads now exists: a README for judges, a one-command quickstart that passes from a fresh clone, the `vtf verify` showcase, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE, two new findings and the risk cards, the dataset on Hugging Face, and the Explorer with a "How it's verified" panel. The physical twins are ready for the photo session. What remains is yours (blind audit, photos), then slides and the video.
+**Updated:** 25 Nov 2026, 20:10 IST (end of brief VTF-08 Phase 1, unattended)
+**Stage:** **Stage 5, demo pack, on frozen v1.** Phase 1 of VTF-08 is done: the trap check, three hero layouts that fool both Sonnet and Opus on their digital twins, and the scale-stated fix with its re-ask. **Phase 2 waits for the founder:** the audit export and the photos.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
 ## Decisions in force (founder, 25 Nov)
 
 - Claude models only: Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh. Never Fable or Mythos. Findings speak only about the Claude models we tested.
-- v1 is canonical: 300 scenes, 3,181 tasks. No v1.1; the three-scene fix is repeatability evidence. The last 200 scenes are not rendered.
-- Cut: Dockerfile, multi-view consistency, vision gain per model, paired model tests, a separate findings HTML. The slide media pack moves to the demo run.
+- v1 is canonical: 300 scenes, 3,181 tasks. Its four frozen hashes are unchanged. Programs 0.3.0 changes new runs only.
+- out/v1/audit is not touched while the founder audits.
 
-## What exists now (all on main)
+## What VTF-08 Phase 1 added (branch claude/vtf-08-phase-1-unattended-44adff, merged to main)
 
-- **Spoiler-free blind audit:** out/v1/audit/index.html in the main checkout, same link as before. 150 tasks, none from the 18 Explorer scenes (22 swapped within their strata), 46 conflict tasks. Every model has answered all 150, so your score sits beside theirs the moment you export.
-- **Judges' path:** [README.md](../../README.md). `uv run vtf quickstart`: 7 scenes, 21 images, 112 tasks in all 12 families, gates and a report; fake-oracle without a key, Sonnet with one. A fresh clone runs to a verified result in 4 min 15 s ([quickstart_check.md](../reports/quickstart_check.md)).
-- **Repeatability:** [verify_showcase.md](../reports/v1/verify_showcase.md). Three frozen scenes re-rendered on GPU and CPU: scene files, settled poses, masks, depth, all 39 answers and the G7 hashes are exact. Images are near-exact (GPU SSIM 0.998 to 0.9999; CPU renders mostly byte-identical). It also caught a renderer material bug in batch renders that never touches answers (OPEN 16; disclosed, v1 kept as frozen).
-- **Docs:** [VALIDATION.md](../VALIDATION.md), [EVAL_PROTOCOL.md](../EVAL_PROTOCOL.md), [ARCHITECTURE.md](../ARCHITECTURE.md).
-- **New findings** ([findings.md](../reports/v1/findings.md) sections 5 and 6; charts docs/media/breaking_point.png and twin_flip.png):
-  - Breaking points: hiding the evidence (under 60% visible) costs every Claude setting 10 to 13 points; a harsh camera costs Sonnet and Opus 12 to 16 points; every 10 more objects cuts the odds of a right answer to x0.73 to x0.83.
-  - Counterfactual twins: on all 484 pairs, both answers are right for 34% (Haiku) to 52% (Opus high). Given the original right, 9 to 15% repeat the old answer. Opus xhigh is no better than high.
-- **Risk cards:** [risk_cards.md](../reports/v1/risk_cards.md), one column per Claude setting: risk, severity, triggers, rule-based error types (shortcut answer, object not in the scene, count off by one), two example images each, and a mitigation.
-- **Hugging Face:** https://huggingface.co/datasets/Hrishi1802/hrishikesh-visual-task-factory. Public, 2.54 GB, 29,381 files, CC0 data card with the frozen hashes.
-- **Task Explorer redeployed:** https://vtf-task-explorer.vercel.app, now opening with the "How it's verified" panel.
-- **Physical twins ready:**
-  - 12 layouts, of which 11 are to shoot (L08 skipped: its bowl contents never settle in the physics simulation).
-  - 6 kinds of item, 8 pieces. Guide: docs/twins/photo_session.pdf (about 55 minutes).
-  - G8 proven on the digital twins: 36 of 36 correct views pass and 3 of 3 misplaced views are rejected, with pose error under 1 mm median ([g8_digital_check.md](../twins/g8_digital_check.md)).
-  - The sim-to-real script runs as soon as photos land.
-- 294 tests pass; four frozen v1 hashes unchanged; commit signing worked all run.
+- **Trap check** ([docs/twins/trap_check.md](../twins/trap_check.md)): 8 conflict tasks among the 154 digital-twin tasks (1 on the front spot). Sonnet 89.0% and Opus 90.9% on the renders; both took the shortcut on only one conflict task.
+- **Hero layouts H1 to H3:**
+  - Picked from 103 sampled and 20 rendered five-object layouts.
+  - Both models take the shortcut on each one's digital twin.
+  - Their trap questions are pinned, so every hero photo asks them.
+  - In the photo guide first, front spot only, three photos each.
+- **Film H1:** "Is there room to place the tape on the table between the bottle and the lime?" Truth yes (a 6.9 cm gap, a 4.5 cm tape); both models say no. H2 asks the same question with the opposite truth, and both say yes.
+- **Shopping:** two new pieces, a lemon and a purple plastic bottle. 8 kinds, 10 pieces in all.
+- **Phase 2 dry run:** two hero renders through `vtf twin register` pass G8, are recognised, and get their pinned questions.
+- **Scale stated:**
+  - Programs 0.3.0: every new distance and free-space question opens with the grid sentence, or the reference object's exact size where there is no grid (53% of such tasks).
+  - v1's 272 such eval and audit tasks were re-asked to all four settings, results apart in out/v1/sweep_scale/.
+  - Sonnet +10 points (+4 to +15), Haiku +5, Opus high and xhigh +1. Findings section 8, [scale_stated.md](../reports/v1/scale_stated.md).
+  - OPEN 18 closed. The audit comparison uses these answers.
+- **New tools:**
+  - scripts/ask_sweep.py: batched asks under a condition.
+  - scripts/hero_layouts.py and recipes/hero_twin.yaml.
+  - vtf.eval.scale.
+  - Pinned questions (`<run>/pinned_questions.json`).
+  - scripts/scale_findings.py.
 
 ## Running cost of model calls
 
-- Today: 1,920 batched twin answers $7.02, quickstart Sonnet check $0.09. Before today about $28.75. Total about $35.86.
+- VTF-08 Phase 1: scale-stated re-ask $8.68, trap check $0.92, hero layouts $0.70, $10.30 in all. Before: about $35.86. Total about $46.16.
 
 ## Asks
 
-- **Blind audit:** open out/v1/audit/index.html in the main checkout, answer the 150, export the JSON, and say where it is.
+- **Blind audit:** finish the 150 in out/v1/audit/index.html (main checkout), export the JSON, and say where it is.
 - **Photo session:**
   - Print docs/twins/mat_A3.pdf at 100%.
-  - Buy the 8 pieces (DEMO.md).
-  - Follow docs/twins/photo_session.pdf.
+  - Buy the 10 pieces on docs/twins/shopping_list.md; the lemon and the purple bottle are new.
+  - Shoot H1 to H3 first (docs/twins/photo_session.pdf).
   - AirDrop the photos into twins/inbox/ in the main checkout and say so.
 - **Keys:** revoke the old Anthropic key in the Anthropic Console, if not done yet.
 - Turn on two-factor authentication for Vercel: https://vercel.com/account/settings/authentication?setup=authenticator
 
-## Next
+## Next (Phase 2, when the founder says the audit and photos are ready)
 
-1. Your audit: `scripts/audit_vs_models.py`, and every miss traced to its cause.
-2. Your photos: `vtf twin register`, then `vtf twin sim-to-real` for the rendered-to-real gap.
-3. Slides on the organizers' template, the media pack and the demo video (P28), then the submission form (P29).
+1. **Audit:** `uv run python scripts/audit_vs_models.py --run out/v1 --answers <export>`, using the scale-stated answers by default. Label every disagreement (our bug, ambiguous, human error). Human vs each model, with intervals.
+2. **Photos:** `vtf twin register` (hero photos named H1_front_1.jpg or recognised), reshoot list in NOW.md.
+3. **Sim-to-real:** all four settings on the real tasks and their siblings; say which ending we have.
+4. **Video:** the H1 photo where the models say no, with its render beside it in the Explorer.
+5. **Redeploy:** findings, risk cards, report, Hugging Face, Explorer, README. Then slides and the video (P28) and the form (P29).
