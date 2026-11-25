@@ -34,6 +34,7 @@ LEG_INSET = 0.06
 SEGMENTS = 64
 REPO_ROOT = Path(__file__).resolve().parents[4]
 MANIFEST_JSON = REPO_ROOT / "assets" / "manifest.json"
+TWIN_MAT_TEXTURE = REPO_ROOT / "docs" / "twins" / "mat_texture.png"
 
 GRID_PAPER_SRGB = (226, 224, 216)
 GRID_LINE_SRGB = (38, 40, 46)
@@ -398,15 +399,53 @@ def zone_rgb(zone: dict) -> tuple[float, float, float, float]:
     return _linear((40, 160, 60))  # default: green
 
 
+def twin_mat_material(table: dict) -> bpy.types.Material:
+    """The printed physical-twin placement mat (docs/twins/mat_texture.png, made from
+    docs/twins/mat_A3.pdf by `vtf twin texture`) stretched over the table top, which is the mat's
+    grid area (40 x 28 cm): matte paper, the image on the up-facing faces, plain paper on the
+    sides. $VTF_TWIN_MAT_TEXTURE overrides the image path."""
+    path = Path(os.environ.get("VTF_TWIN_MAT_TEXTURE", TWIN_MAT_TEXTURE))
+    if not path.exists():
+        raise FileNotFoundError(f"twin mat texture not found: {path} (uv run vtf twin texture)")
+    sx, sy = (float(v) for v in table["size_xy"])
+    mat, bsdf = _node_material("twin_mat")
+    bsdf.inputs["Roughness"].default_value = 0.8
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    coord = nodes.new("ShaderNodeTexCoord")
+    mapping = nodes.new("ShaderNodeMapping")  # object x, y (metres) -> u, v in 0..1
+    mapping.inputs["Scale"].default_value = (1.0 / sx, 1.0 / sy, 1.0)
+    mapping.inputs["Location"].default_value = (0.5, 0.5, 0.0)
+    tex = nodes.new("ShaderNodeTexImage")
+    tex.image = bpy.data.images.load(str(path), check_existing=True)
+    tex.image.colorspace_settings.name = "sRGB"
+    tex.interpolation = "Cubic"
+    tex.extension = "EXTEND"
+    links.new(coord.outputs["Object"], mapping.inputs["Vector"])
+    links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+    n = _Nodes(mat)
+    _, _, nz = n.xyz()
+    top = n.math("GREATER_THAN", nz, 0.5)
+    colour = n.mix(top, (0.9, 0.9, 0.9, 1.0), tex.outputs["Color"])
+    links.new(colour, bsdf.inputs["Base Color"])
+    mat.diffuse_color = (0.9, 0.9, 0.9, 1.0)
+    return mat
+
+
 def table_material(table: dict, zones: list[dict]) -> bpy.types.Material:
-    """The table-top material (wood_simple or cm_grid) with zone outlines painted on top.
+    """The table-top material (wood_simple, cm_grid or twin_mat) with zone outlines painted on
+    top.
 
     Positions are world coordinates; the table is centred on the world origin, so the grid's
     lines sit on multiples of the cell measured from the table centre. Only up-facing surfaces
-    (the top) get the grid and zone paint.
+    (the top) get the grid and zone paint. twin_mat is the printed placement mat image; it carries
+    its own grid, so grid_cell_m draws nothing more on it.
     """
     material_id = table.get("material_id", "wood_simple")
     cell = table.get("grid_cell_m")
+    if material_id == "twin_mat":
+        if zones:
+            raise ValueError("twin_mat tables carry no zones")
+        return twin_mat_material(table)
     if material_id == "wood_simple":
         mat = wood_simple()
         bsdf = mat.node_tree.nodes.get("Principled BSDF")
@@ -418,7 +457,9 @@ def table_material(table: dict, zones: list[dict]) -> bpy.types.Material:
         mat.diffuse_color = base
         cell = cell or 0.01
     else:
-        raise ValueError(f"unknown table material_id {material_id!r}; have wood_simple, cm_grid")
+        raise ValueError(
+            f"unknown table material_id {material_id!r}; have wood_simple, cm_grid, twin_mat"
+        )
     n = _Nodes(mat)
     if not cell and not zones:
         return mat
