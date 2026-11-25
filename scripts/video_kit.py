@@ -365,8 +365,8 @@ def write_ass(events: list[tuple[float, float, str]], path: Path) -> None:
     path.write_text(head + body, encoding="utf-8")
 
 
-def cmd_docs() -> None:
-    n = numbers()
+def cmd_docs(n: dict | None = None) -> None:
+    n = numbers() if n is None else n
     shots, edit = load(n)
     VIDEO_DOCS.mkdir(parents=True, exist_ok=True)
     (VIDEO_DOCS / "script.md").write_text(script_md(shots, edit, n), encoding="utf-8")

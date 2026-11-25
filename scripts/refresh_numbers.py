@@ -76,7 +76,7 @@ def placeholders_left() -> dict[str, list[str]]:
     found: dict[str, list[str]] = {}
     prs = Presentation(str(build_slides.OUT))
     toks = {t for s in prs.slides for sh in s.shapes if sh.has_text_frame for t in TOKEN.findall(sh.text_frame.text)}
-    if any(sh.name == "PHOTO_H1" for s in prs.slides for sh in s.shapes):
+    if any(sh.name.startswith("PHOTO_H1") for s in prs.slides for sh in s.shapes):
         toks.add("(H1 photo)")
     found["slides"] = sorted(toks)
     for p in [ROOT / "docs/video/captions.srt", ROOT / "docs/video/script.md", *MARKED]:
@@ -99,7 +99,7 @@ def main() -> None:
             import render_slides
 
             render_slides.render()
-        video_kit.cmd_docs()
+        video_kit.cmd_docs(n)
         for p in MARKED:
             count, left = fill_marked(p, n)
             print(f"refresh: {p.relative_to(ROOT)}: {count} marked spans" + (f"; still placeholders: {', '.join(left)}" if left else ""))

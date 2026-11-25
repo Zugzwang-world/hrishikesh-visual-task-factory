@@ -146,7 +146,7 @@ class Deck:
             self.runs(p, para, psize, color, font, bold)
         return box
 
-    def rect(self, slide, x, y, w, h, fill=LIGHT, line=None, shape=MSO_SHAPE.ROUNDED_RECTANGLE,
+    def rect(self, slide, x, y, w, h, fill=LIGHT, line=None, shape=MSO_SHAPE.RECTANGLE,
              radius=0.08, name=None):  # fmt: skip
         s = slide.shapes.add_shape(shape, Inches(x), Inches(y), Inches(w), Inches(h))
         if name:
@@ -214,6 +214,13 @@ class Deck:
         ids.append(thanks)
         # new slides reuse the dropped examples' part names; renumber so every part name is unique
         self.prs.part.rename_slide_parts([sld.get(qn("r:id")) for sld in ids])
+        # Quick Look (render_slides.py) draws rounded boxes, arrows and dashed lines as separate
+        # PDFs and misplaces them across slides, so the deck uses only plain rectangles and text
+        # arrows; ids and names are made unique across the deck as well (harmless in PowerPoint)
+        for i, slide in enumerate(self.prs.slides, 1):
+            for el in slide.shapes._spTree.iter(qn("p:cNvPr")):
+                el.set("id", str(i * 1000 + int(el.get("id"))))
+                el.set("name", f"{el.get('name')} s{i}")  # it also keys on the name
         return self.prs
 
     def title_card(self) -> None:
@@ -333,12 +340,9 @@ class Deck:
                       align=PP_ALIGN.CENTER)  # fmt: skip
             self.text(s, x + 0.07, y + 0.46, bw - 0.14, h - 0.5, sub, size=9.5, color=GREY,
                       align=PP_ALIGN.CENTER, space=0, line=1.12)  # fmt: skip
-            if i < len(steps) - 1:
-                a = s.shapes.add_shape(MSO_SHAPE.RIGHT_ARROW, Inches(x + bw + 0.03), Inches(y + h / 2 - 0.09),
-                                       Inches(gap - 0.06), Inches(0.18))  # fmt: skip
-                a.fill.solid()
-                a.fill.fore_color.rgb = GREY
-                a.line.fill.background()
+            if i < len(steps) - 1:  # a text arrow: renderers draw it natively, unlike arrow shapes
+                self.text(s, x + bw - 0.02, y + h / 2 - 0.2, gap + 0.04, 0.4, "→", size=16, color=GREY,
+                          font=HEAD, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space=0)  # fmt: skip
         outs = [
             ("Eval harness", "Claude API, batched; typed scorer → findings, risk cards"),
             ("Task Explorer", "3D viewer: rotate, switch cameras, see every answer"),
@@ -503,10 +507,7 @@ class Deck:
         if self.h1_photo and self.h1_photo.is_file():
             self.picture(s, self.h1_photo, x2, y, iw, ih)
         else:
-            ph = self.rect(
-                s, x2, y, iw, ih, fill=RGBColor(0xFB, 0xF1, 0xE8), line=ORANGE, name="PHOTO_H1"
-            )
-            ph.line.dash_style = 4
+            self.rect(s, x2, y, iw, ih, fill=RGBColor(0xFB, 0xF1, 0xE8), line=ORANGE, name="PHOTO_H1")
             self.text(s, x2 + 0.1, y + 0.8, iw - 0.2, 0.7, ["Real photo of layout H1",
                       ("goes here in Phase 2", 10)], size=12, color=ORANGE, font=HEAD,
                       align=PP_ALIGN.CENTER, space=2)  # fmt: skip
