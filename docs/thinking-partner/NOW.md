@@ -56,4 +56,18 @@
    - S1: record the real call on the H1 photo while `uv run python scripts/ask_live.py <H1 photo's real task> --model claude-opus-5-5` runs (docs/video/shot_list.md). It saves the answer in out/video/live_call.json, and the S1 voice-over line takes it from there, so the words match the screen. If the photo does not fool Opus, take the next layout in trap_check.md section 4 and rewrite S1, D2 and S2 in docs/video/edit.yaml.
    - S2: export H1's digital twin to the Explorer and record it rotating beside the photo.
 5. **Redeploy:** findings, risk cards, report, Hugging Face, Explorer, README. By hand, as the refresh does not touch them: the README's "Limits" line (the audit and photos "are still being done"), VALIDATION.md's G8 row ("real photos to come") and its "Founder blind audit" placeholder section.
-6. **Last step: `uv run scripts/refresh_numbers.py`, then `uv run scripts/refresh_numbers.py --check`.** It fills every placeholder in the slides, the video captions and script, docs/submission.md, docs/QA.md and the README headline. Then the founder records (Asks), `scripts/make_video.sh` builds the video, and the founder uploads and submits (P28, P29).
+6. **Fill the placeholders: `uv run scripts/refresh_numbers.py`, then `uv run scripts/refresh_numbers.py --check`.** It fills every placeholder in the slides, the video captions and script, docs/submission.md, docs/QA.md and the README headline.
+7. **Last check, the live Explorer as a judge sees it (founder, 26 Nov). Change no code in this step; report only.**
+   - Open https://vtf-task-explorer.vercel.app with Playwright after the redeploy, at a laptop size (1440 x 900) and a phone size (390 x 844, portrait, touch).
+   - Walk the demo path in docs/DEMO_STORY.md at each size, with a screenshot of every step in out/explorer_check/<size>/:
+     1. The first screen and its "How it's verified" panel.
+     2. The conflict gallery (?view=gallery).
+     3. The nearest-to-gripper trap (scene_0103, front camera): the image with the true answer in blue and the 2D shortcut in orange, the question, and every model's answer.
+     4. The 3D view rotated until the jug is plainly the object nearest the gripper.
+     5. The overhead, front and gripper cameras.
+     6. The gate evidence for that task.
+     7. H1's digital twin beside its photo, as exported in step 4.
+   - Report anything a judge could trip on: a slow or failed load, a 3D view that does not appear or cannot be turned (by touch on the phone), text cut off or too small to read, overlapping panels, a number that differs from findings.md, a leftover placeholder, a dead link, console errors.
+   - Write the report as a short list in NOW.md, one line per problem, with its screenshot; list what can wait in OPEN.md. Fixes are a separate decision for the founder.
+
+Then the founder records (Asks), `scripts/make_video.sh` builds the video, and the founder uploads and submits (P28, P29).
