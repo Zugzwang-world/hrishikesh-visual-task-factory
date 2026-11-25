@@ -37,7 +37,7 @@ MODELS = [  # sweep key, short label (the Claude settings we tested)
     ("claude-opus-5-5-xhigh", "Opus xhigh"),
 ]
 PHASE2 = ["AUDIT", "AUDIT_SHORT", "SIM2REAL", "SIM2REAL_SHORT", "SIM2REAL_ENDING", "REAL_TRAP",
-          "REAL_TRAP_SHORT", "H1_PHOTO", "TEAM_NAME", "TEAM_LEADER"]  # fmt: skip
+          "REAL_TRAP_SHORT", "REAL_TRAP_ANSWER", "H1_PHOTO", "TEAM_NAME", "TEAM_LEADER"]  # fmt: skip
 ENDING_REAL = "The failure is real."
 ENDING_GAP = "The factory measures the sim-to-real gap."
 
@@ -90,6 +90,8 @@ def v1_numbers(findings: dict[str, Any]) -> dict[str, str]:
     n["TWIN_BOTH_RIGHT"] = (f"{pct(both[0])} (Haiku) to {pct(max(both))} "
                             f"(Opus)")  # fmt: skip
     n["TWIN_STICKS"] = span(sticks, unit="%")
+    n["TWIN_BOTH_SPAN"] = span(both, unit="%")  # "34 to 52%"
+    n["XHIGH_GAP_POINTS"] = pts(c["gap_change_points"])  # "0"
     bp = findings["breaking_point"]["axes"]
 
     def last_minus_first(axis: str, keys: list[str], to: str | None = None) -> str:
@@ -214,13 +216,15 @@ def real_trap_numbers(twins: Path) -> dict[str, str]:
             prog.get("name") != film.get("program") or prog.get("params") != film.get("params")
         ):
             continue
-        said, wrong = [], 0
+        said, wrong, film_answer = [], 0, None
         for k, lab in MODELS:
             r = real_res.get(k, {}).get(p["real_task_id"])
             if r is None:
                 continue
             wrong += not r.get("correct")
             said.append(f"{lab} says {say(r.get('parsed'))}")
+            if k == "claude-opus-5-5":  # the setting the video asks live
+                film_answer = say(r.get("parsed"))
         if not said:
             continue
         truth = say(task.get("answer"))
@@ -238,6 +242,7 @@ def real_trap_numbers(twins: Path) -> dict[str, str]:
         return {
             "REAL_TRAP": f"On the real photo (truth: {truth}), {verdict}: " + ", ".join(said) + ".",
             "REAL_TRAP_SHORT": verdict,
+            "REAL_TRAP_ANSWER": film_answer,
             "H1_PHOTO": str(photo) if photo.is_file() else None,
         }
     return {}

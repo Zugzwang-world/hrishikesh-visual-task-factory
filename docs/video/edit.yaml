@@ -1,0 +1,193 @@
+# The demo video's edit list: the one source for docs/video/script.md, shot_list.md, the
+# captions and scripts/make_video.sh (via scripts/video_kit.py). Brief VTF-09, section 3.
+#
+# kinds: card (a generated title card), desk (the founder on camera, own sound),
+#        screen (a recorded segment; voice-over), still (an image with a slow zoom; voice-over)
+# seconds: the planned length; a voice-over or desk clip that runs longer stretches the shot
+# say: the exact spoken words, also the burnt-in captions. {{KEY}} comes from
+#      scripts/demo_numbers.py (findings.json now; the Phase 2 results when they exist)
+# phase2: true for shots that need the photos (their source is recorded in Phase 2; until then
+#         the build uses a labelled placeholder slate)
+#
+# Length: we assume at most 3 minutes (the organizers' page states no limit; unverified, see
+# docs/thinking-partner/DEMO.md). Planned total: 172 s.
+
+version: 1
+target_seconds: 180
+shots:
+  - id: C1
+    kind: card
+    seconds: 3
+    card:
+      title: Visual Task Factory
+      subtitle: Where robot vision goes wrong, proven without AI
+      foot: Innodata AI Hackathon · Challenge 02, Visual Task Factory
+
+  - id: D1
+    kind: desk
+    seconds: 18
+    beat: At the desk
+    framing: Wide. The founder seated beside the desk; the printed mat with layout H1, and the phone on its stack of books at the front spot, all in frame.
+    action: Point at the phone on the books on "a camera looking down at them".
+    say: >-
+      This is what a robot arm's camera sees: a table, a few everyday things, and a camera
+      looking down at them. Robots now decide what to grab by asking a vision-language model
+      what it sees. So let's ask one.
+
+  - id: S1
+    kind: screen
+    phase2: true
+    src: docs/video/segments/seg08_real_call.mp4
+    seconds: 12
+    beat: The question, asked for real
+    shows: The real H1 photo going to Claude Opus 5.5 with the exact question, and the live answer coming back (scripts/ask_live.py on the H1 photo's real task, terminal recorded as it runs). Recorded for real in Phase 2; never re-typed.
+    say: >-
+      Here is that photo, and the exact question: is there room to place the tape on the
+      table between the bottle and the lime? Claude answers: {{REAL_TRAP_ANSWER}}.
+    note: If the real H1 photo does not fool Opus, Phase 2 takes the next layout in docs/twins/trap_check.md section 4 (H1's kiwi question, then H2) and rewrites S1, D2 and S2 here before you record.
+
+  - id: D2
+    kind: desk
+    seconds: 12
+    beat: The question, asked for real
+    framing: Medium close on the mat, from the founder's side; hands in frame.
+    action: Lift the tape from its spot and set it down on the table in the gap between the bottle and the lime. It fits with room to spare. Tap the grid beside it. (Do this after the photos are taken.)
+    say: >-
+      But there is room. The gap is 6.9 centimetres and the tape is 4.5. The tape sits nearer
+      the lens, so in the picture it looks wider than the gap.
+
+  - id: S2
+    kind: screen
+    phase2: true
+    src: docs/video/segments/seg09_h1_twin.mp4
+    fallback: docs/twins/media/H1_hero_0297_front.jpg
+    seconds: 12
+    beat: The 3D twin
+    shows: Layout H1 as a 3D digital twin in the Task Explorer, rotating, with the 2D photo beside it. Until Phase 2 adds H1 to the Explorer, the H1 render with a slow zoom.
+    say: >-
+      Here is the same table as a 3D digital twin, built from the scene file. Turn it and the
+      gap is plain to see. The picture misleads; the 3D truth doesn't.
+
+  - id: C2
+    kind: card
+    seconds: 4
+    beat: From one example to a factory
+    card:
+      title: We didn't find one trick question.
+      subtitle: We built a factory.
+    say: We didn't find one trick question. We built a factory.
+
+  - id: S3
+    kind: screen
+    src: docs/video/segments/seg05_quickstart_terminal.mp4
+    seconds: 12
+    beat: From one example to a factory
+    shows: The real `uv run vtf quickstart` (sped up, labelled), 7 scenes to 112 tasks.
+    say: >-
+      One recipe and a seed give thousands of tasks: photoreal scenes, three robot cameras,
+      twelve kinds of question.
+
+  - id: S4
+    kind: screen
+    src: docs/video/segments/seg02_verified_panel.mp4
+    seconds: 9
+    beat: From one example to a factory
+    shows: The Explorer's "How it's verified" panel, gates G1 to G7 with the v1 numbers.
+    say: >-
+      Every answer comes from a program on the scene file, and eight gates check it again from
+      the pixels. No AI in the checking.
+
+  - id: S5
+    kind: screen
+    src: docs/video/segments/seg01_trap_rotate.mp4
+    seconds: 12
+    beat: From one example to a factory
+    shows: The conflict gallery, then scene_0103 with the jug (blue, true answer) and the box (orange, 2D shortcut), the 3D view orbiting.
+    say: >-
+      Which object is nearest the gripper? In the picture, the box. In 3D, the jug. Every
+      Claude model we tested picks the box.
+
+  - id: S6
+    kind: screen
+    src: docs/video/segments/seg03_headline_chart.mp4
+    seconds: 11
+    beat: From one example to a factory
+    shows: The headline chart with a slow zoom.
+    say: >-
+      Across {{TASKS_PER_MODEL}} tasks, every Claude model we tested is about {{GAP_ABOUT}} points
+      worse when the 2D picture misleads. More thinking doesn't help: the gap moves by
+      {{XHIGH_GAP_POINTS}} points.
+
+  - id: S7
+    kind: screen
+    src: docs/video/segments/seg04_twin_before_after.mp4
+    seconds: 10
+    beat: From one example to a factory
+    shows: A counterfactual twin, before and after one object moves.
+    say: >-
+      Move one object and ask again: they get both versions right only {{TWIN_BOTH_SPAN}} of
+      the time. They don't track the scene.
+
+  - id: S8
+    kind: still
+    src: docs/media/pack/camera_dial_strip.png
+    seconds: 8
+    beat: From one example to a factory
+    shows: One scene through the four camera-quality presets.
+    say: >-
+      Hide the evidence and they lose {{HIDDEN_COST}} points. A harsh camera costs Sonnet and
+      Opus {{HARSH_COST_SONNET_OPUS}}.
+
+  - id: S9
+    kind: screen
+    src: docs/video/segments/seg07_verify_terminal.mp4
+    seconds: 9
+    beat: From one example to a factory
+    shows: The real `uv run vtf verify out/quick --sample 2`.
+    say: Re-render it and the truth is identical. One command gives a judge the same tasks.
+
+  - id: C3
+    kind: card
+    seconds: 7
+    beat: From one example to a factory
+    card:
+      title: "{{AUDIT_SHORT}}"
+      subtitle: The founder's blind audit, on the same tasks
+    say: A person gets them right. In my blind audit, {{AUDIT_SHORT}}.
+    note: If the audit is not in when you record, skip this shot (the claim needs the audit).
+
+  - id: D3
+    kind: desk
+    seconds: 13
+    beat: Close at the desk
+    framing: Medium. The founder at the desk, the mat in front.
+    action: Gesture at the mat and the phone on "a real camera".
+    say_by_ending:
+      real: >-
+        We set up the same tables in front of a real camera. On real photos the models fail
+        the same way. The failure is real.
+      gap: >-
+        We set up the same tables in front of a real camera. The models answer real photos
+        differently from the renders, and the factory measures exactly how far apart they are.
+
+  - id: D4
+    kind: desk
+    seconds: 15
+    beat: Close at the desk
+    framing: Medium close-up, looking into the lens.
+    action: None; speak to the camera.
+    say: >-
+      Robots will act on these answers. Our factory finds the failure before the robot does.
+      It's a test, a source of training data, and a verifiable reward for robot learning: what
+      Innodata's physical-AI business needs.
+
+  - id: C4
+    kind: card
+    seconds: 5
+    card:
+      title: Visual Task Factory
+      lines:
+        - github.com/Zugzwang-world/hrishikesh-visual-task-factory
+        - vtf-task-explorer.vercel.app
+        - huggingface.co/datasets/Hrishi1802/hrishikesh-visual-task-factory
+      foot: "The Claude models we tested: Haiku 5.5, Sonnet 5.5, Opus 5.5 (effort high and xhigh)"

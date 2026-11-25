@@ -1,0 +1,115 @@
+1
+00:00:03,250 --> 00:00:12,479
+This is what a robot arm's camera sees: a table, a few everyday things, and a camera looking down at them.
+
+2
+00:00:12,479 --> 00:00:19,270
+Robots now decide what to grab by asking a vision-language model what it sees.
+
+3
+00:00:19,270 --> 00:00:20,750
+So let's ask one.
+
+4
+00:00:21,250 --> 00:00:30,057
+Here is that photo, and the exact question: is there room to place the tape on the table between the bottle and the lime?
+
+5
+00:00:30,057 --> 00:00:32,750
+Claude answers: {{REAL_TRAP_ANSWER}}.
+
+6
+00:00:33,250 --> 00:00:38,558
+But there is room. The gap is 6.9 centimetres and the tape is 4.5.
+
+7
+00:00:38,558 --> 00:00:44,750
+The tape sits nearer the lens, so in the picture it looks wider than the gap.
+
+8
+00:00:45,250 --> 00:00:50,693
+Here is the same table as a 3D digital twin, built from the scene file.
+
+9
+00:00:50,693 --> 00:00:53,453
+Turn it and the gap is plain to see.
+
+10
+00:00:53,453 --> 00:00:56,750
+The picture misleads; the 3D truth doesn't.
+
+11
+00:00:57,250 --> 00:01:00,750
+We didn't find one trick question. We built a factory.
+
+12
+00:01:01,250 --> 00:01:12,750
+One recipe and a seed give thousands of tasks: photoreal scenes, three robot cameras, twelve kinds of question.
+
+13
+00:01:13,250 --> 00:01:20,217
+Every answer comes from a program on the scene file, and eight gates check it again from the pixels.
+
+14
+00:01:20,217 --> 00:01:21,750
+No AI in the checking.
+
+15
+00:01:22,250 --> 00:01:28,096
+Which object is nearest the gripper? In the picture, the box.
+
+16
+00:01:28,096 --> 00:01:33,750
+In 3D, the jug. Every Claude model we tested picks the box.
+
+17
+00:01:34,250 --> 00:01:41,139
+Across 1,567 tasks, every Claude model we tested is about 25 points worse when the 2D picture misleads.
+
+18
+00:01:41,139 --> 00:01:44,750
+More thinking doesn't help: the gap moves by 0 points.
+
+19
+00:01:45,250 --> 00:01:52,500
+Move one object and ask again: they get both versions right only 34 to 52% of the time.
+
+20
+00:01:52,500 --> 00:01:54,750
+They don't track the scene.
+
+21
+00:01:55,250 --> 00:01:59,080
+Hide the evidence and they lose 10 to 13 points.
+
+22
+00:01:59,080 --> 00:02:02,750
+A harsh camera costs Sonnet and Opus 12 to 16.
+
+23
+00:02:03,250 --> 00:02:07,448
+Re-render it and the truth is identical.
+
+24
+00:02:07,448 --> 00:02:11,750
+One command gives a judge the same tasks.
+
+25
+00:02:12,250 --> 00:02:18,750
+A person gets them right. In my blind audit, {{AUDIT_SHORT}}.
+
+26
+00:02:19,250 --> 00:02:31,750
+{{SIM2REAL_ENDING}}
+
+27
+00:02:32,250 --> 00:02:34,507
+Robots will act on these answers.
+
+28
+00:02:34,507 --> 00:02:38,064
+Our factory finds the failure before the robot does.
+
+29
+00:02:38,064 --> 00:02:46,750
+It's a test, a source of training data, and a verifiable reward for robot learning: what Innodata's physical-AI business needs.
