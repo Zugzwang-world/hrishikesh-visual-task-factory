@@ -14,7 +14,7 @@
 #
 # If burning the captions fails, the video ships without them and captions.srt goes beside it
 # (the brief's fallback). Screen segments come from docs/video/segments/ (scripts/record_screens/).
-set -euo pipefail
+set -eo pipefail  # not -u: bash 3.2 (macOS) treats an empty array as unbound
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$ROOT/out/video"

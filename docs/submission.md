@@ -13,9 +13,9 @@ What the organizers' public page says to submit (read 25 Nov 2026, [hack2skill.c
 
 Challenge 02: Visual Task Factory.
 
-## Prototype brief, short (370 characters)
+## Prototype brief, short (398 characters)
 
-A factory of 3D robot-workcell vision tasks whose answers are proven from the scene file, never by an AI. Photoreal Blender scenes, three robot cameras, 12 spatial question families, eight model-free gates, and real photos of physical twins. On 3,181 tasks, every Claude model we tested drops about 25 points when the 2D picture misleads, and more thinking doesn't help.
+A factory of 3D robot-workcell vision tasks whose answers are proven from the scene file, never by an AI. Photoreal Blender scenes, three robot cameras, 12 spatial question families, eight model-free gates, and real photos of physical twins. On 1,567 tasks from the 3,181-task dataset, every Claude model we tested drops about 25 points when the 2D picture misleads, and more thinking doesn't help.
 
 ## Prototype brief, long (1,530 characters, 250 words, before the two Phase 2 sentences)
 

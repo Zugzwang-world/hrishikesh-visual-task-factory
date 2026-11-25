@@ -82,7 +82,7 @@ shots:
     src: docs/video/segments/seg05_quickstart_terminal.mp4
     seconds: 12
     beat: From one example to a factory
-    shows: The real `uv run vtf quickstart` (sped up, labelled), 7 scenes to 112 tasks.
+    shows: The real `uv run vtf quickstart` (sped up, labelled), 7 scenes to 110 tasks.
     say: >-
       One recipe and a seed give thousands of tasks: photoreal scenes, three robot cameras,
       twelve kinds of question.
@@ -122,6 +122,7 @@ shots:
     kind: screen
     src: docs/video/segments/seg04_twin_before_after.mp4
     seconds: 10
+    caption: raised  # over the table, clear of the title and the answers row
     beat: From one example to a factory
     shows: A counterfactual twin, before and after one object moves.
     say: >-
@@ -153,7 +154,7 @@ shots:
     card:
       title: "{{AUDIT_SHORT}}"
       subtitle: The founder's blind audit, on the same tasks
-    say: A person gets them right. In my blind audit, {{AUDIT_SHORT}}.
+    say: "{{AUDIT_SAY}}"
     note: If the audit is not in when you record, skip this shot (the claim needs the audit).
 
   - id: D3

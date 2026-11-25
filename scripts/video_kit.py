@@ -31,6 +31,7 @@ import re
 import shutil
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -200,7 +201,7 @@ def shot_list_md(shots: list[dict]) -> str:
     out += [
         "",
         f"3. The phone that plays the robot camera: {PHONE_SPOT}. This is the pose the H1 photos are taken from, so the 3D twin in the Explorer lines up with the shot.",
-        "4. The recording camera (a second phone, or the Mac with QuickTime, New Movie Recording): landscape, 1080p, 30 fps, at eye level about 1.2 to 1.5 m away, so the founder, the mat and the phone on its books are all in frame. A quiet room; the phone's microphone within a metre, or wired earphones with a microphone.",
+        "4. The recording camera (a second phone, or the Mac with QuickTime, New Movie Recording): landscape, 1080p, 30 fps, at eye level about 1.2 to 1.5 m away, so the founder, the mat and the phone on its books are all in frame. A quiet room; the phone's microphone within a metre, or wired earphones with a microphone. On an iPhone, turn HDR Video off first (Settings, Camera, Record Video), or the clips look washed out in the edit.",
         "5. Take the H1 photos for the photo session first. D2 moves the tape.",
         "",
         "## Desk shots",
@@ -213,7 +214,7 @@ def shot_list_md(shots: list[dict]) -> str:
         out.append(f"| {s['id']} | {mmss(tc[s['id']])} | {s['seconds']} s | {s['framing']} | {mat} | {s['action']} |")
     out += [
         "",
-        "Record the desk shots in this order: D1, D2, D3, D4. One take each is enough; a retake is fine (the last take of each shot is used if they are named, otherwise the recording order counts).",
+        "Record the desk shots in this order: D1, D2, D3, D4. One take each is enough. If you retake a shot, say which shots you retook when you hand the clips in; the last take is used.",
         "",
         "## Voice-over",
         "",
@@ -229,7 +230,7 @@ def shot_list_md(shots: list[dict]) -> str:
         out.append(f"| {s['id']} | {mmss(tc[s['id']])} | {s['seconds']} s | {s['src']} | {shot_status(s)} | {s.get('shows', '')} |")
     out += [
         "",
-        "Re-record the screen segments with `uv run python scripts/record_screens/record.py` (see its header). "
+        "Re-record the screen segments with `uv run --with playwright==1.64.0 python scripts/record_screens/record.py` (about 6 minutes; see its header). "
         "S1 is recorded in Phase 2 while `uv run python scripts/ask_live.py <H1 photo's real task> --model claude-opus-5-5` runs: a real call, never re-typed. "
         "S2 is the H1 digital twin in the Explorer once Phase 2 exports it.",
         "",
@@ -320,7 +321,8 @@ def srt_time(t: float) -> str:
 
 
 def caption_events(shots: list[dict], starts: list[float], key: str = "seconds") -> list[tuple[float, float, str]]:
-    """Each shot's words split into sentences, timed in proportion to their length."""
+    """Each shot's words split into sentences, timed in proportion to their length. A shot with
+    `caption: top` or `raised` places its captions higher (ASS only; SRT has no position)."""
     events = []
     for s, t0 in zip(shots, starts, strict=False):
         say = s.get("say")
@@ -338,13 +340,15 @@ def caption_events(shots: list[dict], starts: list[float], key: str = "seconds")
         a, span = t0 + 0.25, max(0.5, dur - 0.5)
         for p in merged:
             b = a + span * len(p) / total
-            events.append((a, b, p))
+            pos = {"top": "{\\an8}", "raised": "{\\an2\\pos(960,830)}"}.get(s.get("caption", ""), "")
+            events.append((a, b, pos + p))
             a = b
     return events
 
 
 def write_srt(events: list[tuple[float, float, str]], path: Path) -> None:
-    rows = [f"{i}\n{srt_time(a)} --> {srt_time(b)}\n{text}\n" for i, (a, b, text) in enumerate(events, 1)]
+    rows = [f"{i}\n{srt_time(a)} --> {srt_time(b)}\n{re.sub(r'^[{][^}]*[}]', '', text)}\n"
+            for i, (a, b, text) in enumerate(events, 1)]
     path.write_text("\n".join(rows), encoding="utf-8")
 
 
@@ -391,11 +395,20 @@ def probe(path: Path) -> dict:
     j = json.loads(out.stdout or "{}")
     kinds = {s.get("codec_type") for s in j.get("streams", [])}
     fmt = j.get("format", {})
+    created = None
+    tag = (fmt.get("tags") or {}).get("creation_time")
+    if tag:
+        try:
+            created = datetime.fromisoformat(tag.replace("Z", "+00:00"))
+        except ValueError:
+            created = None
+    if created is None:
+        created = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
     return {
         "duration": float(fmt.get("duration") or 0),
         "video": "video" in kinds,
         "audio": "audio" in kinds,
-        "created": (fmt.get("tags") or {}).get("creation_time") or f"{path.stat().st_mtime:020.6f}",
+        "created": created,
     }
 
 
@@ -445,15 +458,22 @@ def draw_card(card: dict, out: Path, slate: str | None = None) -> None:
 
 
 def split_long_vo(path: Path, n_parts: int, work: Path) -> list[Path]:
-    """One voice memo with every line: cut at its n_parts - 1 longest pauses."""
-    out = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-af", "silencedetect=noise=-35dB:d=0.7",
+    """One voice memo with every line: cut at its n_parts - 1 longest pauses between lines.
+
+    Silence at the very start or end is not a pause between lines, and only pauses of at least
+    1.2 s count (shorter ones fall inside sentences)."""
+    total = probe(path)["duration"]
+    out = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-af", "silencedetect=noise=-35dB:d=1.2",
                           "-f", "null", "-"], capture_output=True, text=True)  # fmt: skip
-    starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", out.stderr)]
+    starts = [float(x) for x in re.findall(r"silence_start: (-?[\d.]+)", out.stderr)]
     ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", out.stderr)]
-    gaps = sorted(zip(starts, ends, strict=False), key=lambda g: g[1] - g[0], reverse=True)[: n_parts - 1]
-    if len(gaps) < n_parts - 1:
-        sys.exit(f"video_kit: {path.name} has {len(gaps) + 1} pieces between pauses, {n_parts} voice-over lines expected")
-    cuts = [0.0] + sorted((a + b) / 2 for a, b in gaps) + [probe(path)["duration"]]
+    ends += [total] * (len(starts) - len(ends))  # a memo that ends in silence has no silence_end
+    inner = [(a, b) for a, b in zip(starts, ends, strict=False) if a > 0.05 and b < total - 0.05]
+    if len(inner) < n_parts - 1:
+        sys.exit(f"video_kit: {path.name} has {len(inner) + 1} spoken pieces, {n_parts} voice-over lines "
+                 "expected; name the files after their shots (S3.m4a ...) or re-record with longer pauses")  # fmt: skip
+    gaps = sorted(inner, key=lambda g: g[1] - g[0], reverse=True)[: n_parts - 1]
+    cuts = [0.0] + sorted((a + b) / 2 for a, b in gaps) + [total]
     parts = []
     for i in range(n_parts):
         p = work / f"vo_part_{i + 1:02d}.wav"
@@ -465,32 +485,50 @@ def split_long_vo(path: Path, n_parts: int, work: Path) -> list[Path]:
     return parts
 
 
+TAKE = re.compile(r"^(?:VO[_ -]?)?([A-Z]\d+)(?:\b|_|$)")
+
+
 def match_inbox(shots: list[dict], work: Path) -> tuple[dict[str, Path], dict[str, Path]]:
-    files = sorted(p for p in INBOX.glob("*") if p.is_file() and not p.name.startswith("."))
+    """Desk clips and voice-over files in video/inbox/ to shots.
+
+    A file whose name starts with a shot id (D1.mov, "D1 2.mov", S5.m4a, VO_S5.wav) goes to that
+    shot, the latest recording winning if there are several. Unnamed clips fill the unnamed desk
+    shots in recording order, and unnamed audio the voice-over lines; a mismatch in count stops
+    with a list of the files rather than guess. Stills, documents and anything under 2 s are skipped."""
+    files = sorted(p for p in INBOX.glob("*") if p.is_file() and not p.name.startswith(".")
+                   and p.suffix.lower() in VIDEO_EXT | AUDIO_EXT)  # fmt: skip
     desk_ids = [s["id"] for s in shots if s["kind"] == "desk"]
-    vo_ids = [s["id"] for s in shots if s["kind"] in VO_KINDS and s.get("say")]
-    clips: dict[str, Path] = {}
-    vos: dict[str, Path] = {}
+    vo_ids = [s["id"] for s in shots if s["kind"] in VO_KINDS and s.get("say") and not placeholders_in(s["say"])]
+    named: dict[str, list[tuple[datetime, Path]]] = {}
     loose_v, loose_a = [], []
     for f in files:
         info = probe(f)
-        if not info:
+        if not info or info["duration"] < 2.0:
             continue
-        stem = f.stem.upper().removeprefix("VO_").removeprefix("VO-")
-        if info["video"] and stem in desk_ids:
-            clips[stem] = f
-        elif stem in vo_ids and (info["audio"] or info["video"]):
-            vos[stem] = f
+        m = TAKE.match(f.stem.upper())
+        sid = m.group(1) if m else None
+        if sid in desk_ids and info["video"] or sid in vo_ids and info["audio"]:
+            named.setdefault(sid, []).append((info["created"], f))
         elif info["video"]:
             loose_v.append((info["created"], f))
         elif info["audio"]:
             loose_a.append((info["created"], f))
-    for sid, (_, f) in zip([i for i in desk_ids if i not in clips], sorted(loose_v), strict=False):
+    clips = {k: max(v)[1] for k, v in named.items() if k in desk_ids}
+    vos = {k: max(v)[1] for k, v in named.items() if k in vo_ids}
+    free_desk = [i for i in desk_ids if i not in clips]
+    if loose_v and len(loose_v) != len(free_desk):
+        listing = "; ".join(f"{f.name} ({probe(f)['duration']:.0f} s)" for _, f in sorted(loose_v))
+        sys.exit(f"video_kit: {len(loose_v)} unnamed clips for {len(free_desk)} desk shots ({', '.join(free_desk)}): "
+                 f"{listing}. Rename each to its shot (D1.mov ...), keeping the take to use.")  # fmt: skip
+    for sid, (_, f) in zip(free_desk, sorted(loose_v), strict=False):
         clips[sid] = f
     free_vo = [i for i in vo_ids if i not in vos]
     loose_a.sort()
     if len(loose_a) == 1 and len(free_vo) > 1:
         loose_a = [(None, p) for p in split_long_vo(loose_a[0][1], len(free_vo), work)]
+    elif loose_a and len(loose_a) != len(free_vo):
+        sys.exit(f"video_kit: {len(loose_a)} unnamed audio files for {len(free_vo)} voice-over lines "
+                 f"({', '.join(free_vo)}); name them after their shots (S3.m4a ...)")  # fmt: skip
     for sid, (_, f) in zip(free_vo, loose_a, strict=False):
         vos[sid] = f
     return clips, vos
@@ -504,6 +542,18 @@ def cmd_plan(placeholders: bool) -> None:
     if pieces.exists():
         shutil.rmtree(pieces)
     pieces.mkdir()
+    if not placeholders:  # a real build: no {{...}} on screen
+        kept = []
+        for s in shots:
+            missing = placeholders_in(s.get("say", "") + json.dumps(s.get("card", {})))
+            if not missing:
+                kept.append(s)
+            elif s["kind"] == "desk":  # the founder filmed it: keep it, without captions
+                print(f"plan: {s['id']} has no captions: {', '.join(missing)} not filled yet")
+                kept.append({**s, "say": ""})
+            else:
+                print(f"plan: leaving out {s['id']}: {', '.join(missing)} not filled yet")
+        shots = kept
     clips, vos = ({}, {}) if placeholders else match_inbox(shots, WORK)
     rows = []
     for i, s in enumerate(shots, 1):

@@ -406,7 +406,7 @@ class Deck:
             "**12 question families:** count, count by colour, nearest to gripper, front to back, "
             "relation, occlusion, support, containment, reachability, free space, distance, gripper view",
             "**3 robot cameras:** overhead, front, gripper",
-            "**Difficulty dials:** 2 to 25 objects, stacks, containers, look-alikes, occlusion, "
+            "**Difficulty dials:** 3 to 25 objects, stacks, containers, look-alikes, occlusion, "
             "4 lighting setups, camera quality from clean to CCTV; 44 everyday objects",
             "**The dials move the models:** evidence under 60% visible costs {{HIDDEN_COST}} points; "
             "a harsh camera costs Sonnet and Opus {{HARSH_COST_SONNET_OPUS}}; each 10 more objects "
@@ -559,7 +559,7 @@ class Deck:
 
     def repeatability(self) -> None:
         s = self.page("Working, repeatable implementation", "One command gives a judge the same tasks",
-                      "Fresh clone, uv sync, vtf quickstart: about four minutes to 112 verified "
+                      "Fresh clone, uv sync, vtf quickstart: about five minutes to 110 verified "
                       "tasks. vtf verify re-renders and compares: truth exact, images near-exact.")  # fmt: skip
         self.rect(s, L, 1.55, 4.75, 2.45, fill=TERM_BG, radius=0.04)
         self.text(s, L + 0.15, 1.7, 4.5, 2.25, [
@@ -567,7 +567,7 @@ class Deck:
             "    Zugzwang-world/hrishikesh-visual-task-factory",
             "$ uv sync",
             "$ uv run vtf quickstart",
-            "  7 scenes, 21 images, 112 tasks, 12 families",
+            "  7 scenes, 21 images, 110 tasks, 12 families",
             "$ uv run vtf verify out/quick --sample 2",
             "  truth: exact   images: SSIM ≥ 0.998",
         ], size=10.5, color=RGBColor(0xE6, 0xE9, 0xEF), font=MONO, space=3, line=1.0)  # fmt: skip
@@ -576,7 +576,7 @@ class Deck:
                   "re-check any task's answer from its scene file."], size=10, color=GREY, space=4)  # fmt: skip
         x = 5.4
         self.text(s, x, 1.52, R - x, 3.85, [
-            "**Fresh clone to verified tasks in 4 min 15 s**, checked from a clean checkout",
+            "**Fresh clone to verified tasks in about five minutes** (4 min 15 s in the recorded check)",
             "**Byte-identical across checkouts:** scene files, masks, depth, task IDs and answers",
             "**vtf verify** re-samples and re-renders: truth exact, images near-exact "
             "(GPU re-render SSIM 0.998 to 0.9999)",
@@ -605,7 +605,7 @@ class Deck:
                       accent=ORANGE if i == 2 else BLUE)  # fmt: skip
         self.text(s, L, 3.1, W, 0.75, [
             "**Cost:** every model call so far, about $46 (Message Batches, half price). Generating "
-            "tasks needs no API key: a fresh clone reaches 112 verified tasks in about four minutes "
+            "tasks needs no API key: a fresh clone reaches 110 verified tasks in about five minutes "
             "on a laptop.",
             "**Ready to extend:** another model provider is one adapter in the same harness; a new "
             "question family is a recipe and a program.",

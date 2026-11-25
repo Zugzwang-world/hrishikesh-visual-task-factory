@@ -12,7 +12,7 @@ Yes. The 3D answer is exact and visible: G3 requires the evidence in the image (
 
 ### 3. How is this different from CLEVR?
 
-CLEVR (2017) rendered 3D toy shapes and answered questions with programs, as a fixed dataset. We keep the program answers and add what a robot needs: 44 real-world objects, physics-settled clutter, stacks and containers, overhead, front and gripper cameras, robot questions (nearest to the gripper, reach, free space), a second answer computed from the pixels, counterfactual twins, real photos of physical twins, and an evaluation harness. It is a generator, not a dataset. [README](../README.md)
+CLEVR (2017) rendered 3D toy shapes and answered questions with programs, as a fixed dataset. We keep the program answers and add what a robot needs: 44 everyday objects (40 Poly Haven models, 4 procedural scale references), physics-settled clutter, stacks and containers, overhead, front and gripper cameras, robot questions (nearest to the gripper, reach, free space), a second answer computed from the pixels, counterfactual twins, real photos of physical twins, and an evaluation harness. It is a generator, not a dataset. [README](../README.md)
 
 ### 4. What if real photos behave differently from renders?
 
@@ -20,7 +20,7 @@ Then the factory measures that gap, which is its job. `vtf twin sim-to-real` sco
 
 ### 5. How repeatable is it?
 
-Every random draw comes from the seed, and a task ID is a content hash. A fresh clone runs the quickstart (7 scenes, 112 tasks) in 4 min 15 s and matches another checkout byte for byte in scene files, masks, depth, task IDs and answers. `vtf verify` re-renders frozen v1 scenes: truth exact, images near-exact (GPU SSIM 0.998 to 0.9999). It even caught a renderer material bug, which we disclose. [quickstart_check.md](reports/quickstart_check.md), [verify_showcase.md](reports/v1/verify_showcase.md)
+Every random draw comes from the seed, and a task ID is a content hash. A fresh clone runs the quickstart (7 scenes, 110 tasks on today's code) in about five minutes, most of it Blender and the first asset download, and matches another checkout byte for byte in scene files, masks, depth, task IDs and answers (checked at 4 min 15 s on the code of 25 Nov morning). `vtf verify` re-renders frozen v1 scenes: truth exact, images near-exact (GPU SSIM 0.998 to 0.9999). It even caught a renderer material bug, which we disclose. [quickstart_check.md](reports/quickstart_check.md), [verify_showcase.md](reports/v1/verify_showcase.md)
 
 ### 6. How would Innodata use it?
 
@@ -40,7 +40,7 @@ Subclass `Adapter` (one method: image, question and answer type in, raw text out
 
 ### 10. How do you know the answers are right?
 
-Twice, without AI. G1 runs the typed program on the settled scene file (100%); G2 recomputes the answer independently from the rendered object-index and depth pixels, and the 167 tasks where the two disagreed were rejected (95.4% agree). A fake oracle that echoes the truth scores 112 of 112 through the real scorer, which checks the checker. [VALIDATION.md](VALIDATION.md)
+Twice, without AI. G1 runs the typed program on the settled scene file (100%); G2 recomputes the answer independently from the rendered object-index and depth pixels, and the 167 tasks where the two disagreed were rejected (95.4% agree). A fake oracle that echoes the truth scores 110 of 110 of the quickstart's tasks through the real scorer, which checks the checker. [VALIDATION.md](VALIDATION.md)
 
 ### 11. Do the questions really need the image?
 
@@ -64,7 +64,7 @@ v1 is 300 rendered scenes (500 generated; the run stopped itself at the 20 GB di
 
 ### 16. What is the human baseline?
 
-<!--ph:AUDIT-->{{AUDIT}}<!--/ph--> The founder answered 150 tasks blind (no truth and no model answers on the page), stratified by family, camera and shortcut conflict, scored by the same checker; every disagreement is labelled our bug, ambiguous, or human error.
+<!--ph:AUDIT-->{{AUDIT}}<!--/ph--> How the audit works: 150 tasks stratified by family, camera and shortcut conflict, shown blind (no truth and no model answers on the page), scored by the same checker as the models; every disagreement is labelled our bug, ambiguous, or human error. [human_vs_models.md](reports/v1/human_vs_models.md)
 
 ### 17. What are the limits?
 

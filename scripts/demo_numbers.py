@@ -36,7 +36,7 @@ MODELS = [  # sweep key, short label (the Claude settings we tested)
     ("claude-opus-5-5", "Opus high"),
     ("claude-opus-5-5-xhigh", "Opus xhigh"),
 ]
-PHASE2 = ["AUDIT", "AUDIT_SHORT", "SIM2REAL", "SIM2REAL_SHORT", "SIM2REAL_ENDING", "REAL_TRAP",
+PHASE2 = ["AUDIT", "AUDIT_SHORT", "AUDIT_SAY", "SIM2REAL", "SIM2REAL_SHORT", "SIM2REAL_ENDING", "REAL_TRAP",
           "REAL_TRAP_SHORT", "REAL_TRAP_ANSWER", "H1_PHOTO", "TEAM_NAME", "TEAM_LEADER", "VIDEO_URL",
           "SLIDES_URL"]  # fmt: skip
 ENDING_REAL = "The failure is real."
@@ -138,6 +138,9 @@ def audit_numbers(path: Path = HUMAN) -> dict[str, str]:
             f"{model_span} on the same tasks."
         ),  # fmt: skip
         "AUDIT_SHORT": f"Human {pct(hu['accuracy'])} vs Claude models {model_span}",
+        # the video's spoken line: claim "a person gets them right" only when the audit shows it
+        "AUDIT_SAY": (("A person gets them right. " if hu["accuracy"] >= 0.9 else "")
+                      + f"In my blind audit: human {pct(hu['accuracy'])}, the Claude models we tested {model_span}."),
     }
 
 
@@ -177,7 +180,7 @@ def sim2real_numbers(twins: Path) -> dict[str, str]:
             + (
                 ". No setting's photo-minus-render difference is distinguishable from zero."
                 if same
-                else ". The difference is outside its 95% interval for at least one setting."
+                else ". For at least one setting, zero is outside the difference's 95% interval."
             )
         ),  # fmt: skip
         "SIM2REAL_SHORT": f"photos {span(reals, unit='%')} vs renders {span(sims, unit='%')}",
@@ -195,17 +198,19 @@ def real_trap_numbers(twins: Path) -> dict[str, str]:
     for lay in sel.get("hero", {}).get("layouts", []):
         if lay.get("label") == "H1" and lay.get("pinned"):
             film = lay["pinned"][0]
-    real_res = _results(twins / "real")
+    real_res, sim_res = _results(twins / "real"), _results(twins / "sim")
+    live = ROOT / "out/video/live_call.json"  # scripts/ask_live.py: the call the video films
+    live = json.loads(live.read_text()) if live.is_file() else {}
 
     def say(v: Any) -> str:
-        return (
-            {True: "yes", False: "no"}.get(v, str(v))
-            if isinstance(v, bool) or v is None
-            else str(v)
-        )
+        return {True: "yes", False: "no"}.get(v, str(v)) if isinstance(v, bool) or v is None else str(v)
 
-    # photos in name order, so H1_front_1 (on the spot) is preferred over the side shots
-    for p in sorted(pairs, key=lambda p: p.get("photo", "")):
+    def answered(r: dict | None) -> bool:
+        return bool(r) and not r.get("error") and r.get("parse_ok", r.get("parsed") is not None)
+
+    # the front photo first (on the spot), then the other cameras; register saves H1_<camera>.png
+    order = sorted(pairs, key=lambda p: (p.get("camera_id") != "front", p.get("camera_id", ""), p.get("photo", "")))
+    for p in order:
         if p.get("layout") != "H1":
             continue
         task_json = twins / "real" / "tasks" / p["real_task_id"] / "task.json"
@@ -213,35 +218,37 @@ def real_trap_numbers(twins: Path) -> dict[str, str]:
             continue
         task = json.loads(task_json.read_text())
         prog = task.get("program", {})
-        if film and (
-            prog.get("name") != film.get("program") or prog.get("params") != film.get("params")
-        ):
+        if film and (prog.get("name") != film.get("program") or prog.get("params") != film.get("params")):
             continue
-        said, wrong, film_answer = [], 0, None
+        shortcut = say(task.get("shortcut_answer"))
+        said, took, asked, render_took, render_asked, film_answer = [], 0, 0, 0, 0, None
         for k, lab in MODELS:
             r = real_res.get(k, {}).get(p["real_task_id"])
-            if r is None:
+            if not answered(r):
                 continue
-            wrong += not r.get("correct")
-            said.append(f"{lab} says {say(r.get('parsed'))}")
+            ans = say(r.get("parsed"))
+            asked += 1
+            took += ans == shortcut
+            said.append(f"{lab} says {ans}")
             if k == "claude-opus-5-5":  # the setting the video asks live
-                film_answer = say(r.get("parsed"))
-        if not said:
+                film_answer = ans
+            rs = sim_res.get(k, {}).get(p["sim_task_id"])
+            if answered(rs):
+                render_asked += 1
+                render_took += say(rs.get("parsed")) == shortcut
+        if not asked:
             continue
+        if live.get("task_id") == p["real_task_id"] and live.get("answer") is not None:
+            film_answer = say(live["answer"])  # what the screen shows in shot S1
         truth = say(task.get("answer"))
-        if wrong == len(said):
-            verdict = "every Claude setting we tested still takes the 2D shortcut, as on the render"
-        elif wrong == 0:
-            verdict = "every Claude setting we tested gets it right, unlike on the render"
-        else:
-            verdict = f"{wrong} of {len(said)} Claude settings take the 2D shortcut"
-        photo = twins / "images" / p["photo"]
-        if not photo.is_file():  # register keeps one image per layout and camera
-            photo = next(
-                iter(sorted((twins / "images").glob(f"H1_{p.get('camera_id', 'front')}*"))), photo
-            )
+        verdict = f"{took} of {asked} Claude settings we tested take the 2D shortcut ({shortcut})"
+        if render_asked:
+            verdict += f"; on its render, {render_took} of {render_asked}"
+        photo = twins / "images" / f"H1_{p.get('camera_id', 'front')}.png"
+        if not photo.is_file():
+            photo = next(iter(sorted((twins / "images").glob(f"H1_{p.get('camera_id', 'front')}*"))), photo)
         return {
-            "REAL_TRAP": f"On the real photo (truth: {truth}), {verdict}: " + ", ".join(said) + ".",
+            "REAL_TRAP": f"On the real H1 photo (truth: {truth}), {verdict}. " + ", ".join(said) + ".",
             "REAL_TRAP_SHORT": verdict,
             "REAL_TRAP_ANSWER": film_answer,
             "H1_PHOTO": str(photo) if photo.is_file() else None,
@@ -250,9 +257,11 @@ def real_trap_numbers(twins: Path) -> dict[str, str]:
 
 
 def numbers(twins: Path | None = None) -> dict[str, str | None]:
-    twins = Path(twins) if twins else ROOT.parent.parent.parent / "out/twins_real"
-    if not twins.exists():
+    if twins is None:
         twins = ROOT / "out/twins_real"
+        if not twins.exists() and ROOT.parent.name == "worktrees":  # a worktree: use the main checkout's
+            twins = ROOT.parents[2] / "out/twins_real"
+    twins = Path(twins)
     n: dict[str, str | None] = {k: None for k in PHASE2}
     n.update(v1_numbers(json.loads(FINDINGS.read_text())))
     n.update(audit_numbers())

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortcut chart</title>
+<!--
+  The headline chart (docs/media/shortcut_conflict_accuracy.svg) large on white, with a slow
+  Ken Burns push (1.0 to 1.12) toward the gap between the agree and conflict markers,
+  sized so the whole chart stays in frame at 1.12.
+  scripts/record_screens/record.py calls setT(t) once per video frame; opened by hand, the page
+  plays the move itself.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #fcfcfb; overflow: hidden; }  /* the SVG's own near-white, so its edge does not show */
+  .stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  img { width: 1680px; height: auto; display: block; transform-origin: 54% 54%; }
+</style>
+</head>
+<body>
+<div class="stage"><img id="chart" src="../../media/shortcut_conflict_accuracy.svg" alt="Accuracy when the 2D shortcut agrees with the 3D truth vs when it conflicts, per Claude model"></div>
+<script>
+  const DURATION = 11, FROM = 1.0, TO = 1.12;
+  const ease = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+  window.setT = (t, duration = DURATION) => {
+    const s = FROM + (TO - FROM) * ease(t / duration);
+    document.getElementById("chart").style.transform = `scale(${s.toFixed(5)})`;
+  };
+  window.setT(0);
+  if (!navigator.webdriver) {
+    const t0 = performance.now();
+    const tick = (now) => { window.setT((now - t0) / 1000); if (now - t0 < DURATION * 1000) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+</script>
+</body>
+</html>

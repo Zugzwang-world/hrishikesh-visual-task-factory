@@ -10,7 +10,9 @@ Nothing is typed by hand and nothing is replayed from a log. Record the terminal
 (scripts/record_screens/ replays a captured terminal; see docs/video/shot_list.md, S1).
 
 Phase 2 runs it on the H1 photo's real task (out/twins_real/real/tasks/<id>, the pinned tape
-question). `--model fake-oracle` tries it offline for free.
+question). `--model fake-oracle` tries it offline for free. The answer is kept in
+out/video/live_call.json, and scripts/demo_numbers.py takes the S1 voice-over line from it, so
+the line spoken matches the answer on screen.
 """
 
 import argparse
@@ -37,6 +39,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("task", help="a task folder (task.json and its image) or the task.json")
     ap.add_argument("--model", default="claude-opus-5-5")
+    ap.add_argument("--save", default="out/video/live_call.json",
+                    help="the answer, kept so the voice-over matches the screen")  # fmt: skip
     args = ap.parse_args()
     path = Path(args.task)
     task_json = path / "task.json" if path.is_dir() else path
@@ -67,6 +71,11 @@ def main() -> None:
     request_id = (resp.meta or {}).get("request_id")
     if request_id:
         print(f"request:  {request_id}")
+    save = Path(args.save)
+    save.parent.mkdir(parents=True, exist_ok=True)
+    save.write_text(json.dumps({"task_id": task.task_id, "model": spec.key, "answer": score.parsed,
+                                "correct": score.correct, "raw": resp.raw_text,
+                                "request_id": request_id}, indent=2) + "\n")  # fmt: skip
 
 
 if __name__ == "__main__":

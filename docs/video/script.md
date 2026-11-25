@@ -8,7 +8,7 @@ How to record, in plain words:
 2. Voice-over: read the 11 lines marked VOICE-OVER into your phone's voice memo, in order, pausing about two seconds between lines. One long recording is fine.
 3. AirDrop everything into video/inbox/ in the main checkout, and say so. Names do not matter; `scripts/make_video.sh` does the rest.
 
-Still to fill in Phase 2 (shown as {{...}} below): {{AUDIT_SHORT}}, {{REAL_TRAP_ANSWER}}, {{SIM2REAL_ENDING}}. Record the lines that use them after Phase 2 refreshes this script.
+Still to fill in Phase 2 (shown as {{...}} below): {{AUDIT_SAY}}, {{AUDIT_SHORT}}, {{REAL_TRAP_ANSWER}}, {{SIM2REAL_ENDING}}. Record the lines that use them after Phase 2 refreshes this script.
 
 ### 0:00 · C1 · CARD (3 s)
 
@@ -69,7 +69,7 @@ VOICE-OVER:
 
 ### 1:01 · S3 · SCREEN (12 s)
 
-Screen: The real `uv run vtf quickstart` (sped up, labelled), 7 scenes to 112 tasks.
+Screen: The real `uv run vtf quickstart` (sped up, labelled), 7 scenes to 110 tasks.
 
 VOICE-OVER:
 
@@ -129,7 +129,7 @@ Card: {{AUDIT_SHORT}} / The founder's blind audit, on the same tasks
 
 VOICE-OVER:
 
-> A person gets them right. In my blind audit, {{AUDIT_SHORT}}.
+> {{AUDIT_SAY}}
 
 Note: If the audit is not in when you record, skip this shot (the claim needs the audit).
 
@@ -162,4 +162,4 @@ Card: Visual Task Factory /  / github.com/Zugzwang-world/hrishikesh-visual-task-
 
 ---
 
-17 shots, 334 spoken words, planned 2:52. At an easy 150 words a minute the lines take about 2:13; the shots leave the rest for the pictures.
+17 shots, 325 spoken words, planned 2:52. At an easy 150 words a minute the lines take about 2:10; the shots leave the rest for the pictures.

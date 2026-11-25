@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counterfactual twin</title>
+<!--
+  One G6 counterfactual twin pair from frozen v1, for the demo video (seg04) and the still
+  docs/media/pack/twin_before_after.png. Images: out/v1/tasks/<task>/image.png, copied to
+  media/ as JPEG. Answers: out/v1/sweep_twins/<model>/results.jsonl (scripts/twin_sweep.py).
+    before  ta2f65762a12d745d  scene_0013, front camera, true answer no
+    after   t8148039cbc8d78da  scene_0013_twin_a2f65762a1 (lemon moved out of the basket), true answer yes
+    Opus 5.5 (effort high): {"answer": false} on both. Haiku 5.5, Sonnet 5.5, Opus 5.5 xhigh: false on both.
+  scripts/record_screens/record.py calls setT(t) per frame; opened by hand, it plays once.
+-->
+<style>
+  :root {
+    --bg: #f4f2ee; --card: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3dfd7;
+    --blue: #2a78d6; --blue-bg: #e6f0fb; --orange: #eb6834; --orange-bg: #fdebe3;
+    --green: #2e8b57; --red: #c8352b;
+  }
+  html, body { margin: 0; width: 1920px; height: 1080px; background: var(--bg); overflow: hidden; }
+  body { font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; color: var(--ink); }
+  header { position: absolute; left: 80px; right: 80px; top: 52px; }
+  .kicker { font-size: 21px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { margin: 10px 0 0; font-size: 44px; line-height: 1.12; font-weight: 700; letter-spacing: -.01em; }
+  .q { margin-top: 20px; font-size: 30px; line-height: 1.3; }
+  .q b { font-weight: 600; }
+  .pair { position: absolute; left: 80px; right: 80px; top: 250px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .card { background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 10px 30px rgba(40, 30, 10, .07); }
+  .img { position: relative; width: 860px; height: 588px; overflow: hidden; background: #ddd; }
+  .img img { width: 860px; height: 645px; display: block; margin-top: -28px; }
+  .tag { position: absolute; left: 18px; top: 16px; font-size: 22px; font-weight: 600; padding: 8px 14px; border-radius: 10px; background: rgba(20, 20, 24, .78); color: #fff; }
+  .rows { padding: 18px 24px 22px; display: grid; gap: 12px; }
+  .row { display: flex; align-items: center; gap: 16px; font-size: 27px; min-height: 50px; padding: 4px 18px; border-radius: 10px; }
+  .row .k { color: var(--muted); width: 270px; font-size: 23px; letter-spacing: .04em; text-transform: uppercase; font-weight: 600; }
+  .row .v { font-weight: 700; font-size: 30px; }
+  .truth { background: var(--blue-bg); box-shadow: inset 5px 0 0 var(--blue); }
+  .truth .k { color: var(--blue); }
+  .model .mark { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 24px; font-weight: 700; }
+  .ok .mark { background: var(--green); }
+  .bad { background: var(--orange-bg); box-shadow: inset 5px 0 0 var(--orange); }
+  .bad .mark { background: var(--red); }
+  .note { font-size: 22px; color: var(--orange); font-weight: 600; }
+  .arrow { position: absolute; left: 50%; top: 544px; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 34px; z-index: 2; box-shadow: 0 0 0 8px var(--bg); }
+  footer { position: absolute; left: 80px; right: 80px; bottom: 30px; font-size: 19px; color: var(--muted); display: flex; justify-content: space-between; }
+  footer code { font-family: "SF Mono", Menlo, monospace; font-size: 17px; }
+  [data-in] { opacity: 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">Counterfactual twin · gate G6 · frozen dataset v1</div>
+  <h1>Move one object and re-render: the true answer flips. Opus 5.5 keeps the old one.</h1>
+  <div class="q">Question (front camera): <b>“Would the tape fit on the table in the gap between the basket and the lemon?”</b></div>
+</header>
+
+<div class="pair">
+  <div class="card" data-in="before">
+    <div class="img"><img src="media/twin_before.jpg" alt="Before: the lemon is inside the basket"><span class="tag">Before · lemon in the basket</span></div>
+    <div class="rows">
+      <div class="row truth" data-in="truth1"><span class="k">True answer</span><span class="v">no</span></div>
+      <div class="row model ok" data-in="opus1"><span class="k">Opus 5.5 · high</span><span class="v">no</span><span class="mark">✓</span></div>
+    </div>
+  </div>
+  <div class="card" data-in="after">
+    <div class="img"><img src="media/twin_after.jpg" alt="After: the lemon moved out onto the table"><span class="tag">After · lemon moved onto the table</span></div>
+    <div class="rows">
+      <div class="row truth" data-in="truth2"><span class="k">True answer</span><span class="v">yes</span></div>
+      <div class="row model bad" data-in="opus2"><span class="k">Opus 5.5 · high</span><span class="v">no</span><span class="note">the old answer</span><span class="mark">✕</span></div>
+    </div>
+  </div>
+</div>
+<div class="arrow" data-in="arrow">→</div>
+
+<footer>
+  <span>Haiku 5.5, Sonnet 5.5 and Opus 5.5 xhigh also answered <b>no</b> both times. True answers come from programs run on the scene file.</span>
+  <code>ta2f65762a12d745d → t8148039cbc8d78da</code>
+</footer>
+
+<script>
+  // name: [fade-in start, fade-in end] in seconds
+  const TIMELINE = {
+    before: [0.0, 0.01], truth1: [0.4, 0.75], opus1: [0.9, 1.25],
+    arrow: [1.6, 1.95], after: [1.8, 2.5], truth2: [3.0, 3.35], opus2: [3.9, 4.25],
+  };
+  const ease = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+  window.setT = (t) => {
+    for (const el of document.querySelectorAll("[data-in]")) {
+      const [a, b] = TIMELINE[el.dataset.in];
+      const p = ease((t - a) / (b - a));
+      el.style.opacity = p.toFixed(4);
+      el.style.transform = el.classList.contains("arrow") ? `translate(-50%, -50%) scale(${(0.85 + 0.15 * p).toFixed(4)})` : `translateY(${((1 - p) * 14).toFixed(2)}px)`;
+    }
+  };
+  window.setT(0);
+  if (!navigator.webdriver) {
+    const t0 = performance.now();
+    const tick = (now) => { window.setT((now - t0) / 1000); if (now - t0 < 5000) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+</script>
+</body>
+</html>

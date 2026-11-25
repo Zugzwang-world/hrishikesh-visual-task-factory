@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terminal replay</title>
+<!--
+  Replays a real terminal capture (scripts/record_screens/pty_cast.py) for the demo video.
+  scripts/record_screens/record.py loads the cast with vtfTerm.init(cast, opts) and steps the
+  replay frame by frame with await vtfTerm.seek(t). The command's output is written exactly as
+  captured; only time is scaled, by the factor shown in the badge.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
+<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
+<style>
+  :root {
+    --page: #0b0e13;
+    --win: #11151c;
+    --bar: #1a1f28;
+    --line: #262c37;
+    --ink: #d7dce4;
+    --muted: #8a93a3;
+    --accent: #f0a23b;
+  }
+  html, body { margin: 0; height: 100%; background: radial-gradient(1200px 700px at 50% 35%, #161b24 0%, var(--page) 70%); }
+  body { display: flex; align-items: center; justify-content: center; font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif; }
+  .win {
+    width: 1788px; background: var(--win); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55), 0 0 0 1px var(--line);
+  }
+  .bar {
+    height: 52px; background: var(--bar); display: flex; align-items: center; padding: 0 20px;
+    border-bottom: 1px solid var(--line); position: relative;
+  }
+  .dots { display: flex; gap: 9px; }
+  .dots i { width: 14px; height: 14px; border-radius: 50%; display: block; }
+  .dots i:nth-child(1) { background: #ff5f57; } .dots i:nth-child(2) { background: #febc2e; } .dots i:nth-child(3) { background: #28c840; }
+  .title { position: absolute; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 17px; letter-spacing: .01em; pointer-events: none; }
+  .badges { margin-left: auto; display: flex; gap: 10px; align-items: center; position: relative; }
+  .badge {
+    font: 600 19px/1 "SF Mono", Menlo, monospace; padding: 9px 14px; border-radius: 8px;
+    color: #1b1204; background: var(--accent); letter-spacing: .02em;
+  }
+  .badge.clock { background: transparent; color: var(--ink); border: 1px solid #3a4252; font-weight: 500; }
+  .badge.hidden { display: none; }
+  .body { padding: 22px 26px 26px; }
+  #term .xterm-viewport { overflow-y: hidden !important; }
+</style>
+</head>
+<body>
+<div class="win">
+  <div class="bar">
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="title" id="title">visual-task-factory</div>
+    <div class="badges">
+      <span class="badge clock" id="clock">real time 0:00</span>
+      <span class="badge" id="speed">sped up ×1</span>
+    </div>
+  </div>
+  <div class="body"><div id="term"></div></div>
+</div>
+<script>
+(function () {
+  const PROMPT = "\x1b[38;5;114m$\x1b[0m ";
+  let term, cast, opts, written = 0, typed = 0, promptShown = false, endShown = false;
+
+  function fmt(s) {
+    s = Math.max(0, Math.floor(s));
+    return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  }
+  function write(data) { return new Promise((res) => term.write(data, res)); }
+  function frames(n) {
+    return new Promise((res) => {
+      const step = () => (n-- <= 0 ? res() : requestAnimationFrame(step));
+      requestAnimationFrame(step);
+    });
+  }
+
+  window.vtfTerm = {
+    // cast: {cols, rows, command, duration, events: [[t, text]]}
+    // opts: {speed, typeStart, typeEnd, title, rows (fewer rows than captured, for short output)}; video time t maps to cast time (t - typeEnd) * speed
+    async init(c, o) {
+      cast = c; opts = Object.assign({ speed: 1, typeStart: 0.3, typeEnd: 1.6, title: "", rows: null }, o || {});
+      await document.fonts.ready;
+      term = new Terminal({
+        cols: cast.cols, rows: opts.rows || cast.rows, fontFamily: '"SF Mono", Menlo, monospace', fontSize: 24,
+        lineHeight: 1.12, cursorBlink: false, cursorStyle: "block", allowTransparency: false,
+        scrollback: 0, convertEol: false, disableStdin: true,
+        theme: { background: "#11151c", foreground: "#d7dce4", cursor: "#d7dce4", cursorAccent: "#11151c",
+                 black: "#1d2330", brightBlack: "#5c6577", red: "#ff6b6b", green: "#7bd88f", yellow: "#f0c674",
+                 blue: "#6cb6ff", magenta: "#d2a8ff", cyan: "#76e3ea", white: "#d7dce4", brightWhite: "#ffffff" },
+      });
+      term.open(document.getElementById("term"));
+      document.getElementById("speed").textContent = "sped up ×" + opts.speed;
+      if (opts.speed === 1) document.getElementById("speed").textContent = "real time";
+      if (opts.title) document.getElementById("title").textContent = opts.title;
+      await write(PROMPT);
+      promptShown = true;
+      await frames(2);
+    },
+    async seek(t) {
+      const cmd = cast.command;
+      const ty = Math.min(1, Math.max(0, (t - opts.typeStart) / (opts.typeEnd - opts.typeStart)));
+      const want = Math.floor(ty * cmd.length);
+      let buf = "";
+      if (want > typed) { buf += cmd.slice(typed, want); typed = want; }
+      const ct = (t - opts.typeEnd) * opts.speed;
+      if (ct >= 0 && typed === cmd.length && written === 0 && !this._entered) { buf += "\r\n"; this._entered = true; }
+      while (this._entered && written < cast.events.length && cast.events[written][0] <= ct) {
+        buf += cast.events[written][1]; written++;
+      }
+      if (written === cast.events.length && !endShown && ct >= cast.duration) {
+        buf += (buf.endsWith("\n") ? "" : "") + PROMPT; endShown = true;
+      }
+      const shown = Math.min(Math.max(ct, 0), cast.duration);
+      document.getElementById("clock").textContent = "real time " + fmt(shown);
+      if (buf) await write(buf);
+      await frames(2);
+      return { written, typed, ct };
+    },
+  };
+})();
+</script>
+</body>
+</html>

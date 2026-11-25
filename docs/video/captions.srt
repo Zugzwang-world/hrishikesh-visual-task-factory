@@ -96,11 +96,11 @@ One command gives a judge the same tasks.
 
 25
 00:02:12,250 --> 00:02:18,750
-A person gets them right. In my blind audit, {{AUDIT_SHORT}}.
+}
 
 26
 00:02:19,250 --> 00:02:31,750
-{{SIM2REAL_ENDING}}
+}
 
 27
 00:02:32,250 --> 00:02:34,507
