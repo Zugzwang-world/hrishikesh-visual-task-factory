@@ -46,3 +46,6 @@ assets/cache
 
 # Physical-twin photos (vtf twin register reads them; never committed)
 twins/inbox/
+
+# Founder video clips for scripts/make_video.sh (never committed)
+video/inbox/
