@@ -378,20 +378,44 @@ def quickstart(
 
 @app.command()
 def twin(
-    action: str = typer.Argument(..., help="mat, shopping or layouts."),
-    path: Path = typer.Argument(None, help="Run folder (layouts only), e.g. out/twins."),
+    action: str = typer.Argument(
+        ...,
+        help="mat, shopping, layouts, texture, guide, digital, check, register or sim-to-real.",
+    ),
+    path: Path = typer.Argument(
+        None,
+        help="layouts/guide/digital: the layout run (out/twins); check: the digital-twin run; "
+        "register: the photo inbox (twins/inbox); sim-to-real: the register output.",
+    ),
     out: Path = typer.Option(
-        Path("docs/twins"), help="Output folder, or the PDF path for layouts."
+        None,
+        help="Output (default docs/twins; layouts docs/twins/layouts.pdf; digital "
+        "out/twins_digital; register out/twins_real).",
     ),
     limit: int = typer.Option(None, help="Layouts: at most this many scenes."),
     selection: Path = typer.Option(
         None, help="Layout pick (docs/twins/selection.json): only those sheets and items."
     ),
+    twins: Path = typer.Option(
+        None, help="register: the rendered digital twins (default out/twins_digital)."
+    ),
+    render: bool = typer.Option(
+        True, help="register: render and validate the photos' synthetic siblings."
+    ),
+    device: str = typer.Option("gpu", help=DEVICE_HELP),
+    model: list[str] = typer.Option(
+        None, help="sim-to-real: model(s) to compare (default fake-oracle). Repeat the option."
+    ),
+    focal_35mm: float = typer.Option(
+        None, help="register: the phone's 35 mm-equivalent focal length if its photos lack EXIF."
+    ),
 ) -> None:
-    """Physical twins: placement mat PDFs, shopping list, printable layout sheets."""
+    """Physical twins: mat, shopping list, layout sheets, photo guide, digital twins, gate G8 on
+    photos, and the sim-to-real comparison."""
     _lane("twin", "vtf.twin.commands", "run_twin")(
-        action=action, path=path, out=out, limit=limit, selection=selection
-    )
+        action=action, path=path, out=out, limit=limit, selection=selection, twins=twins,
+        render=render, device=device, models=model or None, focal_35mm=focal_35mm,
+    )  # fmt: skip
 
 
 if __name__ == "__main__":
