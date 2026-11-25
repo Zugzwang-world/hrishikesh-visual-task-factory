@@ -32,35 +32,35 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 | P13 | Cameras: overhead, front and gripper rigs with jitter; post-render camera-quality dial (noise, blur, distortion, CCTV look) | M | Same scene renders from all three cameras at three quality levels | done |
 | P14 | All 12 question families from BRIEF.md, each with a twin rule | L | Every family produces valid tasks and twins | done |
 | P15 | Gates G2 (answer recomputed from mask and depth pixels), G4 (no near-ties), G5 (prior-only and question-only baselines), G6 (twins) | L | Gate report shows pass rates and rejection reasons | done |
-| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | done (v1 set ready: 150 tasks, 46 shortcut-conflict; waiting on the founder) |
+| P16 | Audit page: a small local page that shows sampled tasks without answers and records the founder's answers | S | Founder can audit 150 tasks; accuracy computed | done (25 Nov: refreshed without the 18 Explorer scenes, 22 tasks swapped within their strata; 150 tasks, 46 shortcut-conflict; waiting on the founder) |
 | P17 | Dataset report: gate pass rates, rejection reasons, coverage matrix, answer distributions | M | Static HTML report | done |
-| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | done: v1 frozen at 300 of 500 scenes (20 GB disk floor), 3,181 tasks, report and freeze record in docs/reports/v1; the last 200 scenes resume with one command |
+| P18 | Scale run: 500 scenes x 3 cameras, about 3,000 tasks (Mac overnight, batches of 25, resumable) | M | Dataset v1 candidate on disk with its report | done: v1 frozen at 300 of 500 scenes (20 GB disk floor), 3,181 tasks, report and freeze record in docs/reports/v1; v1 is canonical and the last 200 scenes are not rendered (decided 25 Nov) |
 
 ## Physical twins (alongside stages 3 and 4)
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
 | P19 | Placement mat PDF (cm grid, ArUco corner markers) and printable layout sheets for about 30 twin scenes built from real-object stand-ins | S | PDFs ready to print | done |
-| P20 | Founder photo session: about 150 photos from marked spots | Founder | Photos in the repo's twin folder | todo |
-| P21 | G8: register each photo to its layout; package twin tasks | M | Twin tasks pass G8 and join the dataset | todo |
+| P20 | Founder photo session: 12 layouts, about 3 photos each (trimmed 25 Nov, VTF-07), following docs/twins/photo_session.md | Founder | Photos in twins/inbox/ | todo (kit trimmed: 12 layouts, 6 kinds / 8 pieces) |
+| P21 | G8: register each photo to its layout; package twin tasks; digital twins at the photo poses; sim-to-real script | M | Twin tasks pass G8; G8 proven on digital twins (one misplaced object rejected) | doing (VTF-07 lane C: prep before the photos) |
 
 ## Stage 4: Evaluate
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
-| P22 | Eval harness v1: adapters for 3 closed and 2 open models (IDs verified on the web), async, rate limits, cost pilot | M | Pilot cost per task known | doing: Anthropic side done (Message Batches at half price, thinking tokens and call details per result, cost per model after its first 100); Google, OpenAI and open models wait for their keys |
+| P22 | Eval harness v1: Claude models only (decided 25 Nov, VTF-07): Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh; never Fable or Mythos; other providers only if judges ask | M | Pilot cost per task known | done: Message Batches at half price, thinking tokens and call details per result, cost per model after its first 100; provider interface kept for later |
 | P22a | Claude sweep on frozen v1 (brief 06): Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh on the same 1,567 tasks | M | Every model's results.jsonl in out/v1/sweep/ | done: 4 x 1,567 answers, 0 errors, $19.10 tonight (batched at half price) |
 | P22b | Shortcut analysis (brief 06): accuracy with scene intervals, shortcut capture vs chance, confound check, thinking effect, headline chart, findings section in the dataset report | M | docs/reports/v1/findings.md and the chart in docs/media/ | done; scripts/audit_vs_models.py waits for the founder's audit |
-| P23 | Full evaluation and analyses: skill by model with intervals, breaking-point curves, real-photo gap, multi-view consistency, twins, vision gain, error attribution, paired tests, cost | L | Analysis tables and charts generated | doing: the Claude shortcut analysis is done (P22b) |
-| P23a | v1.1: fold in the 36 tasks of scenes 0130, 0174 and 0229 (crash fixed 24 Nov; diff in docs/reports/v1/v1_1_check_diff.json) | S | Balance, twins for the three scenes and eval of the new tasks only | todo |
-| P24 | Findings report and one risk card per model (static HTML) | M | Report reads well on its own | todo |
+| P23 | Analyses on the Claude settings: skill by model with intervals, breaking-point curves, counterfactual-twin flips, error attribution, real-photo gap, cost. Cut 25 Nov: multi-view consistency, vision gain per model, paired tests | L | Analysis tables and charts generated | doing (VTF-07 lane B: breaking points and twin flips; shortcut analysis done in P22b) |
+| P23a | v1.1: fold in the 36 tasks of scenes 0130, 0174 and 0229 | S | — | dropped 25 Nov (VTF-07): v1 stays canonical; the diff (docs/reports/v1/v1_1_check_diff.json) is shown as repeatability evidence |
+| P24 | Findings (findings.md and the dataset report) and one risk-card page with a column per model setting (docs/reports/v1/risk_cards.md); no separate findings HTML (cut 25 Nov) | M | Report reads well on its own | doing (VTF-07 lane B) |
 
 ## Stage 5: Demo pack
 
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
 | P25 | Task Explorer on Vercel: glTF scene viewer, camera views, question, truth, every model's answer, gate evidence | L | Public URL works on a laptop and a phone | done: v1 with every Claude model and a conflict gallery, https://vtf-task-explorer.vercel.app (re-export when other providers land) |
-| P26 | Hugging Face dataset release and data card | S | Public dataset page | todo |
-| P27 | README quickstart, Dockerfile, quick 20-image recipe, `vtf verify` showcase | M | A fresh clone runs the quickstart | todo |
-| P28 | Technical slides on the organizers' template, and a demo video script; then record the video | M | Slides and video ready | todo |
+| P26 | Hugging Face dataset release and data card | S | Public dataset page | doing (VTF-07 lane A; token rotated, upload allowed) |
+| P27 | README for judges, quick 20-image recipe (one command), `vtf verify` showcase, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE docs; Dockerfile cut 25 Nov | M | A fresh clone runs the quickstart (docs/reports/quickstart_check.md) | doing (VTF-07 lane A) |
+| P28 | Technical slides on the organizers' template, and a demo video script; then record the video; the slide media pack moves to this demo run (25 Nov) | M | Slides and video ready | todo |
 | P29 | Submission: every CHECKLIST.md row green, form fields drafted for the founder | S | Founder submits | todo |

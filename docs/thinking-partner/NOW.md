@@ -1,8 +1,13 @@
 # NOW
 
-**Updated:** 24 Nov 2026, 01:50 IST (end of the unattended overnight run, brief 06)
-**Stage:** **Stage 4 started on frozen v1: the Claude model sweep, the shortcut analysis and Task Explorer v1 are done (brief 06, phases A to E).** Dataset v1 stays frozen at 300 scenes and 3,181 tasks; FROZEN.json and the four frozen file hashes were checked unchanged at the end of the night.
+**Updated:** 25 Nov 2026, 17:45 IST (brief VTF-07 running, unattended)
+**Stage:** **Stage 5 prep on frozen v1 (brief VTF-07).** Step 0 is done and pushed; three lanes run in parallel: A (README, quick recipe, `vtf verify` showcase, fresh-clone check, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE, Hugging Face release), B (breaking-point curves, counterfactual-twin flips, risk cards), C (photo-session guide, G8 registration, digital twins, sim-to-real script). Founder decisions recorded: Claude models only; v1 canonical at 300 scenes and 3,181 tasks (no v1.1, the last 200 scenes not rendered); cuts in BRIEF.md; 12 twin layouts.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
+
+## Step 0 (done)
+
+- **Blind audit, now spoiler-free:** out/v1/audit/index.html (same link) holds 150 tasks, none from the 18 scenes you saw in the Explorer (twins counted with their source scene, so 22 tasks were swapped, each for a fresh task of the same family, camera and conflict stratum). 46 conflict tasks. The browser starts a fresh answer sheet.
+- **Twin kit trimmed:** 12 layouts (docs/twins/layouts.pdf), 6 kinds of item, 8 pieces (docs/twins/shopping_list.md and DEMO.md). The can and the spray bottle colours now match what the questions say (blue can, white spray bottle).
 
 ## Headline (docs/reports/v1/findings.md, chart in docs/media/shortcut_conflict_accuracy.png)
 

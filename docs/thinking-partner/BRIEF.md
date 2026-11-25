@@ -1,6 +1,6 @@
 # BRIEF: Visual Task Factory (3D robot workcell)
 
-Agreed 23 Nov 2026. Canonical copy: docs/thinking-partner/BRIEF.md in the public repo hrishikesh-visual-task-factory.
+Agreed 23 Nov 2026; scope trimmed 25 Nov (brief VTF-07: Claude models only, v1 canonical, 12 twin layouts, cuts listed under the evaluation harness). Canonical copy: docs/thinking-partner/BRIEF.md in the public repo hrishikesh-visual-task-factory.
 
 ## The bet in brief
 
@@ -10,7 +10,7 @@ We build a 3D visual task factory for robot perception. It generates photoreal t
 - **Why 3D:** robots now rely on vision-language models to see, so a spatial mistake becomes a wrong grasp or a collision. A 3D scene gives exact truth for depth, distance, occlusion and counts. No 2D generator or AI image model can.
 - **The niche:** 3D alone isn't new (CLEVR did it in 2017). Our niche is a factory for the questions a robot needs answered exactly: what's nearest the gripper, what's reachable, how hidden something is, what's stacked on what, how many in clutter.
 - **Not a simulation:** a physical-twin set. We arrange real objects exactly as generated scenes say and photograph them, so real photos carry exact answers.
-- **Ready to adopt:** a renderer-independent scene spec, YAML recipes, bring-your-own objects and models, Docker, offline generation, and exports for robot learning (training data and verifiable rewards).
+- **Ready to adopt:** a renderer-independent scene spec, YAML recipes, bring-your-own objects and models, offline generation, and exports for robot learning (training data and verifiable rewards).
 - **Demo:** a Task Explorer web viewer. Rotate the 3D scene, switch robot cameras, and see each question, its true answer and every model's answer.
 - **Why it wins:** it meets every stated requirement (Part 4) and puts most effort where half the score sits: repeatability and validation evidence.
 - **How we work:** prototype quality, built directly, with no licence, compliance or production work and no formal test gates beyond the checks the judges score. If 3D genuinely blocks us, the same engine can switch to financial price charts.
@@ -94,7 +94,7 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 1. **Answers computed from the 3D scene** by typed programs, the method CLEVR used.
 2. **Two independent computations.** One from the scene file, one from the rendered mask and depth passes. They must agree.
 3. **Counterfactual twins.** Move one object and re-render: the answer must change. This builds on [VQA v2's complementary pairs](https://arxiv.org/abs/1612.00837).
-4. **Multi-view consistency.** The same scene from three cameras: does the model agree with itself?
+4. **Multi-view consistency.** The same scene from three cameras: does the model agree with itself? *(Cut 25 Nov, VTF-07: no separate analysis; the three cameras stay in the dataset.)*
 5. **Physical twins.** Real objects arranged exactly as generated layouts say, then photographed, giving exact answers on real photos.
 6. **Breaking-point curves and automatic error attribution:** wrong depth, wrong object, miscount, invented object.
 7. **Dual use.** Training data and verifiable rewards for robot learning, both of which Innodata sells.
@@ -132,11 +132,11 @@ No email for now. We finalise the build first and raise any questions later thro
 | A reusable factory, no hard-coding | Clint | Recipes, seeds, plugin structure |
 | Repeatable | Clint; 25% | Rule C: scene files and answers byte-identical everywhere; masks and depth exact on re-render; images SSIM 0.999 or above on the GPU, byte-identical with the CPU device option |
 | Public GitHub, docs, prototype, demo video, slides on their template | Submission form | Code and a sample on GitHub; the full image set on Hugging Face |
-| Judges can rerun it | Clint | Docker, a quick 20-image CPU recipe, and the pre-rendered release |
+| Judges can rerun it | Clint | A quick 20-image recipe with one command, `vtf verify`, and the pre-rendered release (Docker cut 25 Nov) |
 
 Working assumptions where the organizers haven't said anything:
 
-- **Dataset size:** about 800 scenes with 3–5 questions each, roughly 3,000 tasks, plus the generator.
+- **Dataset size:** about 800 scenes with 3–5 questions each, roughly 3,000 tasks, plus the generator. *(Outcome: v1 is canonical at 300 scenes and 3,181 tasks; the last 200 generated scenes are not rendered; the three-scene crash fix is shown as repeatability evidence, with no v1.1 release.)*
 - **Task format:** our versioned spec plus a converter to whatever they publish.
 - **Computed answers:** allowed when the evidence is visible; their own card answers "B, by 28".
 
@@ -184,7 +184,7 @@ One image family: a table of everyday objects seen through a robot's cameras. Ev
 3. Photograph from marked camera spots with several phones.
 4. Answers come from the layout we placed: exact for counts, relations, containment and occlusion; distances within a tolerance.
 
-About 150 photos is enough to measure how much each model's accuracy drops from rendered to real images. After submission, if a college robotics lab lets us, we repeat it from a real robot arm's camera.
+Trimmed 25 Nov (VTF-07): 12 layouts with about 3 photos each, chosen to cover the most question families with the fewest objects (docs/twins/selection.json). Each photo has a rendered sibling at the same camera pose, so the rendered-to-real gap is measured on identical questions. After submission, if a college robotics lab lets us, we repeat it from a real robot arm's camera.
 
 ## Factory architecture
 
@@ -244,9 +244,9 @@ For the live demo, run `vtf verify` on stage: rebuild 20 random tasks from their
 
 ## Evaluation harness
 
-We run three closed frontier models and two open models on the same frozen task set, and report where each one breaks, with confidence intervals.
+We run four Claude settings on the same frozen task set, and report where each one breaks, with confidence intervals.
 
-**Models.** Pick the current flagship vision models from Anthropic, Google and OpenAI, plus two strong open models (for example a Qwen VL model). Pin the exact model IDs on the day you run. The [Vision Arena leaderboard](https://arena.ai/leaderboard/vision) is a quick reference for what's current.
+**Models (decided 25 Nov, VTF-07).** Claude models only: Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and Opus 5.5 xhigh (`claude-haiku-5-5`, `claude-sonnet-5-5`, `claude-opus-5-5`). Never a Fable or Mythos model. Other providers run only if the judges ask for them later; the harness keeps a provider interface for that. Findings speak about "the Claude models we tested" and never claim other vendors behave the same.
 
 **Protocol.**
 
@@ -263,13 +263,12 @@ We run three closed frontier models and two open models on the same frozen task 
 | Breakdown by camera and scene condition | Overhead vs gripper camera; clean vs CCTV-quality images |
 | Breaking-point curves per difficulty control | At what clutter, occlusion or camera quality does each model fall apart? |
 | Rendered-to-real gap | How much does accuracy drop on physical-twin photos of the same layouts? |
-| Multi-view consistency | Same scene from three cameras: does the model give consistent answers? |
 | Action-risk weighted error | Errors weighted by what they would cost a robot; wrong "nearest" or "reachable" answers weigh most |
 | Twin consistency | Does the model get both twins right, or does it miss the change? |
-| Vision gain (with image minus blind) | How much does the image actually help each model? |
 | Error attribution: wrong depth, wrong object, miscount, invented object, format | Why did it fail? Automatic, because the scene file knows every object |
-| Paired comparisons (McNemar test) | Is "A beats B" statistically real? |
 | Cost and latency per correct answer | Which model is worth putting on a robot for this job? |
+
+Cut 25 Nov (VTF-07): multi-view consistency, vision gain for every model (G5's blind baseline stays), paired model tests, a separate findings HTML (findings live in findings.md and the dataset report), the Dockerfile and the slide media pack (moves to the demo run).
 
 **Engineering.** Async runner with per-provider rate limits and retries. A SQLite cache keyed by task hash, model and prompt version makes reruns free and reproducible. Store raw responses. Use thin SDK adapters, or one gateway (LiteLLM or OpenRouter) to cover many models with one interface.
 
@@ -286,7 +285,7 @@ One Python package (`vtf`) with a CLI and a Python API, plus a separate Blender 
 | Need | What the repo gives |
 | --- | --- |
 | Understand it fast | README quickstart, ARCHITECTURE.md, a five-minute demo recipe |
-| Reproduce | Pinned Blender and Python versions, Docker, `vtf verify` |
+| Reproduce | Pinned Blender and Python versions (uv.lock), `vtf verify` |
 | Customise without code | YAML recipes: objects, clutter, cameras, lighting, question mix, size, seed |
 | Use their own objects and scenes | Bring-your-own asset manifest (with real sizes) and scene templates |
 | Test their own models | Any OpenAI-compatible endpoint, or a Python callable |
@@ -300,7 +299,6 @@ hrishikesh-visual-task-factory/
   CLAUDE.md                      Claude Code operating rules
   docs/thinking-partner/         NOW, OPEN, DECISIONS, DEMO, RESEARCH, BRIEF (synced to the Claude Project)
   pyproject.toml                 uv workspace: vtf core + vtf-blender renderer
-  Dockerfile                     Blender, Python and fonts, pinned
   spec/scene.schema.json         renderer-independent scene spec
   spec/task_package.schema.json
   recipes/                       first_scene.yaml, demo.yaml, v1_release.yaml, physical_twin.yaml
@@ -356,8 +354,8 @@ Five stages built in order, with physical twins running alongside. Each stage st
 1. Setup          done when the Coordinator is ready: brief in repo, repo + Claude Code, Blender on the Mac, API keys
 2. First scene    done when 1 task runs end to end: headless render, masks + depth, 3 question types, checks + 1 model
 3. Core factory   done when ~3,000 tasks pass: 40 objects + settle, 3 cameras, 12 families, all gates, founder audit
-4. Evaluate       done when the findings report exists: freeze v1, 5 models, real-photo gap, risk cards
-5. Demo pack      done when submitted: Task Explorer web, README + Docker, HF dataset release, slides + video
+4. Evaluate       done when the findings report exists: freeze v1, 4 Claude settings, real-photo gap, risk cards
+5. Demo pack      done when submitted: Task Explorer web, README + quick recipe, HF dataset release, slides + video
 Alongside 3-4:    physical twins: print mat, gather objects, photo sessions, G8 checks
 ```
 
@@ -397,19 +395,19 @@ The founder is the only human on the project. Claude Code builds everything; the
 ### Physical twins (alongside stages 3 and 4)
 
 - [ ] Printable placement mat with a cm grid and corner markers
-- [ ] Real objects matching about 15 assets
-- [ ] Photo sessions from marked camera spots, about 150 photos, G8 on each
+- [ ] Real objects: 6 kinds, 8 pieces for the 12 layouts (docs/twins/shopping_list.md)
+- [ ] Photo sessions from marked camera spots: 12 layouts, about 3 photos each (trimmed 25 Nov from about 150 photos), G8 on each
 
 ### 4. Evaluate. Done when the findings report exists
 
-- [ ] Freeze dataset v1.0, including physical twins
-- [ ] Small cost pilot, then the full run on five models
+- [x] Freeze dataset v1 (300 scenes, 3,181 tasks; canonical, no v1.1); physical twins join as their own set
+- [ ] Small cost pilot, then the full run on the four Claude settings (other providers only if judges ask)
 - [ ] Analyses and a risk card per model
 
 ### 5. Demo pack. Done when submitted
 
 - [ ] Task Explorer: rotate the 3D scene, switch cameras, see questions, true answers and model answers
-- [ ] A README a stranger can run, Docker, and a quick recipe
+- [ ] A README a stranger can run and a quick recipe (Docker cut 25 Nov)
 - [ ] Dataset on Hugging Face, code on GitHub
 - [ ] Slides on the mandatory template; demo video
 
