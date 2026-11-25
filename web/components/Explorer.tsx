@@ -152,6 +152,47 @@ function Header({ index, view, setView }: { index: ExplorerIndex; view: View; se
   );
 }
 
+// ---------------------------------------------------------------- how it's verified
+
+const REPO = "https://github.com/Zugzwang-world/hrishikesh-visual-task-factory/blob/main";
+
+// Numbers from the frozen v1 run (docs/reports/v1/FROZEN.json and the dataset report).
+const CHECKS: { gate: string; title: string; body: string }[] = [
+  { gate: "G1", title: "Truth from the scene file", body: "Every answer is computed by a program on the 3D scene file. 3,653 of 3,653 candidates." },
+  { gate: "G2", title: "A second, independent answer", body: "Recomputed from the rendered mask and depth pixels; tasks where the two disagree are thrown out. 95.4% agree." },
+  { gate: "G3–G4", title: "Enough evidence, no near-ties", body: "Everything the answer needs is visible (99.5%), and no answer hangs on a near-tie (99.9%)." },
+  { gate: "G5", title: "The image is needed", body: "Answers rebalanced so guessing fails: with no image, Claude Sonnet scores 15%, below a prior-only guess (25%)." },
+  { gate: "G6", title: "Counterfactual twins", body: "Move one object and re-render: 484 of 484 twins changed their answer as the program said." },
+  { gate: "G7", title: "Rebuild byte for byte", body: "Scene files and answers rebuild identically from the seed; masks and depth exactly; vtf verify re-renders and compares." },
+];
+
+function VerifyPanel() {
+  return (
+    <details className="verify" open>
+      <summary>
+        <span className="verify-title">How it&apos;s verified</span>
+        <span className="verify-sub">No model and no human writes an answer. Seven gates check every task; it ships only if they all pass.</span>
+      </summary>
+      <ul className="verify-grid">
+        {CHECKS.map((c) => (
+          <li key={c.gate}>
+            <span className="verify-gate">{c.gate}</span>
+            <b>{c.title}</b>
+            <span>{c.body}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="verify-links">
+        <a href={`${REPO}/docs/VALIDATION.md`} target="_blank" rel="noreferrer">VALIDATION.md</a>
+        <a href={`${REPO}/docs/reports/v1/findings.md`} target="_blank" rel="noreferrer">Findings</a>
+        <a href={`${REPO}/docs/reports/v1/risk_cards.md`} target="_blank" rel="noreferrer">Risk cards</a>
+        <a href={`${REPO}/docs/reports/v1/verify_showcase.md`} target="_blank" rel="noreferrer">vtf verify showcase</a>
+        <span className="muted">Still to come: the founder&apos;s 150-task blind audit and the physical-twin photos (G8).</span>
+      </p>
+    </details>
+  );
+}
+
 function SceneStrip({ scenes, active, onPick }: { scenes: SceneSummary[]; active: string; onPick: (id: string) => void }) {
   const navRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -653,6 +694,7 @@ export default function Explorer() {
   return (
     <main className="app">
       <Header index={index} view={view} setView={setView} />
+      <VerifyPanel />
 
       {view === "gallery" ? (
         <Gallery index={index} onOpen={openGallery} />
