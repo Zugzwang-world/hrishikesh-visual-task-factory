@@ -40,7 +40,7 @@ Read the VOICE-OVER lines of script.md in order into a voice memo, with a pause 
 | S2 | 0:45 | 12 s | docs/video/segments/seg09_h1_twin.mp4 | Phase 2 (needs the photos); until then H1_hero_0297_front.jpg | Layout H1 as a 3D digital twin in the Task Explorer, rotating, with the 2D photo beside it. Until Phase 2 adds H1 to the Explorer, the H1 render with a slow zoom. |
 | S3 | 1:01 | 12 s | docs/video/segments/seg05_quickstart_terminal.mp4 | recorded | The real `uv run vtf quickstart` (sped up, labelled), 7 scenes to 112 tasks. |
 | S4 | 1:13 | 9 s | docs/video/segments/seg02_verified_panel.mp4 | to record | The Explorer's "How it's verified" panel, gates G1 to G7 with the v1 numbers. |
-| S5 | 1:22 | 12 s | docs/video/segments/seg01_trap_rotate.mp4 | to record | The conflict gallery, then scene_0103 with the jug (blue, true answer) and the box (orange, 2D shortcut), the 3D view orbiting. |
+| S5 | 1:22 | 12 s | docs/video/segments/seg01_trap_rotate.mp4 | recorded | The conflict gallery, then scene_0103 with the jug (blue, true answer) and the box (orange, 2D shortcut), the 3D view orbiting. |
 | S6 | 1:34 | 11 s | docs/video/segments/seg03_headline_chart.mp4 | recorded | The headline chart with a slow zoom. |
 | S7 | 1:45 | 10 s | docs/video/segments/seg04_twin_before_after.mp4 | recorded | A counterfactual twin, before and after one object moves. |
 | S8 | 1:55 | 8 s | docs/media/pack/camera_dial_strip.png | recorded | One scene through the four camera-quality presets. |

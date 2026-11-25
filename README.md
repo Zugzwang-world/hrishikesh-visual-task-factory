@@ -21,7 +21,7 @@ On frozen dataset v1, every Claude model we tested loses about 25 points when th
 
 Why it matters: a robot that trusts the 2D impression grasps the wrong object or reaches into the wrong place. Full analysis: [docs/reports/v1/findings.md](docs/reports/v1/findings.md).
 
-Supporting findings: breaking-point curves and counterfactual twins (see [findings.md](docs/reports/v1/findings.md)).
+Supporting findings: breaking-point curves and counterfactual twins (see [findings.md](docs/reports/v1/findings.md)).<!--ph:README_HUMAN--><!--/ph--><!--ph:README_REAL--><!--/ph-->
 
 ## See it
 

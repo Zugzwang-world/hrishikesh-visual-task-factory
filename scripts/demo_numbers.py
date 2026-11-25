@@ -13,9 +13,9 @@ their Phase 2 outputs exist:
   {{REAL_TRAP}} the hero photo (H1) result               <twins>/pairs.jsonl and the eval results
                                                          of <twins>/real and <twins>/sim
 
-A missing output leaves its keys as None; callers show the {{KEY}} placeholder. docs/slides/
-team.json ({"team_name": ..., "team_leader": ...}) fills the title slide when the founder gives
-the names. No model is called here; this only reads files.
+A missing output leaves its keys as None; callers show the {{KEY}} placeholder. docs/
+submission_inputs.json ({"team_name", "team_leader", "video_url", "slides_url"}) holds what only
+the founder can give: the registered team details and the two upload links. No model is called here; this only reads files.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 FINDINGS = ROOT / "docs/reports/v1/findings.json"
 HUMAN = ROOT / "docs/reports/v1/human_vs_models.json"
-TEAM = ROOT / "docs/slides/team.json"
+INPUTS = ROOT / "docs/submission_inputs.json"
 SELECTION = ROOT / "docs/twins/selection.json"
 
 MODELS = [  # sweep key, short label (the Claude settings we tested)
@@ -37,7 +37,8 @@ MODELS = [  # sweep key, short label (the Claude settings we tested)
     ("claude-opus-5-5-xhigh", "Opus xhigh"),
 ]
 PHASE2 = ["AUDIT", "AUDIT_SHORT", "SIM2REAL", "SIM2REAL_SHORT", "SIM2REAL_ENDING", "REAL_TRAP",
-          "REAL_TRAP_SHORT", "REAL_TRAP_ANSWER", "H1_PHOTO", "TEAM_NAME", "TEAM_LEADER"]  # fmt: skip
+          "REAL_TRAP_SHORT", "REAL_TRAP_ANSWER", "H1_PHOTO", "TEAM_NAME", "TEAM_LEADER", "VIDEO_URL",
+          "SLIDES_URL"]  # fmt: skip
 ENDING_REAL = "The failure is real."
 ENDING_GAP = "The factory measures the sim-to-real gap."
 
@@ -257,9 +258,10 @@ def numbers(twins: Path | None = None) -> dict[str, str | None]:
     n.update(audit_numbers())
     n.update(sim2real_numbers(twins))
     n.update(real_trap_numbers(twins))
-    if TEAM.is_file():
-        t = json.loads(TEAM.read_text())
-        n["TEAM_NAME"], n["TEAM_LEADER"] = t.get("team_name"), t.get("team_leader")
+    if INPUTS.is_file():
+        t = json.loads(INPUTS.read_text())
+        for key in ("team_name", "team_leader", "video_url", "slides_url"):
+            n[key.upper()] = t.get(key) or None
     return n
 
 
