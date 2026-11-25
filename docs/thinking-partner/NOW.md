@@ -1,47 +1,51 @@
 # NOW
 
-**Updated:** 25 Nov 2026, 17:45 IST (brief VTF-07 running, unattended)
-**Stage:** **Stage 5 prep on frozen v1 (brief VTF-07).** Step 0 is done and pushed; three lanes run in parallel: A (README, quick recipe, `vtf verify` showcase, fresh-clone check, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE, Hugging Face release), B (breaking-point curves, counterfactual-twin flips, risk cards), C (photo-session guide, G8 registration, digital twins, sim-to-real script). Founder decisions recorded: Claude models only; v1 canonical at 300 scenes and 3,181 tasks (no v1.1, the last 200 scenes not rendered); cuts in BRIEF.md; 12 twin layouts.
+**Updated:** 25 Nov 2026, 18:50 IST (end of the unattended run, brief VTF-07)
+**Stage:** **Stage 5, demo pack, on frozen v1.** Everything a judge runs and reads now exists: a README for judges, a one-command quickstart that passes from a fresh clone, the `vtf verify` showcase, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE, two new findings and the risk cards, the dataset on Hugging Face, and the Explorer with a "How it's verified" panel. The physical twins are ready for the photo session. What remains is yours (blind audit, photos), then slides and the video.
 **Deadline:** submissions close 6 Dec; our real deadline is the night of 5 Dec.
 
-## Step 0 (done)
+## Decisions in force (founder, 25 Nov)
 
-- **Blind audit, now spoiler-free:** out/v1/audit/index.html (same link) holds 150 tasks, none from the 18 scenes you saw in the Explorer (twins counted with their source scene, so 22 tasks were swapped, each for a fresh task of the same family, camera and conflict stratum). 46 conflict tasks. The browser starts a fresh answer sheet.
-- **Twin kit trimmed:** 12 layouts (docs/twins/layouts.pdf), 6 kinds of item, 8 pieces (docs/twins/shopping_list.md and DEMO.md). The can and the spray bottle colours now match what the questions say (blue can, white spray bottle).
+- Claude models only: Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh. Never Fable or Mythos. Findings speak only about the Claude models we tested.
+- v1 is canonical: 300 scenes, 3,181 tasks. No v1.1; the three-scene fix is repeatability evidence. The last 200 scenes are not rendered.
+- Cut: Dockerfile, multi-view consistency, vision gain per model, paired model tests, a separate findings HTML. The slide media pack moves to the demo run.
 
-## Headline (docs/reports/v1/findings.md, chart in docs/media/shortcut_conflict_accuracy.png)
+## What exists now (all on main)
 
-- Four Claude settings answered the same 1,567 tasks (the 1,500-task eval sample plus the 150 audit tasks) with only the image and the question, through the API: same prompts, schema and scorer; effort set on every call. Overall: Haiku 5.5 high 50.3%, Sonnet 5.5 high 61.6%, Opus 5.5 high 65.5%, Opus 5.5 xhigh 66.4%.
-- **The 2D-shortcut gap is about 25 points for every model** (95% intervals from a scene bootstrap): Haiku 55% vs 30%, Sonnet 68% vs 44%, Opus high 72% vs 46%, Opus xhigh 74% vs 48% (shortcut agrees vs conflicts; 558 and 234 tasks).
-- **Shortcut capture vs chance:** of conflict tasks a model got wrong, the share answered with exactly the 2D-shortcut answer: Sonnet 64% vs 46% chance (1.39x, 1.18 to 1.67), Opus high 1.36x, Opus xhigh 1.48x (1.21 to 1.84); Haiku is at chance (0.95x; its misses are more random). The pull is strongest on nearest to gripper: 22 of 27 Opus xhigh misses name the object nearest in the image (chance 17%).
-- **Confound check: the gap survives.** Inside the same family and camera, conflict tasks score 25 to 28 points lower for every model; a logistic regression holding visible fraction, G4 margin, object count, camera quality and family fixed gives conflict odds ratios of 0.22 to 0.29 (all intervals well below 1; stable fits).
-- **More thinking does not close it:** Opus xhigh vs high changes the gap by +0 points (-5 to +5) and conflict accuracy by +2 (-3 to +7), although xhigh thinks twice as long on conflict tasks (550 vs 251 thinking tokens). Bigger models lift conflict accuracy (Haiku to Opus +16 points) but not the gap.
-
-## What changed tonight (all on main)
-
-- **Sweep (P22a):** Message Batches path with the standard request body (byte-identical, tested), thinking tokens and call details on every result, a 100-task gate per model (error budget, cost projection), a resumable detached driver (scripts/model_sweep.py; state in out/v1/sweep/state.json). 4 x 1,567 answers (4,768 of them new tonight), 0 errors, 0 truncations; no fallback was needed. Results: out/v1/sweep/<model>/. The adapter refuses any Fable or Mythos model ID.
-- **Analysis (P22b):** scripts/shortcut_findings.py writes findings.json, findings.md and the chart; the dataset report (docs/reports/v1/index.html) has a findings section. scripts/audit_vs_models.py puts your blind audit beside every model on the same 150 tasks; it runs as soon as you export the audit.
-- **Task Explorer v1 (P25), live:** https://vtf-task-explorer.vercel.app with all four Claude settings and the blind baseline, and a conflict gallery (?view=gallery) of 12 scenes where every model took the shortcut, true answer in blue and the shortcut object in orange on the image and in 3D. 18 scenes, 10.6 MB (compressed images and glTF).
-- **Swap cause (OPEN 15, answered):** no Blender leak across scenes (resident size flat at 1.1 to 1.3 GB over a 5-scene batch). Each Cycles render takes about 6.6 GB (mostly GPU memory) on top of about 14 GB held by other apps, leaving 150 to 400 MB free on this 24 GB Mac; anything more pushes macOS into swap.
-- **Three-scene crash (OPEN 14, fixed):** the real crash was an empty point set in the lens undistort, reached from G2's support check. All 300 scenes re-validated into out/v1_1_check: the other 261 scenes give identical tasks and answers; 36 new tasks only in scenes 0130, 0174 and 0229 (diff in docs/reports/v1/v1_1_check_diff.json), kept for v1.1 in stage 4 (P23a).
-- 278 tests pass.
+- **Spoiler-free blind audit:** out/v1/audit/index.html in the main checkout, same link as before. 150 tasks, none from the 18 Explorer scenes (22 swapped within their strata), 46 conflict tasks. Every model has answered all 150, so your score sits beside theirs the moment you export.
+- **Judges' path:** [README.md](../../README.md). `uv run vtf quickstart`: 7 scenes, 21 images, 112 tasks in all 12 families, gates and a report; fake-oracle without a key, Sonnet with one. A fresh clone runs to a verified result in 4 min 15 s ([quickstart_check.md](../reports/quickstart_check.md)).
+- **Repeatability:** [verify_showcase.md](../reports/v1/verify_showcase.md). Three frozen scenes re-rendered on GPU and CPU: scene files, settled poses, masks, depth, all 39 answers and the G7 hashes are exact. Images are near-exact (GPU SSIM 0.998 to 0.9999; CPU renders mostly byte-identical). It also caught a renderer material bug in batch renders that never touches answers (OPEN 16; disclosed, v1 kept as frozen).
+- **Docs:** [VALIDATION.md](../VALIDATION.md), [EVAL_PROTOCOL.md](../EVAL_PROTOCOL.md), [ARCHITECTURE.md](../ARCHITECTURE.md).
+- **New findings** ([findings.md](../reports/v1/findings.md) sections 5 and 6; charts docs/media/breaking_point.png and twin_flip.png):
+  - Breaking points: hiding the evidence (under 60% visible) costs every Claude setting 10 to 13 points; a harsh camera costs Sonnet and Opus 12 to 16 points; every 10 more objects cuts the odds of a right answer to x0.73 to x0.83.
+  - Counterfactual twins: on all 484 pairs, both answers are right for 34% (Haiku) to 52% (Opus high). Given the original right, 9 to 15% repeat the old answer. Opus xhigh is no better than high.
+- **Risk cards:** [risk_cards.md](../reports/v1/risk_cards.md), one column per Claude setting: risk, severity, triggers, rule-based error types (shortcut answer, object not in the scene, count off by one), two example images each, and a mitigation.
+- **Hugging Face:** https://huggingface.co/datasets/Hrishi1802/hrishikesh-visual-task-factory. Public, 2.54 GB, 29,381 files, CC0 data card with the frozen hashes.
+- **Task Explorer redeployed:** https://vtf-task-explorer.vercel.app, now opening with the "How it's verified" panel.
+- **Physical twins ready:**
+  - 12 layouts, of which 11 are to shoot (L08 skipped: its bowl contents never settle in the physics simulation).
+  - 6 kinds of item, 8 pieces. Guide: docs/twins/photo_session.pdf (about 55 minutes).
+  - G8 proven on the digital twins: 36 of 36 correct views pass and 3 of 3 misplaced views are rejected, with pose error under 1 mm median ([g8_digital_check.md](../twins/g8_digital_check.md)).
+  - The sim-to-real script runs as soon as photos land.
+- 294 tests pass; four frozen v1 hashes unchanged; commit signing worked all run.
 
 ## Running cost of model calls
 
-- Tonight, all batched at half price: Haiku 5.5 $0.23 (projected $0.23 after its first 100), Sonnet 5.5 $0.15 (67 new audit tasks), Opus 5.5 high $7.20 (projected $6.98), Opus 5.5 xhigh $11.52 (projected $11.83). Tonight $19.10.
-- Before tonight about $9.65. Total so far about $28.75.
+- Today: 1,920 batched twin answers $7.02, quickstart Sonnet check $0.09. Before today about $28.75. Total about $35.86.
 
 ## Asks
 
-- **Blind audit first, then the Explorer:** the Explorer and the findings now show true answers, so please do the 150-task blind audit (out/v1/audit/index.html in the main checkout) before opening them. Export the JSON and say where it is; I score it and put you beside every model.
-- **API keys:** the Anthropic key was rotated on 24 Nov and works (checked with one tiny call); revoke the old key in the Anthropic Console. The Hugging Face token was also pasted in chat: rotate it before the dataset upload.
-- **Commit signing works again** (key loaded 25 Nov). After a restart, run `ssh-add --apple-use-keychain ~/.ssh/id_ed25519_github` once in the Terminal panel.
-- **Shopping list:** 15 items, 23 pieces, in DEMO.md; print docs/twins/mat_A3.pdf at 100%.
-- **Before the last 200 scenes:** restart, quit Docker Desktop and Chrome (memory, see OPEN 15), keep the 20 GB disk floor (39 GB free now). Resume, which re-renders nothing: `cd .claude/worktrees/run-v1 && uv run python scripts/scale_run.py --recipe recipes/v1.yaml --n 500 --seed 1 --out ../../../out/v1 --batch 25 --gltf --twin-fraction 0.2`, then balance, eval and report again.
+- **Blind audit:** open out/v1/audit/index.html in the main checkout, answer the 150, export the JSON, and say where it is.
+- **Photo session:**
+  - Print docs/twins/mat_A3.pdf at 100%.
+  - Buy the 8 pieces (DEMO.md).
+  - Follow docs/twins/photo_session.pdf.
+  - AirDrop the photos into twins/inbox/ in the main checkout and say so.
+- **Keys:** revoke the old Anthropic key in the Anthropic Console, if not done yet.
 - Turn on two-factor authentication for Vercel: https://vercel.com/account/settings/authentication?setup=authenticator
 
 ## Next
 
-1. Your blind audit; then `scripts/audit_vs_models.py`, and fix every miss at its source.
-2. Stage 4: Google, OpenAI and open models on the same 1,567 tasks once their keys are confirmed (same harness, a 100-task gate each); risk cards (P24).
-3. v1.1: fold in the 36 tasks of the three fixed scenes (P23a); decide on the last 200 scenes.
+1. Your audit: `scripts/audit_vs_models.py`, and every miss traced to its cause.
+2. Your photos: `vtf twin register`, then `vtf twin sim-to-real` for the rendered-to-real gap.
+3. Slides on the organizers' template, the media pack and the demo video (P28), then the submission form (P29).
