@@ -1,0 +1,122 @@
+# Hero layouts (brief VTF-08): physical-twin layouts built to show the 2D-shortcut trap on a real
+# photo from the front phone spot. Same mat, objects (the 15 shopping-list assets), spacing and
+# lighting as recipes/physical_twin.yaml, but 5 to 7 objects, no duplicate groups (every object
+# keeps a unique name, so more of them can be asked about), nothing in the bowl (bowl contents
+# settle badly, see L08), and only the families that carry a 2D shortcut on a twin (distance has
+# none, so it would only take one of the five question slots a photo gets).
+# scripts/hero_layouts.py screens the sampled layouts for front-spot conflict questions, renders
+# the best as digital twins and keeps those that fool the models.
+#
+#   uv run vtf generate --recipe recipes/hero_twin.yaml --n 160 --seed 808 --out out/twins_hero
+#   (scripts/hero_layouts.py sample does the same seed by seed, skipping seeds that do not fit)
+
+recipe_version: "0.2.0"
+sampler: v1
+name: hero_twin
+description: Hero layouts for the front phone spot; 5 to 7 shopping-list objects on the placement mat.
+
+table:
+  size_xy: [0.40, 0.28]
+  height: 0.75
+  thickness: 0.03
+  material_id: wood_simple
+  grid_fraction: 1.0
+  grid_material_id: cm_grid
+  grid_cell_m: 0.01
+
+objects:
+  clutter:
+    low: {count: [5, 7], weight: 1.0}
+  pool_weights: {assets: 1.0, primitives: 0.0}
+  assets:
+    categories: null
+    ids: [food_apple_01, food_pomegranate_01, lemon, food_lime_01, food_avocado_01,
+          food_kiwi_01, yellow_onion, wooden_bowl_02, cleaner_tin_01, leather_cleaner_can,
+          lubricant_spray, multi_cleaner_bottle, bleach_bottle, medical_tape, rubber_duck_toy]
+    exclude_ids: []
+    source_weights: {polyhaven: 1.0, procedural: 0.0}
+  colours: [red, green, blue, yellow, orange, white]
+  yaw_deg: [-180, 180]
+  drop_m: 0.005
+  fill_ratio: 0.6
+
+placement:
+  table_margin_m: 0.045
+  gap_m: 0.015
+  tries_per_object: 300
+
+stacks:
+  count: [0, 0]
+
+containers:
+  count: [0, 0]
+  items: [0, 0]
+  wall_margin_m: 0.005
+  max_height_ratio: 1.5
+  max_fill: 0.5
+
+lookalikes:
+  colour_pairs: [0, 2]
+  size_pairs: [0, 0]
+
+duplicates:
+  probability: 0.0
+  copies: [2, 3]
+
+zones:
+  count: [0, 0]
+
+gripper:
+  clearance_m: [0.05, 0.12]
+  neighbourhood_m: 0.15
+  over_object_probability: 0.5
+  over_object_offset_m: 0.05
+  xy_margin_m: 0.05
+  yaw_deg: [-90, 90]
+  min_part_gap_m: 0.008
+  tries: 300
+
+cameras:
+  rigs: [front, overhead]
+  resolution: [1024, 768]
+  sensor_width_mm: 36.0
+  view_margin_px: 12
+  front:
+    target_jitter_m: 0.0
+    distance_m: [0.65, 0.65]
+    elevation_deg: [50, 50]
+    azimuth_deg: [0, 0]
+    focal_mm: [26, 26]
+  overhead:
+    height_m: [0.60, 0.60]
+    focal_mm: [26, 26]
+    xy_jitter_m: 0.0
+    tilt_deg: [0, 0]
+    roll_deg: [0, 0]
+  quality:
+    weights: {clean: 1.0}
+
+lighting:
+  hdri_ids: [studio_small_09]
+  rotation_deg: [0, 360]
+  key_azimuth_deg: [0, 360]
+  conditions:
+    normal:
+      weight: 1.0
+      hdri_strength: [0.6, 1.0]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [45, 70]
+      key_angle_deg: [1.0, 3.0]
+
+questions:
+  families: [free_space, front_to_back, relation]
+  weights: {free_space: 3.0, front_to_back: 2.0, relation: 1.0}
+  max_per_camera: 5
+
+render:
+  samples: 128
+  seed: 0
+  device: GPU
+  denoise: true
+
+max_layout_attempts: 200

@@ -66,7 +66,18 @@ def run_twin(
             f"Only what the {len(sel['scene_ids'])} layouts in layouts.pdf need "
             f"({', '.join(sel['scene_ids'])}; chosen in selection.json)."
         )
-        return write_shopping_list(out, quantities=sel["pieces_to_buy"], scope=scope)
+        hero = sel.get("hero") or {}
+        new = {a: int(n) for a, n in (hero.get("new_pieces") or {}).items() if n}
+        if not hero.get("layouts"):
+            return write_shopping_list(out, quantities=sel["pieces_to_buy"], scope=scope)
+        quantities = dict(sel["pieces_to_buy"])
+        for a, n in new.items():
+            quantities[a] = quantities.get(a, 0) + n
+        scope += (
+            f" Plus the {len(hero['layouts'])} hero layouts in hero_layouts.pdf "
+            f"({', '.join(h['label'] for h in hero['layouts'])}), shot first."
+        )
+        return write_shopping_list(out, quantities=quantities, scope=scope, new=new)
     if action == "layouts":
         path = _need(path, action, "out/twins")
         from vtf.twin.layouts import make_layouts

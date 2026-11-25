@@ -3,8 +3,10 @@
 `vtf twin guide out/twins --selection docs/twins/selection.json` writes both from one source:
 the setup, the three phone spots (vtf.twin.digital.PHOTO_SPOTS, the cameras the digital twins are
 rendered from), one checklist per layout in sheet order (L01 = page 2 of layouts.pdf) with every
-object's spot, and where the photos go. Written for someone working by voice: short numbered
-steps, plain words.
+object's spot, and where the photos go. Hero layouts H1.. (selection.json "hero", brief VTF-08:
+front-spot layouts built to show the 2D-shortcut trap) come first, on their own sheets
+(hero_layouts.pdf), with three front photos each. Written for someone working by voice: short
+numbered steps, plain words.
 """
 
 from dataclasses import dataclass
@@ -21,6 +23,8 @@ from vtf.twin.layouts import object_placements
 from vtf.twin.mat import GRID_MM, PT
 
 INBOX = "twins/inbox"
+HERO_SHEETS = "hero_layouts.pdf"
+HERO_SHOTS = 3  # front photos per hero layout: each photo's twin asks its own seeded questions
 MD_FILE = "photo_session.md"
 PDF_FILE = "photo_session.pdf"
 PAGE_W, PAGE_H = (v / mm for v in A4)
@@ -34,10 +38,40 @@ class LayoutCard:
     sheet_page: int
     objects: list[tuple[int, str, str, str]]  # number, name, "(x, y) cm", note
     skip: str = ""  # why this layout is not photographed ("" = photograph it)
+    sheet: str = "layouts.pdf"
+    hero: bool = False  # hero layout: HERO_SHOTS front photos instead of one per spot
+
+    @property
+    def photo_names(self) -> list[str]:
+        if self.hero:
+            return [f"{self.label}_front_{i}.jpg" for i in range(1, HERO_SHOTS + 1)]
+        return [f"{self.label}_{s.id}.jpg" for s in PHOTO_SPOTS]
 
 
 def _cm(v: float) -> str:
     return f"{v:+.1f}".replace("+0.0", "0").replace("-0.0", "0")
+
+
+def _objects(scene) -> list[tuple[int, str, str, str]]:
+    objs = []
+    for p in object_placements(scene):
+        note = "in the bowl" if p.obj.placement.kind == "in" else ""
+        objs.append((p.number, p.obj.name, f"({_cm(p.centre_cm[0])}, {_cm(p.centre_cm[1])})",
+                     note))  # fmt: skip
+    return objs
+
+
+def hero_cards(selection: dict) -> list[LayoutCard]:
+    """H1.. from selection["hero"]: the sampled layouts (what the sheets show), sheet page i + 2
+    of hero_layouts.pdf."""
+    hero = selection.get("hero") or {}
+    lay = RunLayout(Path(hero.get("sampled_run", "out/twins_hero")))
+    return [
+        LayoutCard(h["label"], h["scene_id"], i + 2,
+                   _objects(read_scene(lay.scene_file(h["sampled_scene_id"]))),
+                   sheet=HERO_SHEETS, hero=True)  # fmt: skip
+        for i, h in enumerate(hero.get("layouts") or [])
+    ]
 
 
 def layout_cards(
@@ -50,12 +84,7 @@ def layout_cards(
     cards = []
     for i, sid in enumerate(scene_ids):
         scene = read_scene(lay.scene_file(sid))
-        objs = []
-        for p in object_placements(scene):
-            note = "in the bowl" if p.obj.placement.kind == "in" else ""
-            objs.append((p.number, p.obj.name, f"({_cm(p.centre_cm[0])}, {_cm(p.centre_cm[1])})",
-                         note))  # fmt: skip
-        cards.append(LayoutCard(layout_label(i), sid, i + 2, objs, skip.get(sid, "")))
+        cards.append(LayoutCard(layout_label(i), sid, i + 2, _objects(scene), skip.get(sid, "")))
     return cards
 
 
@@ -97,8 +126,9 @@ SETUP = (
     "Phone camera: the normal 1x lens, no zoom, no portrait mode, no filters, held sideways "
     "(landscape). If it is an iPhone, set Settings, Camera, Formats to Most Compatible so photos "
     "are JPEG (HEIC also works on this Mac).",
-    "Lay out the eight items from the shopping list and the layout sheets (docs/twins/"
-    "layouts.pdf): one page per layout, page 2 is L01.",
+    "Lay out the items from the shopping list (docs/twins/shopping_list.md) and the layout "
+    "sheets: docs/twins/hero_layouts.pdf for the hero layouts H1 to H3 (page 2 is H1), then "
+    "docs/twins/layouts.pdf (page 2 is L01).",
 )
 
 RULES = (
@@ -120,6 +150,14 @@ PER_LAYOUT = (
     "Tick the layout off and go to the next one.",
 )
 
+HERO_STEPS = (
+    "Shoot the hero layouts H1 to H3 first: they are the ones built to fool the models, and one of "
+    "them goes in the video.",
+    "Front spot only, three photos: one on the spot, one with the phone moved about 3 cm to the "
+    "left, one about 3 cm to the right. Keep all four black corner squares in every photo.",
+    "Everything else is as for any layout: objects on their spots, nothing else on the mat.",
+)
+
 AFTER = (
     f"Copy all the photos to the Mac into the folder {INBOX}/ inside the project folder (AirDrop "
     "to Downloads, then move them). Names do not matter: the computer recognises which layout and "
@@ -134,7 +172,12 @@ AFTER = (
 def _todo(cards: list[LayoutCard]) -> str:
     shoot = [c for c in cards if not c.skip]
     skipped = [c.label for c in cards if c.skip]
+    heroes = [c for c in shoot if c.hero]
     text = f"{len(shoot)} layouts, three photos each, about {len(shoot) * 5} minutes"
+    if heroes:
+        rest = len(shoot) - len(heroes)
+        text = (f"{len(heroes)} hero layouts first, then {rest} layouts; three photos each, "
+                f"{len(shoot) * 3} in all, about {len(shoot) * 5} minutes")  # fmt: skip
     if skipped:
         text += f" (skip {', '.join(skipped)}: see its card)"
     return text
@@ -145,9 +188,9 @@ def write_markdown(path: Path, cards: list[LayoutCard]) -> Path:
         "# Physical twins: photo session",
         "",
         f"{_todo(cards)}. You need the "
-        "printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a "
-        "tape measure and a box or a stack of books. A printable copy of this guide is "
-        f"[{PDF_FILE}]({PDF_FILE}).",
+        "printed mat, the shopping-list items, the layout sheets (hero_layouts.pdf and "
+        "layouts.pdf), a phone, a tape measure and a box or a stack of books. A printable copy "
+        f"of this guide is [{PDF_FILE}]({PDF_FILE}).",
         "",
         "## Once, before you start",
         "",
@@ -163,6 +206,9 @@ def write_markdown(path: Path, cards: list[LayoutCard]) -> Path:
     lines += [f"{i}. {s}" for i, s in enumerate(RULES, 1)]
     lines += ["", "## For each layout", ""]
     lines += [f"{i}. {s}" for i, s in enumerate(PER_LAYOUT, 1)]
+    if any(c.hero for c in cards):
+        lines += ["", "## Hero layouts (H1 to H3): shoot these first", ""]
+        lines += [f"{i}. {s}" for i, s in enumerate(HERO_STEPS, 1)]
     lines += ["", "## The layouts", "",
               "Positions are in cm from the middle of the mat: x to the right, y toward the back "
               "edge, as printed on the mat's grid.", ""]  # fmt: skip
@@ -171,19 +217,24 @@ def write_markdown(path: Path, cards: list[LayoutCard]) -> Path:
             lines.append(f"### {c.label}: skip (sheet page {c.sheet_page}, {c.scene_id})")
             lines += ["", f"Do not photograph this layout. {c.skip}", ""]
             continue
-        lines.append(f"### {c.label}: sheet page {c.sheet_page} ({c.scene_id})")
+        where_sheet = f"{c.sheet} page {c.sheet_page}" if c.hero else f"sheet page {c.sheet_page}"
+        lines.append(f"### {c.label}: {where_sheet} ({c.scene_id})")
         lines.append("")
         for num, name, where, note in c.objects:
             lines.append(f"{num}. {name} at {where}" + (f", {note}" if note else ""))
         lines.append("")
-        names = ", ".join(f"{c.label}_{s.id}.jpg" for s in PHOTO_SPOTS)
-        lines.append(f"Photos: front, overhead, side (names optional; if you name them: {names}).")
+        names = ", ".join(c.photo_names)
+        what = ("three from the front spot (on it, 3 cm left, 3 cm right)" if c.hero
+                else "front, overhead, side")  # fmt: skip
+        lines.append(f"Photos: {what} (names optional; if you name them: {names}).")
         lines.append("")
     lines += ["## After the last layout", ""]
     lines += [f"{i}. {s}" for i, s in enumerate(AFTER, 1)]
     lines += ["", "## Layout to scene file", "",
               "| Layout | Sheet page | Scene file |", "| --- | --- | --- |"]  # fmt: skip
-    lines += [f"| {c.label} | {c.sheet_page} | out/twins/scenes/{c.scene_id}/scene.json |"
+    lines += [f"| {c.label} | {c.sheet} {c.sheet_page} | "
+              + (f"out/twins_hero_digital/scenes/{c.scene_id}/scene.json |" if c.hero
+                 else f"out/twins/scenes/{c.scene_id}/scene.json |")
               for c in cards]  # fmt: skip
     lines.append("")
     path = Path(path)
@@ -338,8 +389,8 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
     pdf.heading("Physical twins: photo session", 18)
     pdf.para(
         f"{_todo(cards)}. You need the "
-        "printed mat, the eight shopping-list items, the layout sheets (layouts.pdf), a phone, a "
-        "tape measure and a box or a stack of books."
+        "printed mat, the shopping-list items, the layout sheets (hero_layouts.pdf and "
+        "layouts.pdf), a phone, a tape measure and a box or a stack of books."
     )
     pdf.heading("Once, before you start", 12)
     pdf.steps(SETUP)
@@ -354,6 +405,9 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
     pdf.steps(RULES)
     pdf.heading("For each layout", 12)
     pdf.steps(PER_LAYOUT)
+    if any(c.hero for c in cards):
+        pdf.heading("Hero layouts (H1 to H3): shoot these first", 12)
+        pdf.steps(HERO_STEPS)
     pdf.page()
     pdf.heading("The layouts (tick each photo as you take it)", 14)
     pdf.para("Positions in cm from the middle of the mat: x to the right, y toward the back edge, "
@@ -373,17 +427,20 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
         pdf.need(14 + 5 * len(card.objects))
         pdf.y -= 5
         pdf.font(11.5, True)
-        pdf.c.drawString(MARGIN, pdf.y, f"{card.label}   sheet page {card.sheet_page}")
+        sheet = ("hero " if card.hero else "") + f"sheet page {card.sheet_page}"
+        pdf.c.drawString(MARGIN, pdf.y, f"{card.label}   {sheet}")
         pdf.font(8)
         pdf.c.setFillGray(0.4)
-        pdf.c.drawString(MARGIN + 45, pdf.y, card.scene_id)
+        pdf.c.drawString(MARGIN + 55, pdf.y, card.scene_id)
         pdf.c.setFillGray(0)
         x = MARGIN + 100
         pdf.font(9)
-        for spot in PHOTO_SPOTS:
+        boxes = (["front", "3 cm left", "3 cm right"] if card.hero
+                 else [spot.id for spot in PHOTO_SPOTS])  # fmt: skip
+        for text in boxes:
             pdf.checkbox(x, pdf.y)
-            pdf.c.drawString(x + 5, pdf.y, spot.id)
-            x += 25
+            pdf.c.drawString(x + 5, pdf.y, text)
+            x += 25 if not card.hero else 27
         pdf.y -= 1.5
         for num, name, where, note in card.objects:
             pdf.y -= 4.6
@@ -406,7 +463,9 @@ def write_pdf(path: Path, cards: list[LayoutCard]) -> Path:
 
 
 def make_guide(run: Path, selection: dict, out_dir: Path) -> list[Path]:
-    cards = layout_cards(run, list(selection["scene_ids"]), selection.get("skip"))
+    cards = hero_cards(selection) + layout_cards(
+        run, list(selection["scene_ids"]), selection.get("skip")
+    )
     out_dir = Path(out_dir)
     md = write_markdown(out_dir / MD_FILE, cards)
     pdf = write_pdf(out_dir / PDF_FILE, cards)

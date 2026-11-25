@@ -6,6 +6,10 @@ spec/families.md) and are written with "the" in front. Every camera-frame relati
 frame: {Frame} is "From the camera's view" on the front and overhead rigs and "In the gripper
 camera's view" on the gripper rig; {camera} is "the camera" or "the gripper camera". Table-plane
 relations (distance, free space, zones) say "on the table".
+
+distance and free-space questions open with one sentence that states the scale in frame
+(`scale_sentence`): the printed grid's cell size, or the exact size of the procedural reference
+object (programs 0.3.0, brief VTF-08; earlier runs, v1 included, never stated it).
 """
 
 TEMPLATES: dict[str, tuple[str, str]] = {
@@ -85,3 +89,57 @@ def phrase(program: str, index: int, rig: str = "front", **slots: str) -> tuple[
     values = {**frame_slots(rig), **slots}
     texts = [t.format(**values) for t in TEMPLATES[program]]
     return f"{program}.p{index + 1}", texts[index], texts[1 - index]
+
+
+# Scale in frame, stated (programs 0.3.0) ------------------------------------------------------
+
+SCALE_PROGRAMS = ("distance_cm", "room_between")
+GRID_SCALE_SENTENCE = (
+    "The table has a printed grid of 1 cm squares with bold lines every 10 cm."
+)
+
+
+def _cm(metres: float) -> str:
+    return f"{round(metres * 100, 1):g}"
+
+
+def scale_sentence(
+    scale: dict | None,
+    name: str | None = None,
+    asset: str | None = None,
+    dims_m: tuple[float, float, float] | None = None,
+) -> str | None:
+    """The sentence that tells the reader the scale the image shows (rule A).
+
+    `scale` is vtf.programs.view.scale_reference's result (or the G1 trace step
+    scale_in_frame). A grid gives GRID_SCALE_SENTENCE (the renderer's cm_grid and the printed
+    twin mat both draw bold lines every 10 cm); a procedural reference object gives its exact
+    size by its name, e.g. "The red cube is exactly 5 cm on each side." None when nothing can
+    be said exactly.
+    """
+    if not scale:
+        return None
+    if scale.get("kind") == "grid":
+        cell = float(scale.get("grid_cell_m") or 0.0)
+        if abs(cell - 0.01) < 1e-9:
+            return GRID_SCALE_SENTENCE
+        return f"The table has a printed grid of {_cm(cell)} cm squares." if cell > 0 else None
+    if scale.get("kind") != "reference" or not name or not asset or dims_m is None:
+        return None
+    x, y, z = (float(v) for v in dims_m)
+    if asset.startswith("proc_sphere"):
+        return f"The {name} is exactly {_cm(x)} cm across."
+    if asset.startswith("proc_cylinder"):
+        return f"The {name} is exactly {_cm(x)} cm across and {_cm(z)} cm tall."
+    if asset.startswith("proc_box"):
+        if abs(x - y) < 1e-9 and abs(y - z) < 1e-9:
+            return f"The {name} is exactly {_cm(x)} cm on each side."
+        return f"The {name} is exactly {_cm(x)} by {_cm(y)} cm and {_cm(z)} cm tall."
+    return None
+
+
+def with_scale(text: str, sentence: str | None) -> str:
+    """The question with the scale sentence in front (once)."""
+    if not sentence or text.startswith(sentence):
+        return text
+    return f"{sentence} {text}"

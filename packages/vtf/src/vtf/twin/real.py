@@ -6,9 +6,9 @@
 For every photo in the inbox (JPEG, PNG or HEIC; any name):
 
 1. Pose. The mat's markers give the phone's pose (vtf.twin.register.photo_pose).
-2. Which layout and which spot. From the file name when it starts with L01..L12 (and names a
-   spot: L03_side.jpg), else recognised: the layout whose objects best explain the not-mat
-   pixels, and the photo spot nearest the estimated lens position.
+2. Which layout and which spot. From the file name when it starts with L01..L12 or H1..H3
+   (and names a spot: L03_side.jpg, H1_front_2.jpg), else recognised: the layout whose objects
+   best explain the not-mat pixels, and the photo spot nearest the estimated lens position.
 3. Gate G8 against that layout's settled scene (the rendered digital twin is the truth). An
    overlay per photo goes to <out>/overlays/.
 4. Sibling scene. Per layout, the digital-twin scene with one camera per accepted photo at the
@@ -52,7 +52,7 @@ from vtf.twin.register import (
 )
 
 PHOTO_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".heif"}
-NAME_RE = re.compile(r"^(L\d{2})(?:[_\- ]+([A-Za-z]+))?", re.IGNORECASE)
+NAME_RE = re.compile(r"^(L\d{2}|H\d)(?:[_\- ]+([A-Za-z]+))?", re.IGNORECASE)
 REGISTRATION = "registration.jsonl"
 PAIRS = "pairs.jsonl"
 SUMMARY = "summary.json"
@@ -68,18 +68,26 @@ class Layout:
     settled: SceneSpec  # its settled poses: the truth G8 checks against
 
 
+def _layout(run: RunLayout, label: str, sid: str) -> Layout:
+    settled_path = run.settled_scene(sid)
+    if not settled_path.exists():
+        raise FileNotFoundError(
+            f"{settled_path} missing: render the digital twins first (vtf twin digital, "
+            "vtf render)"
+        )
+    return Layout(label, sid, read_scene(run.scene_file(sid)), read_scene(settled_path))
+
+
 def load_layouts(selection: dict, twins_run: Path) -> list[Layout]:
+    """L01.. from the selection's scene_ids in `twins_run`, then the hero layouts H1.. (brief
+    VTF-08: front-spot layouts built to show the 2D-shortcut trap) from their own digital-twin
+    run, selection["hero"]["twins_run"]."""
     run = RunLayout(twins_run)
-    out = []
-    for i, sid in enumerate(selection["scene_ids"]):
-        settled_path = run.settled_scene(sid)
-        if not settled_path.exists():
-            raise FileNotFoundError(
-                f"{settled_path} missing: render the digital twins first (vtf twin digital, "
-                "vtf render)"
-            )
-        out.append(Layout(layout_label(i), sid, read_scene(run.scene_file(sid)),
-                          read_scene(settled_path)))  # fmt: skip
+    out = [_layout(run, layout_label(i), sid) for i, sid in enumerate(selection["scene_ids"])]
+    hero = selection.get("hero") or {}
+    if hero.get("layouts"):
+        hrun = RunLayout(Path(hero["twins_run"]))
+        out += [_layout(hrun, h["label"], h["scene_id"]) for h in hero["layouts"]]
     return out
 
 

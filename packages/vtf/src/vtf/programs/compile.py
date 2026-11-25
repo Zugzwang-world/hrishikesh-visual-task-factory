@@ -10,7 +10,8 @@ counts whose counted objects are not all visible (rule A) are not proposed.
 After a program accepts, the evidence objects must be visible in this camera by the G3
 thresholds of spec/families.md (exact ray cast of the scene file); otherwise the candidate is
 returned as rejected (`evidence_hidden`). distance and free_space are proposed only when the
-scale-in-frame rule holds for the camera.
+scale-in-frame rule holds for the camera, and their text opens with the sentence that states
+that scale (templates.scale_sentence).
 """
 
 from itertools import combinations
@@ -30,7 +31,7 @@ from vtf.programs.library import (
     run_program,
     zone_label,
 )
-from vtf.programs.templates import phrase
+from vtf.programs.templates import SCALE_PROGRAMS, phrase, scale_sentence, with_scale
 from vtf.programs.view import camera_view, hidden_evidence, planar_depth, scale_reference
 
 TRIES_PER_VISIT = 4
@@ -61,6 +62,14 @@ class _Proposer:
 
     def name(self, oid: str) -> str:
         return self.sg.name(oid) or oid
+
+    def scale_sentence(self) -> str | None:
+        """The sentence stating the scale in frame (grid, or the reference object's size)."""
+        ref = self.scale
+        if ref is None or ref.get("kind") != "reference":
+            return scale_sentence(ref)
+        obj = self.scene.object(ref["object_id"])
+        return scale_sentence(ref, self.sg.name(obj.id), obj.shape, tuple(obj.dimensions))
 
     def count(self) -> list[Candidate]:
         cats = sorted({o.category for o in self.sg.objects})
@@ -242,6 +251,9 @@ def compile_questions(
         family = PROGRAMS[program].family
         index = int(rng.integers(2))
         template_id, text, alt = phrase(program, index, rig=cam.rig, **slots)
+        if program in SCALE_PROGRAMS:
+            sentence = proposer.scale_sentence()
+            text, alt = with_scale(text, sentence), with_scale(alt, sentence)
         base = {
             "family": family,
             "template_id": template_id,

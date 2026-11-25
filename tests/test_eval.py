@@ -367,3 +367,37 @@ def test_runner_with_anthropic_stub(run_dir: Path) -> None:
     assert summary.estimated_cost_usd == pytest.approx((3600 * 2 + 120 * 10) / 1e6)
     counts = [r for r in results(run_dir, "claude-sonnet-5-5") if r.answer_type == "int"]
     assert all(r.parsed == 7 for r in counts)
+
+
+def test_scale_stated_condition() -> None:
+    """Eval condition "scale stated" (brief VTF-08): the grid sentence, or the reference
+    object's exact size, in front of distance and free-space questions only."""
+    from vtf.core.io import read_scene, read_task
+    from vtf.core.task import GateResult
+    from vtf.eval.scale import scale_prompt_version, stated_question
+    from vtf.programs.templates import GRID_SCALE_SENTENCE
+
+    run = Path(__file__).resolve().parents[1] / "spec" / "examples" / "run_example"
+    task_file = next((run / "tasks").glob("*/task.json"))
+    task = read_task(task_file)
+    scene = read_scene(next((run / "scenes").glob("*/scene.json")))
+    obj = scene.objects[0]
+
+    def with_trace(family: str, step: dict):
+        gates = {**task.gates, "G1": GateResult(passed=True, evidence={"trace": [step]})}
+        return task.model_copy(update={"family": family, "gates": gates,
+                                       "question": "How far apart are they?"})  # fmt: skip
+
+    grid = with_trace("distance", {"step": "scale_in_frame", "kind": "grid", "grid_cell_m": 0.01})
+    want = f"{GRID_SCALE_SENTENCE} How far apart are they?"
+    assert stated_question(grid, lambda _: scene) == want
+    ref = with_trace("free_space", {"step": "scale_in_frame", "kind": "reference",
+                                    "object_id": obj.id, "asset": "proc_box_5cm"})  # fmt: skip
+    ref_scene = scene.model_copy(update={"objects": [
+        obj.model_copy(update={"shape": "proc_box_5cm", "dimensions": (0.05, 0.05, 0.05)}),
+        *scene.objects[1:]]})  # fmt: skip
+    q = stated_question(ref, lambda _: ref_scene)
+    assert q.endswith("exactly 5 cm on each side. How far apart are they?")
+    other = with_trace("count", {"step": "scale_in_frame", "kind": "grid", "grid_cell_m": 0.01})
+    assert stated_question(other, lambda _: scene) == "How far apart are they?"
+    assert scale_prompt_version().endswith("+scale.1")

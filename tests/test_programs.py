@@ -626,7 +626,7 @@ def test_in_zone_matches_brute_force(points, centre, radius) -> None:
 
 def test_run_program_contract() -> None:
     scene = read_scene(FIXTURE)
-    assert PROGRAMS_VERSION == "0.2.2"
+    assert PROGRAMS_VERSION == "0.3.0"
     assert set(PROGRAMS) == set(PROGRAM_FAMILY)
     assert all(PROGRAMS[p].family in FAMILIES for p in PROGRAMS)
     unsettled = scene.model_copy(update={"meta": scene.meta.model_copy(update={"settled": False})})
@@ -659,3 +659,29 @@ def test_fixture_tasks_match_programs() -> None:
         assert set(task.evidence_object_ids) <= set(result.evidence_object_ids) | set(
             o.id for o in scene.objects
         ), path
+
+
+def test_scale_sentence() -> None:
+    from vtf.programs.templates import GRID_SCALE_SENTENCE, scale_sentence, with_scale
+
+    assert scale_sentence({"kind": "grid", "grid_cell_m": 0.01}) == GRID_SCALE_SENTENCE
+    assert scale_sentence(None) is None
+    ref = {"kind": "reference", "object_id": "obj_02"}
+    assert (
+        scale_sentence(ref, "red cube", "proc_box_5cm", (0.05, 0.05, 0.05))
+        == "The red cube is exactly 5 cm on each side."
+    )
+    assert (
+        scale_sentence(ref, "block", "proc_box_10x10x4cm", (0.1, 0.1, 0.04))
+        == "The block is exactly 10 by 10 cm and 4 cm tall."
+    )
+    assert (
+        scale_sentence(ref, "cylinder", "proc_cylinder_6x10cm", (0.06, 0.06, 0.1))
+        == "The cylinder is exactly 6 cm across and 10 cm tall."
+    )
+    assert scale_sentence(ref, "ball", "proc_sphere_5cm", (0.05, 0.05, 0.05)) == (
+        "The ball is exactly 5 cm across."
+    )
+    q = "Is there room?"
+    assert with_scale(q, GRID_SCALE_SENTENCE) == f"{GRID_SCALE_SENTENCE} {q}"
+    assert with_scale(with_scale(q, GRID_SCALE_SENTENCE), GRID_SCALE_SENTENCE).count("grid") == 1

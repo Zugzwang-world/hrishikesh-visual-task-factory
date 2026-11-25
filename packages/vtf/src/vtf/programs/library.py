@@ -42,7 +42,7 @@ from vtf.programs.view import (
     scale_reference,
 )
 
-PROGRAMS_VERSION = "0.2.2"
+PROGRAMS_VERSION = "0.3.0"  # 0.3.0: distance and free-space questions state the scale
 ZONE_IN_FRAME_MARGIN_PX = 4  # the whole reach-zone outline must be this far inside the image
 
 TABLE_CONTACT_TOL_M = RESTING_TOL_M

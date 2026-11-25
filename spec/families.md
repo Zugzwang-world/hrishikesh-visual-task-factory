@@ -13,7 +13,7 @@ The 12 families in `vtf.core.program.FAMILIES`, with the exact rule each program
 - **Footprint.** The object mesh projected onto the table plane (convex hull of the xy of its world vertices). Centre = bounding-box centre.
 - **Image point.** The projection of an object's centre into the task's camera. Image footprint = the projected mesh vertices.
 - **Visibility (G3).** Evidence objects: visible fraction >= 0.4 and >= 300 px, except counted objects in count families: visible fraction >= 0.15 and >= 120 px (rule A: nothing counted is fully hidden).
-- **Scale in frame (rule A).** distance and free_space are asked only when the table shows a printed grid (`table.grid_cell_m` set) in the task's camera, or a procedural reference object (`proc_*` asset) is visible there (G3 thresholds).
+- **Scale in frame (rule A).** distance and free_space are asked only when the table shows a printed grid (`table.grid_cell_m` set) in the task's camera, or a procedural reference object (`proc_*` asset) is visible there (G3 thresholds). **Scale stated (programs 0.3.0).** Their question opens with one sentence that states that scale: "The table has a printed grid of 1 cm squares with bold lines every 10 cm." for the grid, or the reference object's exact size by name ("The red cube is exactly 5 cm on each side."). Runs before 0.3.0, frozen v1 included, never stated it; the eval condition "scale stated" (`vtf.eval.scale`) re-asks those tasks with the sentence added.
 - **2D shortcut heuristic.** Computed from the scene file by projection, never from pixels. `shortcut_conflict` = heuristic answer != truth, recorded on every spatial task (true or false), None for the others.
 
 ## Families

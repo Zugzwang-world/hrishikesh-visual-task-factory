@@ -128,7 +128,12 @@ def build_shopping_list(
     return items
 
 
-def shopping_markdown(items: list[ShoppingItem], scope: str | None = None) -> str:
+def shopping_markdown(
+    items: list[ShoppingItem], scope: str | None = None, new: dict[str, int] | None = None
+) -> str:
+    """`new` (asset id -> pieces) marks what was added to an earlier list, e.g. for the hero
+    layouts."""
+    new = new or {}
     total = sum(i.quantity for i in items)
     lines = [
         "# Physical-twin shopping list",
@@ -141,10 +146,15 @@ def shopping_markdown(items: list[ShoppingItem], scope: str | None = None) -> st
     ]
     if scope:
         lines[2:2] = [scope, ""]
+    if new:
+        lines[2:2] = [f"**New for the hero layouts:** {sum(new.values())} pieces, marked NEW "
+                      "below. Everything else is the earlier list, unchanged.", ""]  # fmt: skip
     for n, it in enumerate(items, 1):
         colour = f" ({it.colour})" if it.colour else ""
+        k = new.get(it.asset_id, 0)
+        mark = "" if not k else (" NEW" if k == it.quantity else f" ({k} NEW)")
         lines.append(
-            f"{n}. **{it.item} x{it.quantity}**{colour}: {it.hint}; {it.size_text()}. "
+            f"{n}. **{it.item} x{it.quantity}**{mark}{colour}: {it.hint}; {it.size_text()}. "
             f"Asset `{it.asset_id}`."
         )
     lines += [
@@ -159,7 +169,8 @@ def shopping_markdown(items: list[ShoppingItem], scope: str | None = None) -> st
     return "\n".join(lines) + "\n"
 
 
-def shopping_json(items: list[ShoppingItem]) -> dict:
+def shopping_json(items: list[ShoppingItem], new: dict[str, int] | None = None) -> dict:
+    new = new or {}
     return {
         "shopping_version": SHOPPING_VERSION,
         "tolerance": TOLERANCE,
@@ -173,6 +184,7 @@ def shopping_json(items: list[ShoppingItem]) -> dict:
                 "colour": it.colour,
                 "size_m": list(it.size_m),
                 "range_m": [[round(lo, 4), round(hi, 4)] for lo, hi in it.ranges_m()],
+                **({"new": new[it.asset_id]} if new.get(it.asset_id) else {}),
             }
             for it in items
         ],
@@ -184,16 +196,17 @@ def write_shopping_list(
     manifest: AssetManifest | None = None,
     quantities: dict[str, int] | None = None,
     scope: str | None = None,
+    new: dict[str, int] | None = None,
 ) -> list[Path]:
     """`vtf twin shopping`: shopping_list.md and .json (out is a folder or a .md path).
-    `quantities` limits the list to what a layout selection needs."""
+    `quantities` limits the list to what a layout selection needs; `new` marks added pieces."""
     out = Path(out)
     md = out if out.suffix == ".md" else out / "shopping_list.md"
     md.parent.mkdir(parents=True, exist_ok=True)
     items = build_shopping_list(manifest, quantities)
-    md.write_text(shopping_markdown(items, scope), encoding="utf-8", newline="\n")
+    md.write_text(shopping_markdown(items, scope, new), encoding="utf-8", newline="\n")
     js = md.with_suffix(".json")
-    data = shopping_json(items)
+    data = shopping_json(items, new)
     if quantities is not None:
         data["scope"] = scope
     js.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
