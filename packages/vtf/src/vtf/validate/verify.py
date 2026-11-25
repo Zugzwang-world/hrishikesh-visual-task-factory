@@ -93,19 +93,39 @@ def _compare_render(orig_dir: Path, new_dir: Path) -> dict:
     return out
 
 
-def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
+def verify_run(
+    run_dir: Path,
+    sample: int = 5,
+    device: str = "gpu",
+    out_dir: Path | None = None,
+    scenes: list[str] | None = None,
+    timeout: float | None = None,
+    quiet: bool = False,
+) -> dict:
+    """Verify `sample` seeded scenes (or exactly `scenes`); re-renders go to out_dir (default
+    <run>/verify/), so a frozen run can be checked without writing into it."""
     from vtf.programs import run_program
-    from vtf.render.bridge import render_scene
+    from vtf.render.bridge import DEFAULT_TIMEOUT_S, render_scene
 
     run_dir = Path(run_dir)
     lay = layout.RunLayout(run_dir)
+    verify_dir = Path(out_dir) if out_dir is not None else lay.verify_dir
     run_info = read_model(lay.run_file, RunInfo) if lay.run_file.exists() else None
+    wanted = set(scenes) if scenes else None
     tasks_by_scene: dict[str, list] = {}
     for row in read_jsonl(lay.task_manifest):
-        tasks_by_scene.setdefault(row["scene_id"], []).append(read_task(run_dir / row["path"]))
+        if wanted is None or row["scene_id"] in wanted:
+            tasks_by_scene.setdefault(row["scene_id"], []).append(read_task(run_dir / row["path"]))
     scene_ids = sorted(tasks_by_scene)
-    rng = make_rng(derive_seed(run_info.run_seed if run_info else 0, "verify"))
-    picked = sorted(rng.choice(scene_ids, size=min(sample, len(scene_ids)), replace=False).tolist())
+    if wanted is not None:
+        missing = sorted(wanted - set(scene_ids))
+        if missing:
+            raise ValueError(f"no accepted tasks for {', '.join(missing)} in {run_dir}")
+        picked = scene_ids
+    else:
+        rng = make_rng(derive_seed(run_info.run_seed if run_info else 0, "verify"))
+        size = min(sample, len(scene_ids))
+        picked = sorted(rng.choice(scene_ids, size=size, replace=False).tolist())
 
     results = {}
     for sid in picked:
@@ -114,8 +134,8 @@ def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
         res["scene_identical"] = (
             None if regenerated is None else regenerated == scene_file.read_bytes()
         )
-        vdir = lay.verify_dir / sid
-        rr = render_scene(scene_file, vdir, device=device)
+        vdir = verify_dir / sid
+        rr = render_scene(scene_file, vdir, device=device, timeout=timeout or DEFAULT_TIMEOUT_S)
         res["render_seconds"] = round(rr.seconds, 2)
         if not rr.ok:
             res.update(ok=False, error=rr.error)
@@ -155,9 +175,10 @@ def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
         "all_ok": all(r.get("ok") for r in results.values()) and bool(results),
         "scenes": results,
     }
-    lay.verify_dir.mkdir(parents=True, exist_ok=True)
-    (lay.verify_dir / "verify_report.json").write_text(json.dumps(report, indent=2) + "\n")
-    _print(report)
+    verify_dir.mkdir(parents=True, exist_ok=True)
+    (verify_dir / "verify_report.json").write_text(json.dumps(report, indent=2) + "\n")
+    if not quiet:
+        _print(report)
     return report
 
 
