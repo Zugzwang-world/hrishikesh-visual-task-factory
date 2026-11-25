@@ -307,54 +307,55 @@ def bp_verdicts(bp: dict) -> list[str]:
             summary.append(
                 f"{COMPARE_TEXT[(ax['key'], hard)]} {verb} {vals[0]:.0f} to {vals[-1]:.0f} points"
             )
-            for k, d in ds.items():
-                if not moves(d["adjusted_ci95"]):
-                    c = d["adjusted_ci95"]
-                    flat.append(
-                        f"{COMPARE_TEXT[(ax['key'], hard)]} for {label_of(k)} "
-                        f"({d['adjusted'] * 100:+.0f}, 95% CI {c[0] * 100:+.0f} to "
-                        f"{c[1] * 100:+.0f})"
-                    )
+            still = [
+                f"{label_of(k)} {d['adjusted'] * 100:+.0f} ({d['adjusted_ci95'][0] * 100:+.0f} "
+                f"to {d['adjusted_ci95'][1] * 100:+.0f})"
+                for k, d in ds.items()
+                if d["adjusted_ci95"] and not moves(d["adjusted_ci95"])
+            ]
+            if still:
+                flat.append(f"{COMPARE_TEXT[(ax['key'], hard)]} for " + ", ".join(still))
     lines = [
         "Breaking points (section 5): the difficulty controls move accuracy. Family-adjusted, "
         "against the easiest level, across the four settings: " + "; ".join(summary) + "."
     ]
     if flat:
         lines.append(
-            "Where an axis does not detectably move accuracy (the 95% interval includes no "
+            "Where an axis does not detectably move accuracy (points, 95% interval includes no "
             "change): " + "; ".join(flat) + "."
         )
-    pooled = bp["regression_pooled"]
-    if pooled.get("terms"):
-        t = pooled["terms"]
-
-        def orr(name: str) -> str:
-            v = t[name]
-            return f"{v['odds_ratio']:.2f} ({v['or_ci95'][0]:.2f} to {v['or_ci95'][1]:.2f})"
-
-        flat_terms = [
-            name
-            for name in ("objects_per_10", "hidden_per_25pts", "camera_mild", "camera_harsh")
-            + ("camera_cctv",)
-            if t[name]["or_ci95"][0] <= 1 <= t[name]["or_ci95"][1]
-        ]
+    fits = {k: f for k, f in bp["regression"].items() if f.get("terms") and f.get("stable")}
+    if fits:
         nice = {
-            "objects_per_10": "10 more objects",
-            "hidden_per_25pts": "25 points less of the evidence visible",
-            "camera_mild": "mild camera",
-            "camera_harsh": "harsh camera",
-            "camera_cctv": "CCTV camera",
+            "objects_per_10": "per 10 more objects",
+            "hidden_per_25pts": "per 25 points less of the evidence visible",
+            "camera_mild": "for a mild camera",
+            "camera_harsh": "for a harsh camera",
+            "camera_cctv": "for a CCTV camera",
         }
-        line = (
-            "All three axes at once, family and camera rig held fixed (logistic regression over "
-            f"all four settings, {pooled['n']} answers): odds of a right answer x"
-            f"{orr('objects_per_10')} per 10 more objects, x{orr('hidden_per_25pts')} per 25 "
-            f"points less visible, x{orr('camera_mild')} mild, x{orr('camera_harsh')} harsh, "
-            f"x{orr('camera_cctv')} CCTV against a clean camera."
+        parts = []
+        for term, words in nice.items():
+            ors = [f["terms"][term] for f in fits.values()]
+            lo = min(v["odds_ratio"] for v in ors)
+            hi = max(v["odds_ratio"] for v in ors)
+            below = sum(v["or_ci95"][1] < 1 for v in ors)
+            parts.append(
+                f"x{lo:.2f} to x{hi:.2f} {words} (interval below 1 for {below} of {len(ors)})"
+            )
+        slope_all = all(f["terms"]["objects_per_10"]["or_ci95"][1] < 1 for f in fits.values())
+        ends_flat = any(s.startswith(COMPARE_TEXT[("objects", "21–25")]) for s in flat)
+        lines.append(
+            "Holding family, camera rig and the other two axes fixed (a logistic regression per "
+            "setting, scene-clustered intervals), the odds of a right answer change by "
+            + "; ".join(parts)
+            + "."
+            + (
+                " So object count is a steady slope: clear over all five bins for every setting "
+                "even where the two end bins alone are within noise."
+                if slope_all and ends_flat
+                else ""
+            )
         )
-        if flat_terms:
-            line += " No detectable effect: " + ", ".join(nice[n] for n in flat_terms) + "."
-        lines.append(line)
     return lines
 
 
@@ -629,9 +630,19 @@ def twin_verdicts(tf: dict) -> list[str]:
         f"{m['given_original_right']['sticks']['share'] * 100:.0f}% stick"
         for k, m in ms.items()
     ]
+    comp = (tf.get("comparisons") or {}).get("claude-opus-5-5-xhigh vs claude-opus-5-5")
+    more = ""
+    if comp and comp["ci95"]:
+        more = (
+            " More thinking does not help: Opus xhigh vs high changes 'both right' by "
+            f"{comp['both_right_change'] * 100:+.0f} points ({comp['ci95'][0] * 100:+.0f} to "
+            f"{comp['ci95'][1] * 100:+.0f})."
+        )
+        if moves(comp["ci95"]):
+            more = more.replace("More thinking does not help: ", "")
     lines.append(
         "When a model got the original right, how often its twin answer follows the change vs "
-        "repeats the old answer: " + "; ".join(cond) + "."
+        "repeats the old answer: " + "; ".join(cond) + "." + more
     )
     return lines
 
@@ -687,11 +698,12 @@ def twin_chart(tf: dict, out_png: Path) -> None:
         frameon=False,
         fontsize=10,
     )
+    best = max(m["both_right"]["share"] for m in tf["models"].values())
     fig.text(
         0.012,
         0.975,
-        "Move one object so the true answer changes: how often does the model's answer change "
-        "with it?",
+        "Move one object so the true answer changes: the best Claude setting gets both the "
+        f"original and the twin right {best * 100:.0f}% of the time",
         ha="left",
         va="top",
         fontsize=13.5,
@@ -914,9 +926,10 @@ def mitigation(key: str, nums: dict, fm: dict, findings: dict) -> str:
             for m in findings.get("models", {}).values()
         )
         own = fams.get("count_attribute", {}).get("accuracy") or 0
+        ratio = fm.get("capture", {}).get("ratio") or 0
         return (
             "Keep it off spatial decisions: its misses are scattered rather than pulled to the "
-            f"shortcut (capture {fm.get('capture', {}).get('ratio')}x chance), so no single "
+            f"shortcut (shortcut picks at {ratio:.2f}x chance), so no single "
             "check fixes them. Use it for colour counts, where it is close to the best setting "
             f"({own * 100:.0f}% vs {best * 100:.0f}%); route nearest, relation and distance "
             "questions to a larger model or to depth geometry."
@@ -1132,6 +1145,8 @@ def markdown_sections(out: dict[str, Any], first: int = 5) -> tuple[list[str], i
             "",
             f"## {n}. Breaking points",
             "",
+            "Sections 5 to 7 are generated by `scripts/robustness_findings.py` (brief VTF-07) "
+            "from the same answers, plus the twin answers of `scripts/twin_sweep.py`. "
             "Does accuracy move when the factory's difficulty controls move? Three axes, each "
             "binned from easy to hard: objects on the table, the visible fraction of the "
             "evidence objects (the least visible one, from the rendered masks) and the camera "
@@ -1308,6 +1323,24 @@ def markdown_sections(out: dict[str, Any], first: int = 5) -> tuple[list[str], i
                 b = m["by_family"].get(f)
                 cells.append(f"{b['both_right']} / {b['sticks']}" if b else "–")
             L.append(f"| {sf.fam(f)} | {npairs} | " + " | ".join(cells) + " |")
+        counts = [
+            (
+                label_of(k),
+                sum(
+                    m["by_family"].get(f, {}).get("sticks", 0) for f in ("count", "count_attribute")
+                ),
+                sum(b["sticks"] for b in m["by_family"].values()),
+            )
+            for k, m in ms.items()
+        ]
+        L += [
+            "",
+            "Most 'sticks' pairs are counts, where the twin takes one counted object away (a few "
+            "move one into or out of a container) and the model repeats the old number: "
+            + "; ".join(f"{name} {c} of {t}" for name, c, t in counts)
+            + ". Spatial picks (nearest, relation, occlusion) rarely stick; they go wrong in "
+            "other ways.",
+        ]
         L.append("")
         cost = tf.get("cost")
         if cost:
