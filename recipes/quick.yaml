@@ -1,0 +1,183 @@
+# Quick recipe: the v1 factory in miniature, for a first run on a fresh clone.
+#
+#   uv run vtf quickstart          # 7 scenes x 3 cameras = 21 images, end to end
+#
+# Same sampler, cameras, camera-quality dial, lighting conditions, question families and gates
+# as recipes/v1.yaml; only smaller: 13 Poly Haven models (about 18 MB with the HDRI, fetched on first run by
+# vtf quickstart into assets/cache/) plus the four procedural scale references, and 4 to 14
+# objects per scene instead of 3 to 25. The objects still give every family a chance: two
+# containers (bowl, basket), flat tops to stack on (tin, wooden box, the 10 cm block), three red
+# and two yellow objects for count-by-colour, look-alike pairs (apple and tin, lemon and duck).
+#
+# Units are metres and degrees. Ranges are [low, high], drawn from one seeded stream. Changing
+# any number here changes every scene file (the recipe hash is in each scene's meta).
+
+recipe_version: "0.2.0"
+sampler: v1
+name: quick
+description: v1 in miniature for a fresh clone; 13 Poly Haven models, 4-14 objects, 3 cameras.
+
+table:
+  size_xy: [1.2, 0.8]
+  height: 0.75
+  thickness: 0.03
+  material_id: wood_simple
+  grid_fraction: 0.4            # share of scenes with the printed cm grid (rule A scale)
+  grid_material_id: cm_grid
+  grid_cell_m: 0.01
+
+objects:
+  clutter:
+    low:    {count: [4, 8],   weight: 1.0}
+    medium: {count: [9, 14],  weight: 1.0}
+  pool_weights: {assets: 1.0, primitives: 0.0}
+  assets:
+    categories: null
+    ids:                        # vtf quickstart fetches exactly these (plus the HDRI)
+      - food_apple_01
+      - lemon
+      - food_lime_01
+      - leather_cleaner_can
+      - bleach_bottle
+      - cleaner_tin_01
+      - CheeseBox_01
+      - screwdriver
+      - combination_wrench
+      - rubber_duck_toy
+      - baseball_01
+      - wooden_bowl_01
+      - wicker_basket_01
+      - proc_box_5cm
+      - proc_box_10x10x4cm
+      - proc_cylinder_6x10cm
+      - proc_sphere_5cm
+    exclude_ids: []
+    source_weights: {polyhaven: 6.0, procedural: 0.6}
+  colours: [red, green, blue, yellow, orange, purple, white, black]
+  yaw_deg: [-180, 180]
+  drop_m: 0.01
+  fill_ratio: 0.40
+
+placement:
+  table_margin_m: 0.03
+  gap_m: 0.012
+  tries_per_object: 300
+
+stacks:
+  count: [0, 2]
+  max_offset_frac: 0.2
+  max_size_ratio: 1.2
+  yaw_jitter_deg: 15
+
+containers:
+  count: [0, 2]
+  items: [0, 3]
+  wall_margin_m: 0.005
+  max_height_ratio: 1.5
+  max_fill: 0.5
+
+lookalikes:
+  colour_pairs: [0, 2]
+  size_pairs: [0, 1]
+  small_scale: [0.68, 0.72]
+  large_scale: [1.30, 1.40]
+
+duplicates:
+  probability: 0.35
+  copies: [2, 3]
+
+zones:
+  count: [0, 2]
+  colours: [green, blue, yellow, orange, purple, red]
+  rect_weight: 0.5
+  rect_size_m: [0.20, 0.38]
+  circle_radius_m: [0.10, 0.18]
+  yaw_deg: [-45, 45]
+  line_width_m: 0.012
+  boundary_margin_m: 0.02
+  min_inside: 1
+  min_outside: 1
+  tries: 300
+
+gripper:
+  clearance_m: [0.03, 0.12]
+  neighbourhood_m: 0.15
+  over_object_probability: 0.85
+  over_object_offset_m: 0.05
+  xy_margin_m: 0.10
+  yaw_deg: [-90, 90]
+  min_part_gap_m: 0.008
+  tries: 300
+
+cameras:
+  rigs: [front, overhead, gripper]
+  resolution: [1024, 768]
+  sensor_width_mm: 36.0
+  view_margin_px: 12
+  front:
+    target_jitter_m: 0.03
+    distance_m: [1.05, 1.15]
+    elevation_deg: [40, 48]
+    azimuth_deg: [-8, 8]
+    focal_mm: [26, 30]
+  overhead:
+    height_m: [1.05, 1.20]
+    focal_mm: [22, 24]
+    xy_jitter_m: 0.02
+    tilt_deg: [0, 3]
+    roll_deg: [-4, 4]
+  gripper:
+    hfov_deg: [70, 90]
+    mount_gap_m: 0.01
+  quality:
+    weights: {clean: 0.55, mild: 0.2, harsh: 0.1, cctv: 0.15}
+
+lighting:
+  hdri_ids: [studio_small_09]
+  rotation_deg: [0, 360]
+  key_azimuth_deg: [0, 360]
+  conditions:
+    normal:
+      weight: 0.55
+      hdri_strength: [0.6, 1.0]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [45, 70]
+      key_angle_deg: [1.0, 3.0]
+    dim:
+      weight: 0.15
+      hdri_strength: [0.12, 0.25]
+      key_strength: [0.4, 0.9]
+      key_elevation_deg: [35, 60]
+      key_angle_deg: [1.0, 3.0]
+    harsh:
+      weight: 0.15
+      hdri_strength: [0.15, 0.3]
+      key_strength: [6.0, 9.0]
+      key_elevation_deg: [15, 30]
+      key_angle_deg: [0.3, 0.8]
+    coloured:
+      weight: 0.15
+      hdri_strength: [0.4, 0.7]
+      key_strength: [2.5, 4.0]
+      key_elevation_deg: [40, 65]
+      key_angle_deg: [1.0, 3.0]
+      key_rgb:
+        - [1.0, 0.62, 0.35]
+        - [0.45, 0.62, 1.0]
+        - [0.55, 1.0, 0.5]
+        - [1.0, 0.45, 0.85]
+
+questions:
+  families: null                # every family
+  max_per_camera: 5
+
+render:
+  samples: 64
+  seed: 0
+  device: GPU                   # falls back to CPU when there is no GPU; --device cpu forces it
+  denoise: true
+
+physics:
+  settle_frames: 150
+
+max_layout_attempts: 60

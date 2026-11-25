@@ -330,6 +330,52 @@ def export(
     _stub("export")
 
 
+@app.command(name="verify-showcase")
+def verify_showcase(
+    path: Path = typer.Argument(Path("out/v1"), help="A validated (e.g. frozen) run; read only."),
+    scenes: str = typer.Option(
+        None, help="Comma-separated scene ids (default scene_0004,scene_0170,scene_0014)."
+    ),
+    out: Path = typer.Option(Path("out/verify_showcase"), help="Where the re-renders go."),
+    timeout: float = typer.Option(1800, help="Seconds per scene before Blender is killed."),
+    replay: int = typer.Option(
+        5, help="Also replay the run's first N scenes in one Blender process, as rendered (0: no)."
+    ),
+) -> None:
+    """Rule C on a frozen run: re-sample and re-render the scenes once on the GPU and twice on
+    the CPU, and replay the first render batch; show what is exact and how close images come."""
+    from vtf.validate.showcase import verify_showcase as run_showcase
+
+    ids = [s.strip() for s in scenes.split(",") if s.strip()] if scenes else None
+    run_showcase(path, scenes=ids, out=out, timeout=timeout, replay=replay)
+
+
+@app.command()
+def quickstart(
+    recipe: Path = typer.Option(None, help="Recipe YAML (default recipes/quick.yaml)."),
+    n: int = typer.Option(7, help="Scenes; each has 3 cameras, so 7 scenes = 21 images."),
+    seed: int = typer.Option(1, help="Run seed; same seed gives byte-identical scene files."),
+    out: Path = typer.Option(Path("out/quick"), help="Run folder (resumes if it exists)."),
+    device: str = typer.Option("gpu", help=DEVICE_HELP),
+    twins: bool = typer.Option(
+        True, "--twins/--no-twins", help="G6: render counterfactual twins for a sample of tasks."
+    ),
+    model: str = typer.Option(
+        None, help="Model for the 20-task eval (default claude-sonnet-5-5 if ANTHROPIC_API_KEY)."
+    ),
+    eval_sample: int = typer.Option(20, help="Tasks in the real-model eval (seeded sample)."),
+) -> None:
+    """One command, end to end: fetch the recipe's CC0 assets, generate, render, validate and
+    package about 20 images, evaluate (fake-oracle always; Sonnet if a key is set), report."""
+    from vtf.quickstart import DEFAULT_RECIPE
+    from vtf.quickstart import quickstart as run_quickstart
+
+    run_quickstart(
+        recipe=recipe or DEFAULT_RECIPE, n=n, seed=seed, out=out, device=device, twins=twins,
+        model=model, eval_sample=eval_sample,
+    )  # fmt: skip
+
+
 @app.command()
 def twin(
     action: str = typer.Argument(..., help="mat, shopping or layouts."),

@@ -6,11 +6,15 @@ recipe, then checked the same way.
 For each sampled scene that produced tasks:
 
 1. re-sample the scene file from the recipe and seed: bytes must be identical;
-2. re-render it into <run>/verify/<scene_id>/: the settled scene file must be byte-identical, the
-   decoded index, depth and amodal masks exactly equal, and the beauty image SSIM >= 0.999
-   (byte-identical when both renders used the CPU);
+2. re-render it into <run>/verify/<scene_id>/ (or out_dir): the settled scene file must be
+   byte-identical and the decoded index, depth and amodal masks exactly equal; the beauty image
+   is compared by SSIM against the rule C target of 0.999;
 3. re-run every task's program on the re-rendered settled scene: answers and the G7 hashes in
    each task must match.
+
+The verdict has two parts: truth (1, the exact half of 2, and 3: everything an answer is
+computed from) and images (near-exact; GPU path tracing and the denoiser move a few colour
+levels between runs, and a CPU re-render of a GPU image differs more).
 """
 
 import json
@@ -67,6 +71,7 @@ def _compare_render(orig_dir: Path, new_dir: Path) -> dict:
     out: dict = {
         "settled_identical": sha256_file(orig_dir / a.settled_scene_file)
         == sha256_file(new_dir / b.settled_scene_file),
+        "devices": {"original": a.device, "rerender": b.device},
         "cameras": {},
     }
     for cam_a in a.cameras:
@@ -93,19 +98,39 @@ def _compare_render(orig_dir: Path, new_dir: Path) -> dict:
     return out
 
 
-def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
+def verify_run(
+    run_dir: Path,
+    sample: int = 5,
+    device: str = "gpu",
+    out_dir: Path | None = None,
+    scenes: list[str] | None = None,
+    timeout: float | None = None,
+    quiet: bool = False,
+) -> dict:
+    """Verify `sample` seeded scenes (or exactly `scenes`); re-renders go to out_dir (default
+    <run>/verify/), so a frozen run can be checked without writing into it."""
     from vtf.programs import run_program
-    from vtf.render.bridge import render_scene
+    from vtf.render.bridge import DEFAULT_TIMEOUT_S, render_scene
 
     run_dir = Path(run_dir)
     lay = layout.RunLayout(run_dir)
+    verify_dir = Path(out_dir) if out_dir is not None else lay.verify_dir
     run_info = read_model(lay.run_file, RunInfo) if lay.run_file.exists() else None
+    wanted = set(scenes) if scenes else None
     tasks_by_scene: dict[str, list] = {}
     for row in read_jsonl(lay.task_manifest):
-        tasks_by_scene.setdefault(row["scene_id"], []).append(read_task(run_dir / row["path"]))
+        if wanted is None or row["scene_id"] in wanted:
+            tasks_by_scene.setdefault(row["scene_id"], []).append(read_task(run_dir / row["path"]))
     scene_ids = sorted(tasks_by_scene)
-    rng = make_rng(derive_seed(run_info.run_seed if run_info else 0, "verify"))
-    picked = sorted(rng.choice(scene_ids, size=min(sample, len(scene_ids)), replace=False).tolist())
+    if wanted is not None:
+        missing = sorted(wanted - set(scene_ids))
+        if missing:
+            raise ValueError(f"no accepted tasks for {', '.join(missing)} in {run_dir}")
+        picked = scene_ids
+    else:
+        rng = make_rng(derive_seed(run_info.run_seed if run_info else 0, "verify"))
+        size = min(sample, len(scene_ids))
+        picked = sorted(rng.choice(scene_ids, size=size, replace=False).tolist())
 
     results = {}
     for sid in picked:
@@ -114,8 +139,8 @@ def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
         res["scene_identical"] = (
             None if regenerated is None else regenerated == scene_file.read_bytes()
         )
-        vdir = lay.verify_dir / sid
-        rr = render_scene(scene_file, vdir, device=device)
+        vdir = verify_dir / sid
+        rr = render_scene(scene_file, vdir, device=device, timeout=timeout or DEFAULT_TIMEOUT_S)
         res["render_seconds"] = round(rr.seconds, 2)
         if not rr.ok:
             res.update(ok=False, error=rr.error)
@@ -139,25 +164,37 @@ def verify_run(run_dir: Path, sample: int = 5, device: str = "gpu") -> dict:
         res["task_hashes_match"] = hashes_ok
         res["n_tasks"] = len(tasks_by_scene[sid])
         cams = res["cameras"].values()
-        res["ok"] = bool(
+        # Truth: what every answer is computed from (exact). Images: near-exact (rule C).
+        res["truth_ok"] = bool(
             res["scene_identical"] is not False
             and res["settled_identical"]
             and all(c["index_equal"] and c["depth_equal"] and c["amodal_equal"] for c in cams)
-            and all(c["beauty_ssim"] >= MIN_SSIM for c in cams)
             and answers_ok
             and hashes_ok
         )
+        res["images_ok"] = all(c["beauty_ssim"] >= MIN_SSIM for c in cams)
+        res["ok"] = res["truth_ok"] and res["images_ok"]
         results[sid] = res
 
+    ssims = [c["beauty_ssim"] for r in results.values() for c in r.get("cameras", {}).values()]
     report = {
         "device": device,
         "sampled": picked,
         "all_ok": all(r.get("ok") for r in results.values()) and bool(results),
+        "truth_ok": all(r.get("truth_ok") for r in results.values()) and bool(results),
+        "images_ok": all(r.get("images_ok") for r in results.values()) and bool(results),
+        "beauty_ssim_min": min(ssims) if ssims else None,
+        "images_below_min_ssim": sum(v < MIN_SSIM for v in ssims),
+        "images": len(ssims),
+        "original_devices": sorted(
+            {r["devices"]["original"] for r in results.values() if "devices" in r}
+        ),
         "scenes": results,
     }
-    lay.verify_dir.mkdir(parents=True, exist_ok=True)
-    (lay.verify_dir / "verify_report.json").write_text(json.dumps(report, indent=2) + "\n")
-    _print(report)
+    verify_dir.mkdir(parents=True, exist_ok=True)
+    (verify_dir / "verify_report.json").write_text(json.dumps(report, indent=2) + "\n")
+    if not quiet:
+        _print(report)
     return report
 
 
@@ -182,4 +219,17 @@ def _print(report: dict) -> None:
                 f"hashes {_yn(r['task_hashes_match'])}, beauty SSIM {c['beauty_ssim']:.6f}"
                 f"{' (identical)' if c['beauty_identical'] else ''}"
             )
-    print("verify: ALL MATCH" if report["all_ok"] else "verify: MISMATCH (see verify_report.json)")
+    print(
+        "verify: truth ALL MATCH (scene files, settled scenes, object index, depth, masks, "
+        "answers, G7 hashes)"
+        if report["truth_ok"]
+        else "verify: truth MISMATCH (see verify_report.json)"
+    )
+    if report["images"]:
+        devices = "/".join(report["original_devices"]) or "?"
+        print(
+            f"verify: images (rule C, near-exact): min beauty SSIM "
+            f"{report['beauty_ssim_min']:.6f}; {report['images_below_min_ssim']} of "
+            f"{report['images']} below {MIN_SSIM} (original on {devices}, re-render on "
+            f"{report['device'].upper()})"
+        )
