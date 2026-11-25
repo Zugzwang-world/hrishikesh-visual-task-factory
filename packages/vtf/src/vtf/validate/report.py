@@ -726,6 +726,59 @@ def render_section(d: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
+def findings_section(path: Path) -> dict[str, Any] | None:
+    """The shortcut findings (scripts/shortcut_findings.py writes findings.json next to the
+    report): a conflict vs no-conflict dot plot per model and effort, the summary table and the
+    plain verdicts. None when there is no findings.json."""
+    if not path.is_file():
+        return None
+    f = json.loads(path.read_text(encoding="utf-8"))
+    rows, table = [], []
+    for m in f.get("models", {}).values():
+        name = f"{m['label']} · {m['effort']}"
+        bc = m["acc"]["by_conflict"]
+        points = {}
+        for key, lab in (("no_conflict", "agrees"), ("conflict", "conflicts")):
+            st = bc[key]
+            c = st.get("ci95") or [None, None]
+            points[key] = {
+                "v": st["accuracy"],
+                "lo": c[0],
+                "hi": c[1],
+                "tip": f"{name}, shortcut {lab}: {_pct(st['accuracy'], 1)} of {st['n']}"
+                + (f" (95% CI {_pct(c[0])} to {_pct(c[1])})" if c[0] is not None else ""),
+            }
+        rows.append({"label": name, "points": points})
+        lg = m.get("logit") or {}
+        table.append(
+            {
+                "name": name,
+                "overall": m["acc"]["overall"],
+                "conflict": bc["conflict"],
+                "no_conflict": bc["no_conflict"],
+                "gap": m["acc"]["gap"],
+                "matched": m["matched"],
+                "odds_ratio": lg.get("conflict_odds_ratio"),
+                "odds_ci": lg.get("conflict_or_ci95_cluster"),
+                "logit_stable": lg.get("stable"),
+                "capture": m["capture"],
+                "capture_obj": m["capture_object_choice"],
+            }
+        )
+    return {
+        "chart": dot_chart(
+            rows,
+            [("no_conflict", "s3"), ("conflict", "s2")],
+            aria="Accuracy when the 2D shortcut agrees or conflicts, per model",
+        ),
+        "table": table,
+        "verdicts": f.get("verdicts", []),
+        "n_tasks": f.get("tasks_common"),
+        "n_spatial": f.get("spatial_common"),
+        "scenes": f.get("scenes"),
+    }
+
+
 def dataset_report(run_dir: Path | str, out_dir: Path | str | None = None, echo=print) -> Path:
     from vtf.package.audit import template_env
 
@@ -759,6 +812,7 @@ def dataset_report(run_dir: Path | str, out_dir: Path | str | None = None, echo=
         "models": models,
         "audit": d["audit"],
         "render": render_section(d),
+        "findings": findings_section(out / "findings.json"),
         "pct": _pct,
     }
     html_text = template_env().get_template("report.html.j2").render(**context)

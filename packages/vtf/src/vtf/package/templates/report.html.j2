@@ -108,7 +108,7 @@ code { font: 13px ui-monospace, Menlo, monospace; }
 <nav class="toc" aria-label="Sections">
   <a href="#gates">Gates</a><a href="#rejections">Rejections</a><a href="#coverage">Coverage</a>
   <a href="#answers">Answers</a><a href="#conflict">2D shortcut</a><a href="#g5">Vision necessity</a>
-  <a href="#twins">Twins</a><a href="#models">Models</a><a href="#audit">Audit</a><a href="#render">Render</a>
+  <a href="#twins">Twins</a><a href="#models">Models</a>{% if findings %}<a href="#findings">Findings</a>{% endif %}<a href="#audit">Audit</a><a href="#render">Render</a>
 </nav>
 
 <h2 id="gates">Gate pass rates</h2>
@@ -186,6 +186,25 @@ code { font: 13px ui-monospace, Menlo, monospace; }
 {% endfor %}
 {% else %}
 <p class="empty">No model has been evaluated on this run yet (<code>vtf eval &lt;run&gt; --sample 1500 --stratify family,rig</code>).</p>
+{% endif %}
+
+{% if findings %}
+<h2 id="findings">Findings: do Claude models take the 2D shortcut?</h2>
+<p class="why">Every model answered the same {{ findings.n_tasks }} tasks ({{ findings.n_spatial }} spatial ones carry the shortcut flag) through the Anthropic API with only the image and the question. Intervals are 95%, from a bootstrap that resamples whole scenes ({{ findings.scenes }} scenes). Full write-up: <a href="findings.md">findings.md</a>.</p>
+<div class="legend"><span><i class="s3"></i>Shortcut agrees with the 3D truth</span><span><i class="s2"></i>Shortcut conflicts</span></div>
+<div class="card">{{ findings.chart }}</div>
+{% if findings.verdicts %}<ul>{% for v in findings.verdicts %}<li>{{ v }}</li>{% endfor %}</ul>{% endif %}
+<div class="scroll"><table><thead><tr><th>Model · effort</th><th>Overall</th><th>Shortcut agrees</th><th>Shortcut conflicts</th><th>Gap (points)</th><th>Matched gap, same family and camera</th><th>Odds ratio for conflict, with covariates</th><th>Shortcut picks vs chance, all spatial</th><th>Same, object-choice families</th></tr></thead><tbody>
+{% for r in findings.table %}<tr><td>{{ r.name }}</td>
+<td>{{ pct(r.overall.accuracy, 1) }}{% if r.overall.ci95 %} ({{ pct(r.overall.ci95[0]) }} to {{ pct(r.overall.ci95[1]) }}){% endif %}</td>
+<td>{{ pct(r.no_conflict.accuracy, 1) }}{% if r.no_conflict.ci95 %} ({{ pct(r.no_conflict.ci95[0]) }} to {{ pct(r.no_conflict.ci95[1]) }}){% endif %}</td>
+<td>{{ pct(r.conflict.accuracy, 1) }}{% if r.conflict.ci95 %} ({{ pct(r.conflict.ci95[0]) }} to {{ pct(r.conflict.ci95[1]) }}){% endif %}</td>
+<td>{{ "%.0f" | format(r.gap.points * 100) }}{% if r.gap.ci95 %} ({{ "%.0f" | format(r.gap.ci95[0] * 100) }} to {{ "%.0f" | format(r.gap.ci95[1] * 100) }}){% endif %}</td>
+<td>{{ "%+.0f" | format(r.matched.gap_conflict_minus_no_conflict * 100) }}{% if r.matched.ci95 %} ({{ "%+.0f" | format(r.matched.ci95[0] * 100) }} to {{ "%+.0f" | format(r.matched.ci95[1] * 100) }}){% endif %}</td>
+<td>{% if r.logit_stable %}{{ r.odds_ratio }} ({{ r.odds_ci[0] }} to {{ r.odds_ci[1] }}){% else %}unstable, see matched gap{% endif %}</td>
+<td>{{ pct(r.capture.capture_share) }} vs {{ pct(r.capture.chance_share) }}{% if r.capture.ratio %}, {{ r.capture.ratio }}x{% endif %}</td>
+<td>{{ pct(r.capture_obj.capture_share) }} vs {{ pct(r.capture_obj.chance_share) }}{% if r.capture_obj.ratio %}, {{ r.capture_obj.ratio }}x{% endif %}{% if r.capture_obj.ratio_ci95 %} ({{ r.capture_obj.ratio_ci95[0] | round(2) }} to {{ r.capture_obj.ratio_ci95[1] | round(2) }}){% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
 {% endif %}
 
 <h2 id="audit">Founder audit</h2>

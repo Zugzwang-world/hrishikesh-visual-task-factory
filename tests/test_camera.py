@@ -60,6 +60,14 @@ def test_distortion_round_trip_and_fill(k1) -> None:
     assert (fill_scale(k1, K) > 1) == (k1 < 0)
 
 
+@pytest.mark.parametrize("k1", [-0.12, 0.08])
+def test_undistort_no_points(k1) -> None:
+    """An object with no pixels in a distorted view back-projects to nothing, not a crash
+    (scenes 0130, 0174 and 0229 of v1 failed validation on this)."""
+    out = undistort_points(np.zeros((0, 2)), k1, K)
+    assert out.shape == (0, 2)
+
+
 def test_warp_moves_points_with_the_map() -> None:
     """A labelled disc lands where distort_points sends its centre, for every warped pass."""
     h, w = 768, 1024

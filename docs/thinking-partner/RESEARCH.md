@@ -37,6 +37,14 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 
 ## New research
 
+### 24 Nov 2026: Claude sweep on frozen v1 and the shortcut analysis (brief 06)
+
+- Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and Opus 5.5 xhigh on the same 1,567 tasks (eval sample plus audit), Anthropic API, same prompts and scorer; batched answers are byte-identical requests at half price. Overall 50.3%, 61.6%, 65.5%, 66.4%. Full tables: [findings.md](../reports/v1/findings.md).
+- The shortcut gap (shortcut agrees minus conflicts) is 25, 24, 26 and 26 points, intervals about 18 to 33 for each (scene bootstrap, 261 scenes, twins clustered with their source). It survives a matched family x camera comparison (-25 to -28 points) and a scene-clustered logistic regression with visible fraction, G4 margin, object count, camera quality and family (conflict odds ratio 0.22 to 0.29; pooled 0.26, 0.19 to 0.35).
+- Scale and thinking do not close it: Opus xhigh vs high changes the gap by +0 points (-5 to +5) while spending about twice the thinking on conflict tasks; Haiku to Opus lifts conflict accuracy by 16 points and leaves the gap where it was.
+- Misses follow the shortcut for the stronger models (wrong answers equal the 2D-shortcut answer 1.36 to 1.48 times as often as chance; Haiku at chance). The effect is concentrated in nearest to gripper (22 of 27 Opus xhigh misses name the object nearest in the image, chance 17%) and reachability; relation and occlusion misses are not systematically the shortcut.
+- Thinking tokens per answer (mean): Opus high 164 / 251 / 150 and xhigh 316 / 550 / 507 for shortcut agrees / conflicts / non-spatial; models think longer on conflict tasks without getting them right.
+
 ### 23 Nov 2026: Stage 3 scale run, Claude Sonnet 5.5 on 1,500 stratified tasks
 
 - **Data.** out/v1: 300 scenes x 3 cameras (the disk floor stopped the run at 300 of 500), 3,181 tasks after G5 rebalancing; sample stratified by family x rig, seed 0. Settings: adaptive thinking, effort high, structured JSON, prompt 0.2.0, API 2026-10-21. Cost $6.80.

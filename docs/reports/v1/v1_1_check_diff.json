@@ -1,0 +1,347 @@
+{
+  "a": "out/v1",
+  "b": "out/v1_1_check",
+  "scenes_with_tasks": {
+    "a": 261,
+    "b": 264
+  },
+  "base_tasks": {
+    "a": 3475,
+    "b": 3511
+  },
+  "scenes_identical": 261,
+  "scenes_different": [
+    "scene_0130",
+    "scene_0174",
+    "scene_0229"
+  ],
+  "per_scene": {
+    "scene_0130": {
+      "only_in_a": [],
+      "only_in_b": [
+        "t000d5c9dcdc35084",
+        "t0020565b8d002ad8",
+        "t076d207982c86c58",
+        "t08e25c06067175ad",
+        "t26f8bfb53f8f1315",
+        "t2bce98d104421771",
+        "t50c247d5ac790480",
+        "ta7a315e01f4314bb",
+        "ta7d80cf47d19691d",
+        "tbb34ec40e885df3e",
+        "tc9caf24ecd998e11"
+      ],
+      "answer_changed": [],
+      "new_tasks": [
+        {
+          "task_id": "t000d5c9dcdc35084",
+          "family": "relation",
+          "camera_id": "overhead",
+          "answer": "avocado",
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t0020565b8d002ad8",
+          "family": "count_attribute",
+          "camera_id": "overhead",
+          "answer": 0,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t076d207982c86c58",
+          "family": "count",
+          "camera_id": "overhead",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t08e25c06067175ad",
+          "family": "count_attribute",
+          "camera_id": "front",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t26f8bfb53f8f1315",
+          "family": "distance",
+          "camera_id": "front",
+          "answer": 33.7,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t2bce98d104421771",
+          "family": "front_to_back",
+          "camera_id": "front",
+          "answer": "cube",
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t50c247d5ac790480",
+          "family": "count_attribute",
+          "camera_id": "gripper",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "ta7a315e01f4314bb",
+          "family": "containment",
+          "camera_id": "overhead",
+          "answer": [
+            "onion"
+          ],
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "ta7d80cf47d19691d",
+          "family": "support",
+          "camera_id": "front",
+          "answer": "table",
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "tbb34ec40e885df3e",
+          "family": "front_to_back",
+          "camera_id": "overhead",
+          "answer": "onion",
+          "shortcut_conflict": true
+        },
+        {
+          "task_id": "tc9caf24ecd998e11",
+          "family": "reachability",
+          "camera_id": "front",
+          "answer": [
+            "avocado",
+            "purple ball"
+          ],
+          "shortcut_conflict": false
+        }
+      ]
+    },
+    "scene_0174": {
+      "only_in_a": [],
+      "only_in_b": [
+        "t306d71c9485347df",
+        "t38d2d1ef796e5060",
+        "t6f2fb52f4772d447",
+        "t6f40763b2ee2b06e",
+        "t72bb65a8b424e8b3",
+        "t759abcbc63475692",
+        "t963e4243c8da8c87",
+        "t96dbc3bbc2d0eda1",
+        "ta6eae098942e3c28",
+        "tbaaec536ff02ce2f",
+        "tefc14989a95ae745"
+      ],
+      "answer_changed": [],
+      "new_tasks": [
+        {
+          "task_id": "t306d71c9485347df",
+          "family": "nearest_to_gripper",
+          "camera_id": "gripper",
+          "answer": "basket",
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t38d2d1ef796e5060",
+          "family": "nearest_to_gripper",
+          "camera_id": "front",
+          "answer": "basket",
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t6f2fb52f4772d447",
+          "family": "front_to_back",
+          "camera_id": "overhead",
+          "answer": "baseball",
+          "shortcut_conflict": true
+        },
+        {
+          "task_id": "t6f40763b2ee2b06e",
+          "family": "free_space",
+          "camera_id": "overhead",
+          "answer": false,
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t72bb65a8b424e8b3",
+          "family": "containment",
+          "camera_id": "front",
+          "answer": [
+            "baseball"
+          ],
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t759abcbc63475692",
+          "family": "count",
+          "camera_id": "front",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t963e4243c8da8c87",
+          "family": "front_to_back",
+          "camera_id": "front",
+          "answer": "plate",
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t96dbc3bbc2d0eda1",
+          "family": "count",
+          "camera_id": "gripper",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "ta6eae098942e3c28",
+          "family": "reachability",
+          "camera_id": "overhead",
+          "answer": [
+            "baseball",
+            "plate"
+          ],
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "tbaaec536ff02ce2f",
+          "family": "free_space",
+          "camera_id": "front",
+          "answer": true,
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "tefc14989a95ae745",
+          "family": "containment",
+          "camera_id": "overhead",
+          "answer": [
+            "baseball"
+          ],
+          "shortcut_conflict": null
+        }
+      ]
+    },
+    "scene_0229": {
+      "only_in_a": [],
+      "only_in_b": [
+        "t03fefb02523f0912",
+        "t111e4442b4799a41",
+        "t1db029dcadd73bd3",
+        "t3566cfa54913842d",
+        "t42c19d88f8db4675",
+        "t5df648ea0372d58f",
+        "t62a9e53c854b0ca2",
+        "t882f71b17885a36e",
+        "t8daa9bad37538a85",
+        "t92bc0c9c1ca88208",
+        "tb9d865d960115c14",
+        "tc6c896d5e6f2bbf2",
+        "td028e9ed49f570f6",
+        "td5e79f1d3da485ec"
+      ],
+      "answer_changed": [],
+      "new_tasks": [
+        {
+          "task_id": "t03fefb02523f0912",
+          "family": "support",
+          "camera_id": "gripper",
+          "answer": "table",
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t111e4442b4799a41",
+          "family": "occlusion",
+          "camera_id": "front",
+          "answer": "hammer",
+          "shortcut_conflict": true
+        },
+        {
+          "task_id": "t1db029dcadd73bd3",
+          "family": "count_attribute",
+          "camera_id": "front",
+          "answer": 0,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t3566cfa54913842d",
+          "family": "distance",
+          "camera_id": "overhead",
+          "answer": 29.0,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t42c19d88f8db4675",
+          "family": "count",
+          "camera_id": "overhead",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t5df648ea0372d58f",
+          "family": "containment",
+          "camera_id": "gripper",
+          "answer": [],
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t62a9e53c854b0ca2",
+          "family": "containment",
+          "camera_id": "overhead",
+          "answer": [],
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t882f71b17885a36e",
+          "family": "free_space",
+          "camera_id": "front",
+          "answer": false,
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "t8daa9bad37538a85",
+          "family": "count",
+          "camera_id": "gripper",
+          "answer": 1,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "t92bc0c9c1ca88208",
+          "family": "count_attribute",
+          "camera_id": "gripper",
+          "answer": 0,
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "tb9d865d960115c14",
+          "family": "relation",
+          "camera_id": "front",
+          "answer": "croissant",
+          "shortcut_conflict": true
+        },
+        {
+          "task_id": "tc6c896d5e6f2bbf2",
+          "family": "reachability",
+          "camera_id": "overhead",
+          "answer": [
+            "ball",
+            "pot"
+          ],
+          "shortcut_conflict": false
+        },
+        {
+          "task_id": "td028e9ed49f570f6",
+          "family": "containment",
+          "camera_id": "front",
+          "answer": [],
+          "shortcut_conflict": null
+        },
+        {
+          "task_id": "td5e79f1d3da485ec",
+          "family": "free_space",
+          "camera_id": "overhead",
+          "answer": false,
+          "shortcut_conflict": false
+        }
+      ]
+    }
+  }
+}
