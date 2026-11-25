@@ -71,22 +71,24 @@ uv sync
 uv run vtf quickstart
 ```
 
-One command runs the whole factory on [recipes/quick.yaml](recipes/quick.yaml): it fetches 13 CC0 models and one HDRI from Poly Haven (about 18 MB, first run only), samples 7 scenes from seed 1, renders 21 images in Blender with masks and depth, compiles and gates the questions, renders G6 twins, packages the tasks, evaluates them, and writes a report. Without a key it evaluates with `fake-oracle`, which must score 100% (a check of the scorer); with `ANTHROPIC_API_KEY` in `.env` it also runs Claude Sonnet 5.5 on a 20-task sample (about $0.09). About 4 minutes on an Apple-silicon GPU; see [docs/reports/quickstart_check.md](docs/reports/quickstart_check.md) for a timed run from a fresh clone.
+One command runs the whole factory on [recipes/quick.yaml](recipes/quick.yaml): it fetches 13 CC0 models and one HDRI from Poly Haven (about 18 MB, first run only), samples 7 scenes from seed 1, renders 21 images in Blender with masks and depth, compiles and gates the questions, renders G6 twins, packages the tasks, evaluates them, and writes a report. Without a key it evaluates with `fake-oracle`, which must score 100% (a check of the scorer); with `ANTHROPIC_API_KEY` in `.env` it also runs Claude Sonnet 5.5 on a 20-task sample (about $0.09). About 5 minutes on an Apple M4 (GPU), 1.5 of them the one-time download; [docs/reports/quickstart_check.md](docs/reports/quickstart_check.md) records a timed run from a fresh clone.
 
 Then look at `out/quick/report/index.html`, `out/quick/report/contact_sheet.png`, a task in `out/quick/tasks/<task_id>/task.json`, and the rejection log `out/quick/rejected.jsonl`.
 
-Check repeatability (re-sample, re-render on the CPU, compare every hash):
+Check repeatability: re-sample two scenes from the seed, re-render them, re-run every question, compare every hash.
 
 ```bash
-uv run vtf verify out/quick --sample 2 --device cpu
+uv run vtf verify out/quick --sample 2
 ```
+
+Expect `truth ALL MATCH` (scene files, settled scenes, object index, depth, masks, answers and G7 hashes exact) and a line with the beauty images' SSIM: GPU re-renders come back at about 0.998 to 0.9999, not byte for byte (Metal path tracing plus the denoiser).
 
 Verify the published dataset itself, from the Hugging Face release (results: [docs/reports/v1/verify_showcase.md](docs/reports/v1/verify_showcase.md)):
 
 ```bash
 hf download Hrishi1802/hrishikesh-visual-task-factory --repo-type dataset --local-dir out/v1
 uv run python assets/fetch_manifest.py      # all 40 CC0 models used by v1 (about 60 MB)
-uv run vtf verify-showcase out/v1           # 3 scenes: once on the GPU, twice on the CPU
+uv run vtf verify-showcase out/v1           # 3 scenes on GPU and twice on CPU, plus the first batch replayed
 ```
 
 The full pipeline step by step, a scale run and the evaluation commands are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#commands).
@@ -105,4 +107,4 @@ The full pipeline step by step, a scale run and the evaluation commands are in [
 | `web/` | Task Explorer (Next.js and three.js) |
 | `tests/` | `uv run pytest` |
 
-Limits, stated plainly: only Claude models have been evaluated so far; the founder's blind audit and the physical-twin photos (G8) are still being done; GPU renders match at SSIM 0.999 or above rather than byte for byte (CPU renders are byte-identical).
+Limits, stated plainly: only Claude models have been evaluated so far; the founder's blind audit and the physical-twin photos (G8) are still being done. Re-rendered images are near-exact, not byte-identical: SSIM 0.998 or above on the GPU, and two CPU renders differ by a few colour levels in under 0.01% of pixels. `vtf verify` also caught a renderer bug: in v1, an object already drawn by an earlier scene in the same Blender process kept the simplified material of that scene's 3D-viewer export, which can affect 248 of 261 scenes (answers, masks and depth unaffected; see [verify_showcase.md](docs/reports/v1/verify_showcase.md)).

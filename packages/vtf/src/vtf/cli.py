@@ -338,13 +338,16 @@ def verify_showcase(
     ),
     out: Path = typer.Option(Path("out/verify_showcase"), help="Where the re-renders go."),
     timeout: float = typer.Option(1800, help="Seconds per scene before Blender is killed."),
+    replay: int = typer.Option(
+        5, help="Also replay the run's first N scenes in one Blender process, as rendered (0: no)."
+    ),
 ) -> None:
     """Rule C on a frozen run: re-sample and re-render the scenes once on the GPU and twice on
-    the CPU; show exact scene files, masks, depth and answers, GPU SSIM, and CPU byte identity."""
+    the CPU, and replay the first render batch; show what is exact and how close images come."""
     from vtf.validate.showcase import verify_showcase as run_showcase
 
     ids = [s.strip() for s in scenes.split(",") if s.strip()] if scenes else None
-    run_showcase(path, scenes=ids, out=out, timeout=timeout)
+    run_showcase(path, scenes=ids, out=out, timeout=timeout, replay=replay)
 
 
 @app.command()

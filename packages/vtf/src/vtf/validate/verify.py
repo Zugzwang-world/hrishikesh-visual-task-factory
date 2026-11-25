@@ -6,11 +6,15 @@ recipe, then checked the same way.
 For each sampled scene that produced tasks:
 
 1. re-sample the scene file from the recipe and seed: bytes must be identical;
-2. re-render it into <run>/verify/<scene_id>/: the settled scene file must be byte-identical, the
-   decoded index, depth and amodal masks exactly equal, and the beauty image SSIM >= 0.999
-   (byte-identical when both renders used the CPU);
+2. re-render it into <run>/verify/<scene_id>/ (or out_dir): the settled scene file must be
+   byte-identical and the decoded index, depth and amodal masks exactly equal; the beauty image
+   is compared by SSIM against the rule C target of 0.999;
 3. re-run every task's program on the re-rendered settled scene: answers and the G7 hashes in
    each task must match.
+
+The verdict has two parts: truth (1, the exact half of 2, and 3: everything an answer is
+computed from) and images (near-exact; GPU path tracing and the denoiser move a few colour
+levels between runs, and a CPU re-render of a GPU image differs more).
 """
 
 import json
@@ -67,6 +71,7 @@ def _compare_render(orig_dir: Path, new_dir: Path) -> dict:
     out: dict = {
         "settled_identical": sha256_file(orig_dir / a.settled_scene_file)
         == sha256_file(new_dir / b.settled_scene_file),
+        "devices": {"original": a.device, "rerender": b.device},
         "cameras": {},
     }
     for cam_a in a.cameras:
@@ -159,20 +164,31 @@ def verify_run(
         res["task_hashes_match"] = hashes_ok
         res["n_tasks"] = len(tasks_by_scene[sid])
         cams = res["cameras"].values()
-        res["ok"] = bool(
+        # Truth: what every answer is computed from (exact). Images: near-exact (rule C).
+        res["truth_ok"] = bool(
             res["scene_identical"] is not False
             and res["settled_identical"]
             and all(c["index_equal"] and c["depth_equal"] and c["amodal_equal"] for c in cams)
-            and all(c["beauty_ssim"] >= MIN_SSIM for c in cams)
             and answers_ok
             and hashes_ok
         )
+        res["images_ok"] = all(c["beauty_ssim"] >= MIN_SSIM for c in cams)
+        res["ok"] = res["truth_ok"] and res["images_ok"]
         results[sid] = res
 
+    ssims = [c["beauty_ssim"] for r in results.values() for c in r.get("cameras", {}).values()]
     report = {
         "device": device,
         "sampled": picked,
         "all_ok": all(r.get("ok") for r in results.values()) and bool(results),
+        "truth_ok": all(r.get("truth_ok") for r in results.values()) and bool(results),
+        "images_ok": all(r.get("images_ok") for r in results.values()) and bool(results),
+        "beauty_ssim_min": min(ssims) if ssims else None,
+        "images_below_min_ssim": sum(v < MIN_SSIM for v in ssims),
+        "images": len(ssims),
+        "original_devices": sorted(
+            {r["devices"]["original"] for r in results.values() if "devices" in r}
+        ),
         "scenes": results,
     }
     verify_dir.mkdir(parents=True, exist_ok=True)
@@ -203,4 +219,17 @@ def _print(report: dict) -> None:
                 f"hashes {_yn(r['task_hashes_match'])}, beauty SSIM {c['beauty_ssim']:.6f}"
                 f"{' (identical)' if c['beauty_identical'] else ''}"
             )
-    print("verify: ALL MATCH" if report["all_ok"] else "verify: MISMATCH (see verify_report.json)")
+    print(
+        "verify: truth ALL MATCH (scene files, settled scenes, object index, depth, masks, "
+        "answers, G7 hashes)"
+        if report["truth_ok"]
+        else "verify: truth MISMATCH (see verify_report.json)"
+    )
+    if report["images"]:
+        devices = "/".join(report["original_devices"]) or "?"
+        print(
+            f"verify: images (rule C, near-exact): min beauty SSIM "
+            f"{report['beauty_ssim_min']:.6f}; {report['images_below_min_ssim']} of "
+            f"{report['images']} below {MIN_SSIM} (original on {devices}, re-render on "
+            f"{report['device'].upper()})"
+        )
