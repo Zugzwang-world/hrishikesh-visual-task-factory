@@ -60,7 +60,7 @@ Work items in build order. Status is todo, doing or done. Add, split or drop ite
 | ID | Item | Size | Done when | Status |
 | --- | --- | --- | --- | --- |
 | P25 | Task Explorer on Vercel: glTF scene viewer, camera views, question, truth, every model's answer, gate evidence | L | Public URL works on a laptop and a phone | done: v1 with every Claude model and a conflict gallery, https://vtf-task-explorer.vercel.app (re-export when other providers land) |
-| P26 | Hugging Face dataset release and data card | S | Public dataset page | doing (VTF-07 lane A; token rotated, upload allowed) |
-| P27 | README for judges, quick 20-image recipe (one command), `vtf verify` showcase, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE docs; Dockerfile cut 25 Nov | M | A fresh clone runs the quickstart (docs/reports/quickstart_check.md) | doing (VTF-07 lane A) |
+| P26 | Hugging Face dataset release and data card | S | Public dataset page | done (25 Nov): https://huggingface.co/datasets/Hrishi1802/hrishikesh-visual-task-factory, public, 29,381 files, 2.54 GB, CC0 data card with the frozen hashes and the known material issue (scripts/hf_release.py) |
+| P27 | README for judges, quick 20-image recipe (one command), `vtf verify` showcase, VALIDATION / EVAL_PROTOCOL / ARCHITECTURE docs; Dockerfile cut 25 Nov | M | A fresh clone runs the quickstart (docs/reports/quickstart_check.md) | done (25 Nov): `uv run vtf quickstart` (recipes/quick.yaml: 7 scenes, 21 images, 112 tasks in 12 families), fresh clone to verified run in 4 min 15 s; [verify showcase](../reports/v1/verify_showcase.md); docs/VALIDATION.md, EVAL_PROTOCOL.md, ARCHITECTURE.md |
 | P28 | Technical slides on the organizers' template, and a demo video script; then record the video; the slide media pack moves to this demo run (25 Nov) | M | Slides and video ready | todo |
 | P29 | Submission: every CHECKLIST.md row green, form fields drafted for the founder | S | Founder submits | todo |

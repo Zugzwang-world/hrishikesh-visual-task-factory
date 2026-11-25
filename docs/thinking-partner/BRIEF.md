@@ -130,7 +130,7 @@ No email for now. We finalise the build first and raise any questions later thro
 | Answers independent of the model being tested | Official brief | Truth comes from the scene file; every gate is model-free |
 | Evaluate frontier models, report strengths and weaknesses | Official brief | Evaluation harness and findings report |
 | A reusable factory, no hard-coding | Clint | Recipes, seeds, plugin structure |
-| Repeatable | Clint; 25% | Rule C: scene files and answers byte-identical everywhere; masks and depth exact on re-render; images SSIM 0.999 or above on the GPU, byte-identical with the CPU device option |
+| Repeatable | Clint; 25% | Rule C: scene files and answers byte-identical everywhere; masks and depth exact on re-render; images near-exact (measured 25 Nov: GPU re-renders SSIM 0.998 to 0.9999; two CPU renders byte-identical for 6 of 9 images, the rest within 4 colour levels in under 0.01% of pixels) |
 | Public GitHub, docs, prototype, demo video, slides on their template | Submission form | Code and a sample on GitHub; the full image set on Hugging Face |
 | Judges can rerun it | Clint | A quick 20-image recipe with one command, `vtf verify`, and the pre-rendered release (Docker cut 25 Nov) |
 
@@ -225,14 +225,14 @@ Every task passes eight gates before it ships, and none of them asks an AI model
 | G4 No near-ties | Exactly one right answer | Compared distances, depths and positions differ by more than both a metric margin and a pixel margin | Margins |
 | G5 Vision necessity | The answer can't be guessed without the image | Balanced answer distributions; prior-only and question-only LLM baselines | Blind accuracy per family |
 | G6 Counterfactual twin | The answer depends on the scene | Move one object, re-render, re-run: the answer must change and the twin must pass G1–G5 | Twin ID and both answers |
-| G7 Determinism | Same seed, same task | Task ID hashes the recipe, versions and seed. Scene files and answers are byte-identical everywhere. Masks and depth must be exactly equal (decoded pixels) on every re-render with the pinned Blender version; they carry all the truth, and G2 recomputes answers from them. Images must match at SSIM 0.999 or above on the default GPU device, and are byte-identical when rendered with the CPU device option | Hashes, SSIM scores |
+| G7 Determinism | Same seed, same task | Task ID hashes the recipe, versions and seed. Scene files and answers are byte-identical everywhere. Masks and depth must be exactly equal (decoded pixels) on every re-render with the pinned Blender version; they carry all the truth, and G2 recomputes answers from them. Images are near-exact: SSIM about 0.998 or above on the default GPU device; CPU renders are near-identical, not always byte-identical (measured 25 Nov, docs/reports/v1/verify_showcase.md) | Hashes, SSIM scores |
 | G8 Physical twin | A real photo still shows the evidence | Mat corner markers (OpenCV ArUco) map the layout onto the photo, then a human legibility check | Photo-to-layout transform, checker |
 
 **Three design rules behind the gates.**
 
 - **A. Answerable from what's visible.** Ask for centimetres only when the printed grid or a known-size object is in frame; otherwise ask comparisons. Never count, or ask about, objects that are fully hidden.
 - **B. No near-ties.** Enforced by G4.
-- **C. Honest repeatability.** Enforced by G7, and stated plainly in the README. Exact: scene files and answers (byte-identical everywhere), masks and depth (equal on every re-render). Near-exact: images pass at SSIM 0.999 or above, because GPU path tracing can change a few pixels by one colour level between runs. GPU is the default for speed; the CPU device option gives byte-identical images when they are wanted, for example `vtf verify` on stage.
+- **C. Honest repeatability.** Enforced by G7, and stated plainly in the README. Exact: scene files and answers (byte-identical everywhere), masks and depth (equal on every re-render). Near-exact: images, because path tracing can change a few pixels by a few colour levels between runs (measured 25 Nov: GPU SSIM 0.998 to 0.9999; CPU renders byte-identical for most images, within 4 colour levels otherwise). `vtf verify` prints the exact truth checks and the image similarity on separate lines.
 
 **Founder audit.** The founder answers a stratified sample of about 150 tasks blind, through a small labelling page; a friend as a second annotator is optional. Target: at least 98% accuracy. Every miss is traced to a generator bug, fixed and logged.
 
