@@ -7,10 +7,10 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 1. **Hook: beyond 2D.** Most teams bring charts and documents. Robots see the physical world, and a spatial mistake becomes a wrong grasp or a collision. Show one workcell render next to a 2D chart: "we went one dimension further."
 2. **The problem.** Vision-language models now drive robot perception, and they struggle with depth, distance, occlusion and counting in clutter. AI image generators can't even guarantee counts, so they can't make the answer key. A 3D engine knows where every object is.
 3. **Task Explorer, live.** Rotate a 3D scene, switch between the overhead, front and gripper cameras, open a question, show its true answer and every model's answer side by side.
-4. **Proof, live: `vtf verify`.** Rebuild 20 random tasks from their seeds on stage, show matching hashes, then open one rejected task and the gate that threw it out.
+4. **Proof, live: `vtf verify`.** Re-render two quickstart scenes on stage (22 s): scene files, masks, depth and answers match exactly, images near-exact; then open one rejected task and the gate that threw it out.
 5. **The findings.** Skill-by-model accuracy, breaking-point curves (clutter, occlusion, camera quality), error attribution, and one model risk card in Innodata's T&E vocabulary.
 6. **Physical twins.** A real photo of a real table arranged from a generated layout, with exact answers, and the rendered-to-real accuracy gap.
-7. **Close: ready to adopt.** YAML recipes, bring-your-own objects and models, Docker, exports for training data and verifiable rewards. Built for Innodata's physical-AI bet.
+7. **Close: ready to adopt.** One-command quickstart, YAML recipes, bring-your-own objects and models, the dataset on Hugging Face, exports for training data and verifiable rewards. Built for Innodata's physical-AI bet.
 
 ## Assets to collect as we go
 
@@ -30,14 +30,14 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 | Clutter ladder: same scene at 3, 10, 25 objects | Variation story | To do (stage 3) |
 | Counterfactual twin pair (before/after, answer flips) | Originality beat | Finding done (25 Nov): [docs/media/twin_flip.png](../media/twin_flip.png): on 484 twin pairs both answers right for 34% (Haiku) to 52% (Opus high); given the original right, 9 to 15% repeat the old answer; a before/after image pair still to make for the slides (demo run) |
 | Gate report screenshot and a rejected-task example | Proof beat | Report done (docs/reports/v1); screenshot to take for the slides |
-| `vtf verify` terminal recording | Proof beat | To do (stage 3) |
+| `vtf verify` terminal recording | Proof beat | Script ready: `uv run vtf verify out/quick --sample 2` (22 s; prints the exact truth checks and image SSIM on separate lines) or `uv run vtf verify-showcase out/v1` (about 7 min); results in [verify_showcase.md](../reports/v1/verify_showcase.md); record during the demo run |
 | Skill x model accuracy chart with intervals | Findings | Claude part done: accuracy by family, camera and shortcut split per model, with scene-bootstrap intervals, in [findings.md](../reports/v1/findings.md); other providers wait for keys |
 | Breaking-point curves per difficulty control | Findings | Done (25 Nov): [docs/media/breaking_point.png](../media/breaking_point.png): hidden evidence costs every Claude setting 10 to 13 points; a harsh camera costs Sonnet and Opus 12 to 16; odds x0.73 to x0.83 per 10 more objects |
 | Model risk card (one per model) | Findings | Done (25 Nov): [docs/reports/v1/risk_cards.md](../reports/v1/risk_cards.md), one column per Claude setting with two example images each |
-| Physical-twin photo next to its render and layout | Physical-twin beat | To do (alongside 3–4) |
-| Rendered-to-real gap chart | Physical-twin beat | To do (stage 4) |
-| Task Explorer v1, live | Live demo | **Done (brief 06):** https://vtf-task-explorer.vercel.app, frozen v1 with Haiku, Sonnet, Opus high and Opus xhigh answers plus the blind baseline, and a **Conflict gallery** (https://vtf-task-explorer.vercel.app/?view=gallery): 12 scenes where every model took the 2D shortcut, with the true answer (blue) and the shortcut object (orange) marked on the image and in 3D. Demo path: open the gallery, pick "nearest to gripper", rotate the 3D view to show the true nearest object. Rebuild: the export command in web/README.md, then `vercel deploy --prod --yes` in web/ |
-| Task Explorer screen recording | Live-demo backup | To do (stage 5) |
+| Physical-twin photo next to its render and layout | Physical-twin beat | Pipeline ready (25 Nov): each passing photo gets a rendered sibling from the photo's own camera pose, with an overlay of every object's outline; waits for the photo session (docs/twins/photo_session.pdf) |
+| Rendered-to-real gap chart | Physical-twin beat | Script ready: `uv run vtf twin sim-to-real out/twins_real --model <claude model>` (accuracy on photos vs renders, intervals, McNemar); waits for the photos |
+| Task Explorer v1, live | Live demo | **Done (brief 06; verification panel added 25 Nov):** https://vtf-task-explorer.vercel.app, frozen v1 with Haiku, Sonnet, Opus high and Opus xhigh answers plus the blind baseline, and a **Conflict gallery** (https://vtf-task-explorer.vercel.app/?view=gallery): 12 scenes where every model took the 2D shortcut, with the true answer (blue) and the shortcut object (orange) marked on the image and in 3D. Demo path: open the gallery, pick "nearest to gripper", rotate the 3D view to show the true nearest object. Rebuild: the export command in web/README.md, then `vercel deploy --prod --yes` in web/ |
+| Task Explorer screen recording | Live-demo backup | To do (demo run). The Explorer now opens with a "How it's verified" panel (G1 to G7 with the v1 numbers, links to VALIDATION, findings, risk cards and the verify showcase) |
 
 ## Physical twins: shopping list (P19, trimmed 25 Nov for 12 layouts)
 

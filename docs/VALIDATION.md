@@ -19,7 +19,7 @@ Every task in dataset v1 passed the same model-free checks, and every rejected q
 | G5 Vision necessity | The answer cannot be guessed without the image | Answer distributions capped per family (yes/no 45 to 55%, any one answer at most 35%), then prior-only and question-only baselines | 3,181 of 3,959 kept (778 dropped to balance) |
 | G6 Counterfactual twin | The answer depends on the scene | Seeded 20% sample per family and camera rig: edit the scene by the family's twin rule (move, remove, flip), re-render, re-run G1 to G4; the answer must change | 484 / 484 valid twins changed the answer |
 | G7 Determinism | Same seed, same task | Hashes of scene, settled scene, index, depth and answer; scene re-sampled from the seed and compared byte for byte | 3,653 / 3,653 (100%) |
-| G8 Physical twin | A real photo still shows the evidence | Real objects placed on a printed mat by a generated layout; ArUco corners map the layout onto the photo | Placeholder, see below |
+| G8 Physical twin | A real photo still shows the evidence | Real objects placed on a printed mat by a generated layout; ArUco corners map the layout onto the photo | Proved on digital twins (36 of 36 pass, 3 of 3 misplaced rejected); real photos to come, see below |
 
 ## The v1 funnel
 
@@ -69,4 +69,13 @@ A second piece of repeatability evidence came from a bug. Three scenes (0130, 01
 
 ## Physical twins (G8)
 
-> **Placeholder.** 12 generated layouts built from 8 real objects on the printed mat (docs/twins/), photographed from fixed phone spots; ArUco corner markers register each photo to its layout, so real photos carry exact answers. Photos, G8 checks and the rendered-to-real accuracy gap: to be added.
+12 generated layouts built from 8 real objects (6 kinds) on the printed mat ([docs/twins/](twins/)), chosen to cover every question family with the fewest objects ([selection.json](twins/selection.json)), photographed from three phone spots ([photo_session.md](twins/photo_session.md)). G8 finds the mat's ArUco corner markers, works out the phone's pose, and checks every object against its layout position; each passing photo gets a synthetic sibling rendered from that estimated pose, so real and rendered images carry the same exact questions.
+
+**Proved on the digital twins before any photo** ([g8_digital_check.md](twins/g8_digital_check.md)), the 12 layouts rendered on the printed mat from the three spots:
+
+- Correctly placed: **36 of 36 views pass**. Misplaced control (one object moved 4 cm): **3 of 3 views rejected** (measured 39 to 41 mm).
+- Camera pose from the markers: median error 0.62 mm and 0.055 degrees (max 3.2 mm, 0.30 degrees); marker reprojection at most 1.4 px.
+- Placement of correctly placed objects: median error 1 mm, max 10 mm, against a 2 cm tolerance. White objects (tape roll, spray bottle) on the white mat are not checked automatically; their outlines go on an overlay for a glance.
+- End to end on 39 stand-in photos (renders under shuffled names): every correct view recognised and passed, 154 tasks paired one to one with their rendered siblings ([photo_pipeline_proof.md](twins/photo_pipeline_proof.md)). One layout (L08) gives no tasks: its bowl contents never settle in the physics simulation, so the photo guide says to skip it.
+
+> **Placeholder.** Real photos, their G8 results and the rendered-to-real accuracy gap per Claude setting (`uv run vtf twin sim-to-real`): to be added after the photo session.

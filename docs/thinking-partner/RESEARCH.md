@@ -37,6 +37,12 @@ Innodata reported record Q3 2026 revenue of $95.6M, up 53% year over year, in Ra
 
 ## New research
 
+### 25 Nov 2026: Breaking points and counterfactual twins on frozen v1 (brief VTF-07)
+
+- Difficulty controls move accuracy for every Claude setting we tested (family-adjusted, fixed level pairs, scene-bootstrap intervals): evidence under 60% visible vs fully visible costs 10 to 13 points; a harsh camera vs clean costs Sonnet and Opus 12 to 16 points but not detectably Haiku; CCTV vs clean costs Haiku and Sonnet 8 to 9 points but not detectably either Opus setting; odds of a right answer x0.73 to x0.83 per 10 more objects (all intervals below 1). Full tables: [findings.md](../reports/v1/findings.md) sections 5 and 6.
+- Counterfactual twins (all 484 G6 pairs, one object moved so the truth changed): both answers right for Haiku 34%, Sonnet 46%, Opus high 52%, Opus xhigh 50%; given the original right, the twin is right 68 to 80% of the time and the old answer is repeated 9 to 15% (mostly counts). Opus xhigh vs high: -2 points (-5 to +1). 1,920 new batched answers, $7.02.
+- Repeatability measured (verify showcase): truth exact on GPU and CPU (scene files, settled poses, masks, depth, answers, G7 hashes); images near-exact; the check found a renderer material bug in batch renders (OPEN 16), which never touches answers.
+
 ### 24 Nov 2026: Claude sweep on frozen v1 and the shortcut analysis (brief 06)
 
 - Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and Opus 5.5 xhigh on the same 1,567 tasks (eval sample plus audit), Anthropic API, same prompts and scorer; batched answers are byte-identical requests at half price. Overall 50.3%, 61.6%, 65.5%, 66.4%. Full tables: [findings.md](../reports/v1/findings.md).
