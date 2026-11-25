@@ -41,6 +41,7 @@
 - **Blind audit, 150 tasks (46 of them shortcut-conflict tasks, all three cameras):** open out/v1/audit/index.html on the laptop (main checkout), answer, export the JSON, and say where it is; I score it with `vtf audit score`. The 12 stage-2 nearest-to-gripper tasks are ready at out/audit_s2/index.html.
 - **Shopping list:** 15 items, 23 pieces, in DEMO.md; print docs/twins/mat_A3.pdf at 100%.
 - **Disk:** 23 GB free at 23:55. Docker Desktop's VM disk holds 41 GB and was written tonight; trimming it (Docker Desktop, Troubleshoot, Clean / Purge data) or freeing about 3 GB more lets the last 200 scenes run. Resume (re-renders nothing): `cd .claude/worktrees/run-v1 && uv run python scripts/scale_run.py --recipe recipes/v1.yaml --n 500 --seed 1 --out /Users/hrishikesh/code/hrishikesh-visual-task-factory/out/v1 --batch 25 --gltf --twin-fraction 0.2`, then `vtf balance`, eval and report again.
+- Anthropic API key rotated on 24 Nov (works); revoke the old key in the Anthropic Console. The Hugging Face token was also pasted in chat: rotate it before the dataset upload.
 - Turn on two-factor authentication for Vercel: https://vercel.com/account/settings/authentication?setup=authenticator
 
 ## Next

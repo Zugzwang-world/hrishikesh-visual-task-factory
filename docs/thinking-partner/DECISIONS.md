@@ -2,6 +2,12 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 24 Nov 2026: Anthropic API key rotated
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| New Anthropic API key | The founder put a new key into the main checkout's .env himself with a hidden-input command, so it never appeared in chat; checked with one 22-token call to claude-sonnet-5-5 (works). Every worktree reads that .env; the eval cache is unchanged | The old key had been pasted in chat. The old key should now be revoked in the Anthropic Console; the Hugging Face token was also pasted in chat and still needs rotating. |
+
 ## 23 Nov 2026: Integration and the scale run (brief 05, phase B)
 
 | Decision | Choice | Why |
