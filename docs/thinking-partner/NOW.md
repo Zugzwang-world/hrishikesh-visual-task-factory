@@ -50,6 +50,7 @@
 
 ## Next (Phase 2, when the founder says the audit and photos are ready)
 
+0. **First:** `git pull` in the main checkout. Phase 1 was fast-forwarded onto main on GitHub without touching the main checkout during the audit.
 1. **Audit:** `uv run python scripts/audit_vs_models.py --run out/v1 --answers <export>`, using the scale-stated answers by default. Label every disagreement (our bug, ambiguous, human error). Human vs each model, with intervals.
 2. **Photos:** `vtf twin register` (hero photos named H1_front_1.jpg or recognised), reshoot list in NOW.md.
 3. **Sim-to-real:** all four settings on the real tasks and their siblings; say which ending we have.
