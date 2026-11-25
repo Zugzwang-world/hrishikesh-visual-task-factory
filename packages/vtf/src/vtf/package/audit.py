@@ -120,7 +120,7 @@ def make_audit(
     echo: Callable[[str], Any] = print,
 ) -> Path:
     """Write the blind audit page for a stratified sample of `n` accepted tasks (all when None)."""
-    from vtf.eval.runner import manifest_rows, stratified_sample, stratum_value
+    from vtf.eval.runner import manifest_rows, stratified_sample
 
     run_dir = Path(run_dir)
     lay = RunLayout(run_dir)
@@ -135,6 +135,34 @@ def make_audit(
     order = make_rng(derive_seed(seed, "audit-order")).permutation(len(picked))
     picked = [picked[int(i)] for i in order]
 
+    page, strata_counts = _write_page(
+        run_dir, picked, out, seed=seed, strata=strata, image_format=image_format, title=title
+    )
+    families_n = Counter(r.family for r in picked)
+    echo(
+        f"vtf audit: {len(picked)} tasks from {len(rows)} accepted "
+        f"({len(strata_counts)} strata of {' x '.join(strata)}) -> {page}"
+    )
+    echo("  " + ", ".join(f"{f} {c}" for f, c in sorted(families_n.items())))
+    return page
+
+
+def _write_page(
+    run_dir: Path,
+    picked: Sequence[Any],
+    out: Path,
+    *,
+    seed: int,
+    strata: Sequence[str],
+    image_format: str,
+    title: str | None,
+    sample_name: str = SAMPLE_FILE,
+    extra: dict[str, Any] | None = None,
+) -> tuple[Path, Counter]:
+    """Copy the images, write index.html and the sample record for `picked` manifest rows."""
+    from vtf.eval.runner import stratum_value
+
+    lay = RunLayout(run_dir)
     if (out / IMG_DIR).exists():
         shutil.rmtree(out / IMG_DIR)
     items = []
@@ -169,16 +197,118 @@ def make_audit(
         "seed": seed,
         "strata": list(strata),
         "strata_counts": dict(sorted(strata_counts.items())),
+        **(extra or {}),
         "task_ids": ids,
     }
-    (out / SAMPLE_FILE).write_text(json.dumps(sample, indent=2) + "\n", encoding="utf-8")
-    families_n = Counter(item["family"] for item in items)
-    echo(
-        f"vtf audit: {len(items)} tasks from {len(rows)} accepted "
-        f"({len(strata_counts)} strata of {' x '.join(strata)}) -> {out / PAGE}"
+    (out / sample_name).write_text(json.dumps(sample, indent=2) + "\n", encoding="utf-8")
+    return out / PAGE, strata_counts
+
+
+def _base_scene(scene_id: str) -> str:
+    return scene_id.split("_twin_")[0]
+
+
+def refresh_audit(
+    run_dir: Path | str,
+    exclude_scenes: Iterable[str],
+    *,
+    seed: int = 1,
+    prefer_ids: Iterable[str] | None = None,
+    out_dir: Path | str | None = None,
+    sample_name: str = "sample_v2.json",
+    image_format: str = "jpg",
+    title: str | None = None,
+    echo: Callable[[str], Any] = print,
+) -> Path:
+    """Replace every task of the existing audit draw (<audit>/sample.json, left untouched) whose
+    scene the auditor has already seen with answers, by a fresh task of the same family x rig x
+    shortcut_conflict stratum from an unseen scene. Twins count as their source scene.
+
+    Candidates in `prefer_ids` (tasks the models already answered) are taken first. If a stratum
+    has no fresh task, the nearest stratum is used: same family and conflict label on another
+    rig, then the same family, then anything; each replacement records its fallback level.
+    Kept tasks stay in their slots, so the page order only changes where a task was replaced.
+    """
+    from vtf.eval.runner import manifest_rows, stratum_value
+
+    run_dir = Path(run_dir)
+    lay = RunLayout(run_dir)
+    out = Path(out_dir) if out_dir is not None else lay.audit_dir
+    base = json.loads((lay.audit_dir / SAMPLE_FILE).read_text(encoding="utf-8"))
+    strata = tuple(base.get("strata") or DEFAULT_STRATA)
+    excluded = {_base_scene(s) for s in exclude_scenes}
+    prefer = set(prefer_ids or ())
+    rows = manifest_rows(run_dir)
+    by_id = {r.task_id: r for r in rows}
+    used = set(base["task_ids"])
+    fresh = [r for r in rows if _base_scene(r.scene_id) not in excluded]
+
+    def key(r: Any, ks: Sequence[str]) -> tuple[str, ...]:
+        return tuple(stratum_value(r, k) for k in ks)
+
+    levels = (
+        ("same_stratum", strata),
+        ("same_family_and_conflict", ("family", "shortcut_conflict")),
+        ("same_family", ("family",)),
+        ("any", ()),
     )
-    echo("  " + ", ".join(f"{f} {c}" for f, c in sorted(families_n.items())))
-    return out / PAGE
+    picked, replacements = [], []
+    for task_id in base["task_ids"]:
+        row = by_id[task_id]
+        if _base_scene(row.scene_id) not in excluded:
+            picked.append(row)
+            continue
+        level = ""
+        for name, ks in levels:
+            cands = sorted(
+                (c for c in fresh if c.task_id not in used and key(c, ks) == key(row, ks)),
+                key=lambda c: (c.task_id not in prefer, c.task_id),
+            )
+            if cands:
+                level = name
+                break
+        else:
+            raise SystemExit(f"vtf audit refresh: no fresh task left to replace {task_id}")
+        top = [c for c in cands if (c.task_id in prefer) == (cands[0].task_id in prefer)]
+        rng = make_rng(derive_seed(seed, "audit-refresh", task_id))
+        new = top[int(rng.integers(len(top)))]
+        used.add(new.task_id)
+        picked.append(new)
+        replacements.append(
+            {
+                "old": task_id,
+                "old_scene": row.scene_id,
+                "new": new.task_id,
+                "new_scene": new.scene_id,
+                "stratum": "|".join(key(row, strata)),
+                "level": level,
+                "models_answered": new.task_id in prefer,
+            }
+        )
+
+    extra = {
+        "refreshed_from": base["audit_id"],
+        "excluded_scenes": sorted(excluded),
+        "replacements": replacements,
+    }
+    page, strata_counts = _write_page(
+        run_dir,
+        picked,
+        out,
+        seed=seed,
+        strata=strata,
+        image_format=image_format,
+        title=title or f"Blind audit v2: {run_dir.resolve().name} (no Explorer scenes)",
+        sample_name=sample_name,
+        extra=extra,
+    )
+    conflict = sum(r.shortcut_conflict is True for r in picked)
+    fallbacks = Counter(r["level"] for r in replacements)
+    echo(
+        f"vtf audit refresh: {len(replacements)} of {len(picked)} tasks replaced "
+        f"({dict(fallbacks)}); {conflict} shortcut-conflict tasks -> {page}"
+    )
+    return page
 
 
 # --- scoring ----------------------------------------------------------------------------------
@@ -211,8 +341,7 @@ def score_audit(
     audit = Path(audit_dir) if audit_dir is not None else lay.audit_dir
     data = json.loads(Path(answers_path).read_text(encoding="utf-8"))
     entries = _entries(data)
-    sample_file = audit / SAMPLE_FILE
-    sample = json.loads(sample_file.read_text()) if sample_file.is_file() else {}
+    sample = _find_sample(audit, data.get("audit_id") if isinstance(data, dict) else None)
     expected = (data.get("task_ids") if isinstance(data, dict) else None) or sample.get("task_ids")
     expected = list(expected or entries)
 
@@ -287,6 +416,18 @@ def score_audit(
     echo(format_score(result))
     echo(f"  wrote {out / SCORE_FILE}")
     return result
+
+
+def _find_sample(audit: Path, audit_id: str | None) -> dict[str, Any]:
+    """The sample record of this audit: the sample*.json whose audit_id matches the export,
+    else sample.json."""
+    if audit_id and audit.is_dir():
+        for path in sorted(audit.glob("sample*.json")):
+            sample = json.loads(path.read_text(encoding="utf-8"))
+            if sample.get("audit_id") == audit_id:
+                return sample
+    path = audit / SAMPLE_FILE
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
 
 def format_score(result: dict[str, Any]) -> str:

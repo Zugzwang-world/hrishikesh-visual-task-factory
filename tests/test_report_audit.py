@@ -473,6 +473,38 @@ def test_audit_make_and_score(run: Path) -> None:
     assert "misses:" in cli.output and "can't tell" in cli.output
 
 
+def test_audit_refresh_drops_seen_scenes(run: Path) -> None:
+    from vtf.eval.runner import manifest_rows, stratum_value
+    from vtf.package.audit import make_audit, refresh_audit, score_audit
+
+    page = make_audit(run, n=30, seed=0, echo=quiet)
+    base = json.loads((page.parent / "sample.json").read_text())
+    rows = {r.task_id: r for r in manifest_rows(run)}
+    seen = sorted({rows[t].scene_id for t in base["task_ids"]})[:2]
+    page = refresh_audit(run, seen, prefer_ids=base["task_ids"][:0], echo=quiet)
+    assert json.loads((page.parent / "sample.json").read_text()) == base, "draw kept"
+    v2 = json.loads((page.parent / "sample_v2.json").read_text())
+    assert len(v2["task_ids"]) == 30 and len(set(v2["task_ids"])) == 30
+    assert not {rows[t].scene_id for t in v2["task_ids"]} & set(seen)
+    assert v2["replacements"] and v2["refreshed_from"] == base["audit_id"]
+    keys = ("family", "rig", "shortcut_conflict")
+    for rep in v2["replacements"]:
+        if rep["level"] == "same_stratum":
+            old, new = rows[rep["old"]], rows[rep["new"]]
+            assert [stratum_value(old, k) for k in keys] == [stratum_value(new, k) for k in keys]
+    data = _page_data(page)
+    assert [i["id"] for i in data["tasks"]] == v2["task_ids"]
+    assert data["audit_id"] == v2["audit_id"] != base["audit_id"]
+    answers = {
+        t: {"answer": read_task(RunLayout(run).task_dir(t) / "task.json").answer}
+        for t in v2["task_ids"]
+    }
+    export = {"audit_id": v2["audit_id"], "answers": answers}
+    (run / "answers_v2.json").write_text(json.dumps(export))
+    result = score_audit(run, run / "answers_v2.json", echo=quiet)
+    assert result["sample_size"] == 30 and result["correct"] == 30, "finds sample_v2.json by id"
+
+
 def test_cli_audit_make(run: Path, tmp_path: Path) -> None:
     out = tmp_path / "audit_out"
     result = CliRunner().invoke(app, ["audit", "make", str(run), "--n", "10", "--out", str(out)])

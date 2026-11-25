@@ -39,24 +39,15 @@ The storyline for the demo video and the 20 Dec live demo, plus the assets to co
 | Task Explorer v1, live | Live demo | **Done (brief 06):** https://vtf-task-explorer.vercel.app, frozen v1 with Haiku, Sonnet, Opus high and Opus xhigh answers plus the blind baseline, and a **Conflict gallery** (https://vtf-task-explorer.vercel.app/?view=gallery): 12 scenes where every model took the 2D shortcut, with the true answer (blue) and the shortcut object (orange) marked on the image and in 3D. Demo path: open the gallery, pick "nearest to gripper", rotate the 3D view to show the true nearest object. Rebuild: the export command in web/README.md, then `vercel deploy --prod --yes` in web/ |
 | Task Explorer screen recording | Live-demo backup | To do (stage 5) |
 
-## Physical twins: shopping list (P19)
+## Physical twins: shopping list (P19, trimmed 25 Nov for 12 layouts)
 
-Print docs/twins/mat_A3.pdf at 100% (or the four tiles of mat_A4_tiled.pdf), then buy these 15 kinds of item, 23 pieces in all, in one supermarket trip. Each stands in for one 3D asset; anything within a fifth of the size given is fine. Pick plain items close to the colour given, because questions name objects by colour. Full sizes and ranges: docs/twins/shopping_list.md. Layouts to build: docs/twins/layouts.pdf (30 scenes).
+Print docs/twins/mat_A3.pdf at 100% (or the four tiles of mat_A4_tiled.pdf), then buy these 6 kinds of item, 8 pieces in all. Each stands in for one 3D asset; anything within a fifth of the size given is fine. Pick plain items close to the colour given, because questions name objects by colour. Full sizes and ranges: docs/twins/shopping_list.md. Layouts to build: docs/twins/layouts.pdf (12 scenes, chosen in docs/twins/selection.json).
 
-1. Two large red apples, about 10 cm across (asset food_apple_01).
-2. One pomegranate, about 11.5 cm across (food_pomegranate_01).
-3. Three lemons, about 7 cm across and 9.5 cm long (lemon).
-4. Three limes, about 6 cm across and 7.5 cm long (food_lime_01).
-5. One large avocado, about 9.5 cm across and 14 cm long (food_avocado_01).
-6. Two large kiwi fruit, about 7 by 9 cm (food_kiwi_01).
-7. Two brown onions, about 7 by 8.5 cm (yellow_onion).
-8. One small bowl, wooden if possible, about 13 cm across and 7 cm tall (wooden_bowl_02).
-9. Two food tins with a red label and a flat lid, about 9 cm across and 13 cm tall (cleaner_tin_01).
-10. One black spray can, about 7 cm across and 17 cm tall (leather_cleaner_can).
-11. One silver or grey spray can, about 6.7 cm across and 16.5 cm tall (lubricant_spray).
-12. One grey or clear trigger spray bottle, about 23 cm tall (multi_cleaner_bottle).
-13. One white bleach or detergent bottle, about 29 cm tall (bleach_bottle).
-14. One small white roll of medical or masking tape, about 4.5 cm across (medical_tape).
-15. One yellow rubber duck, about 11 cm tall (rubber_duck_toy).
+1. Three limes, about 6 cm across and 7.5 cm long (food_lime_01).
+2. One large kiwi fruit, about 7 by 9 cm (food_kiwi_01).
+3. One brown onion, about 7 by 8.5 cm (yellow_onion).
+4. One small bowl, wooden if possible, about 13 cm across and 7 cm tall (wooden_bowl_02).
+5. One white trigger spray bottle, about 23 cm tall (multi_cleaner_bottle).
+6. One small white roll of medical or masking tape, about 4.5 cm across (medical_tape).
 
 Also: sticky tape, and a phone stand or a stack of books for the two camera spots.

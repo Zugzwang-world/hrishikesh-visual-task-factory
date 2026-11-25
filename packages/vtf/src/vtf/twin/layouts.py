@@ -531,18 +531,26 @@ def shortfall(scene: SceneSpec, quantities: dict[str, int]) -> str:
 
 
 def make_layouts(
-    run_dir: Path, out: Path, limit: int | None = None, buildable_only: bool = True
+    run_dir: Path,
+    out: Path,
+    limit: int | None = None,
+    buildable_only: bool = True,
+    scene_ids: list[str] | None = None,
+    quantities: dict[str, int] | None = None,
 ) -> Path:
     """`vtf twin layouts`: cover page plus one layout page per scene of the run.
 
     With `buildable_only`, scenes that need more copies of an asset than the shopping list buys
     (or an asset not on it) are skipped and listed on the cover; `limit` counts kept scenes.
+    `scene_ids` (a selection, docs/twins/selection.json) prints only those scenes, in that order,
+    and `quantities` replaces the full shopping list's.
     """
     run = RunLayout(run_dir)
-    all_ids = run.scene_ids()
+    all_ids = list(scene_ids) if scene_ids else run.scene_ids()
     if not all_ids:
         raise FileNotFoundError(f"no scenes in {run.scenes_dir}")
-    quantities = {it.asset_id: it.quantity for it in build_shopping_list()}
+    if quantities is None:
+        quantities = {it.asset_id: it.quantity for it in build_shopping_list()}
     scenes: list[tuple[SceneSpec, bool]] = []
     skipped: list[tuple[str, str]] = []
     for sid in all_ids:

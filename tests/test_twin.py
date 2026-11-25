@@ -296,3 +296,35 @@ def test_cli_twin_commands(twin_run: Path, tmp_path: Path) -> None:
     assert _pdf_pages(docs / "layouts.pdf") == 1 + min(2, len(_buildable(twin_run)))
     res = runner.invoke(app, ["twin", "bogus"])
     assert res.exit_code != 0
+
+
+def test_twin_selection_limits_sheets_and_shopping(twin_run: Path, tmp_path: Path) -> None:
+    from collections import Counter
+
+    from typer.testing import CliRunner
+
+    from vtf.cli import app
+    from vtf.core.io import read_scene
+    from vtf.core.layout import RunLayout
+
+    picked = _buildable(twin_run)[:2]
+    need: Counter = Counter()
+    for sid in picked:
+        scene = read_scene(RunLayout(twin_run).scene_file(sid))
+        for asset, n in Counter(o.shape for o in scene.objects).items():
+            need[asset] = max(need[asset], n)
+    sel = tmp_path / "selection.json"
+    sel.write_text(json.dumps({"scene_ids": picked, "pieces_to_buy": dict(need)}))
+    docs = tmp_path / "docs"
+    runner = CliRunner()
+    res = runner.invoke(app, ["twin", "shopping", "--out", str(docs), "--selection", str(sel)])
+    assert res.exit_code == 0, res.output
+    data = json.loads((docs / "shopping_list.json").read_text())
+    assert {i["asset_id"]: i["quantity"] for i in data["items"]} == dict(need)
+    text = (docs / "shopping_list.md").read_text()
+    assert f"{len(need)} kinds of item, {sum(need.values())} pieces" in text
+    res = runner.invoke(
+        app, ["twin", "layouts", str(twin_run), "--out", str(docs), "--selection", str(sel)]
+    )
+    assert res.exit_code == 0, res.output
+    assert _pdf_pages(docs / "layouts.pdf") == 1 + len(picked)

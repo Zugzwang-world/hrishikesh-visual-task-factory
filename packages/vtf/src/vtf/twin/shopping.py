@@ -45,10 +45,11 @@ CANDIDATES: tuple[Candidate, ...] = (
     Candidate("yellow_onion", "Onions", "brown onions", 2),
     Candidate("wooden_bowl_02", "Small bowl", "a small bowl, wooden if possible", 1, "tall"),
     Candidate("cleaner_tin_01", "Tins", "food tins with a red label and a flat lid", 2, "tall"),
-    Candidate("leather_cleaner_can", "Black aerosol can", "a black spray can (deodorant, "
+    Candidate("leather_cleaner_can", "Blue aerosol can", "a dark blue spray can (deodorant, "
               "cooking spray)", 1, "tall"),
-    Candidate("lubricant_spray", "Grey aerosol can", "a silver or grey spray can", 1, "tall"),
-    Candidate("multi_cleaner_bottle", "Spray bottle", "a grey or clear trigger spray bottle "
+    Candidate("lubricant_spray", "Silver aerosol can", "a plain silver or grey spray can (no "
+              "strong colour: questions call it just \"can\")", 1, "tall"),
+    Candidate("multi_cleaner_bottle", "Spray bottle", "a white trigger spray bottle "
               "(kitchen cleaner)", 1, "tall"),
     Candidate("bleach_bottle", "Bleach bottle", "a white bleach or detergent bottle", 1, "tall"),
     Candidate("medical_tape", "Tape roll", "a small white roll of medical or masking tape", 1,
@@ -96,19 +97,28 @@ class ShoppingItem:
         )
 
 
-def build_shopping_list(manifest: AssetManifest | None = None) -> list[ShoppingItem]:
+def build_shopping_list(
+    manifest: AssetManifest | None = None, quantities: dict[str, int] | None = None
+) -> list[ShoppingItem]:
     """Resolve every candidate against the manifest. Missing assets raise: the list must only
-    name things the factory can render."""
+    name things the factory can render. `quantities` (asset id -> pieces, from a layout
+    selection) keeps only those candidates, with those counts."""
     manifest = manifest or load_asset_manifest()
+    if quantities is not None:
+        unknown = set(quantities) - {c.asset_id for c in CANDIDATES}
+        if unknown:
+            raise ValueError(f"not on the candidate list: {sorted(unknown)}")
     items = []
     for c in CANDIDATES:
+        if quantities is not None and not quantities.get(c.asset_id):
+            continue
         entry = manifest.get(c.asset_id)
         items.append(
             ShoppingItem(
                 asset_id=entry.id,
                 item=c.item,
                 hint=c.hint,
-                quantity=c.quantity,
+                quantity=c.quantity if quantities is None else int(quantities[c.asset_id]),
                 category=entry.category,
                 colour=entry.color_name,
                 size_m=tuple(entry.size_m),
@@ -118,7 +128,7 @@ def build_shopping_list(manifest: AssetManifest | None = None) -> list[ShoppingI
     return items
 
 
-def shopping_markdown(items: list[ShoppingItem]) -> str:
+def shopping_markdown(items: list[ShoppingItem], scope: str | None = None) -> str:
     total = sum(i.quantity for i in items)
     lines = [
         "# Physical-twin shopping list",
@@ -129,6 +139,8 @@ def shopping_markdown(items: list[ShoppingItem]) -> str:
         "by colour.",
         "",
     ]
+    if scope:
+        lines[2:2] = [scope, ""]
     for n, it in enumerate(items, 1):
         colour = f" ({it.colour})" if it.colour else ""
         lines.append(
@@ -167,14 +179,23 @@ def shopping_json(items: list[ShoppingItem]) -> dict:
     }
 
 
-def write_shopping_list(out: Path, manifest: AssetManifest | None = None) -> list[Path]:
-    """`vtf twin shopping`: shopping_list.md and .json (out is a folder or a .md path)."""
+def write_shopping_list(
+    out: Path,
+    manifest: AssetManifest | None = None,
+    quantities: dict[str, int] | None = None,
+    scope: str | None = None,
+) -> list[Path]:
+    """`vtf twin shopping`: shopping_list.md and .json (out is a folder or a .md path).
+    `quantities` limits the list to what a layout selection needs."""
     out = Path(out)
     md = out if out.suffix == ".md" else out / "shopping_list.md"
     md.parent.mkdir(parents=True, exist_ok=True)
-    items = build_shopping_list(manifest)
-    md.write_text(shopping_markdown(items), encoding="utf-8", newline="\n")
+    items = build_shopping_list(manifest, quantities)
+    md.write_text(shopping_markdown(items, scope), encoding="utf-8", newline="\n")
     js = md.with_suffix(".json")
-    js.write_text(json.dumps(shopping_json(items), indent=2) + "\n", encoding="utf-8")
+    data = shopping_json(items)
+    if quantities is not None:
+        data["scope"] = scope
+    js.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     print(f"vtf twin shopping: {len(items)} items -> {md}, {js.name}")
     return [md, js]

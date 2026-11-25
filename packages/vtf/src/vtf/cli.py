@@ -215,6 +215,28 @@ def audit_score(
     )
 
 
+@audit_app.command("refresh")
+def audit_refresh(
+    path: Path = typer.Argument(..., help="Validated run with an audit draw in <run>/audit."),
+    exclude_scenes: Path = typer.Option(
+        ..., help="JSON list of scene ids the auditor has seen with answers (twins: source)."
+    ),
+    prefer: Path = typer.Option(
+        None, help="JSON with a task_ids list (e.g. the sweep's task_set.json): take these first."
+    ),
+    seed: int = typer.Option(1, help="Replacement seed."),
+) -> None:
+    """Swap every audit task from an already-seen scene for a fresh one of the same stratum;
+    rewrites <run>/audit/index.html and writes sample_v2.json (sample.json stays as drawn)."""
+    import json as _json
+
+    scenes = _json.loads(exclude_scenes.read_text())
+    prefer_ids = _json.loads(prefer.read_text())["task_ids"] if prefer else None
+    _lane("audit refresh", "vtf.package.audit", "refresh_audit")(
+        run_dir=path, exclude_scenes=scenes, prefer_ids=prefer_ids, seed=seed
+    )
+
+
 @audit_app.command("make-s2")
 def audit_make_s2(
     run: Path = typer.Option(Path("out/s2"), help="The stage-2 run (read only)."),
@@ -316,9 +338,14 @@ def twin(
         Path("docs/twins"), help="Output folder, or the PDF path for layouts."
     ),
     limit: int = typer.Option(None, help="Layouts: at most this many scenes."),
+    selection: Path = typer.Option(
+        None, help="Layout pick (docs/twins/selection.json): only those sheets and items."
+    ),
 ) -> None:
     """Physical twins: placement mat PDFs, shopping list, printable layout sheets."""
-    _lane("twin", "vtf.twin.commands", "run_twin")(action=action, path=path, out=out, limit=limit)
+    _lane("twin", "vtf.twin.commands", "run_twin")(
+        action=action, path=path, out=out, limit=limit, selection=selection
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,360 @@
+{
+  "run": "out/twins",
+  "generate": "uv run vtf generate --recipe recipes/physical_twin.yaml --n 45 --seed 19 --out out/twins",
+  "pool": [
+    "scene_0000",
+    "scene_0001",
+    "scene_0002",
+    "scene_0003",
+    "scene_0004",
+    "scene_0005",
+    "scene_0006",
+    "scene_0007",
+    "scene_0008",
+    "scene_0010",
+    "scene_0012",
+    "scene_0013",
+    "scene_0014",
+    "scene_0015",
+    "scene_0016",
+    "scene_0017",
+    "scene_0019",
+    "scene_0020",
+    "scene_0021",
+    "scene_0023",
+    "scene_0024",
+    "scene_0026",
+    "scene_0027",
+    "scene_0028",
+    "scene_0029",
+    "scene_0030",
+    "scene_0031",
+    "scene_0033",
+    "scene_0034",
+    "scene_0035"
+  ],
+  "k": 12,
+  "scene_ids": [
+    "scene_0001",
+    "scene_0006",
+    "scene_0008",
+    "scene_0012",
+    "scene_0015",
+    "scene_0019",
+    "scene_0021",
+    "scene_0027",
+    "scene_0028",
+    "scene_0030",
+    "scene_0034",
+    "scene_0035"
+  ],
+  "family_layouts": {
+    "containment": 4,
+    "count": 12,
+    "count_attribute": 11,
+    "distance": 12,
+    "free_space": 12,
+    "front_to_back": 12,
+    "occlusion": 5,
+    "relation": 12,
+    "support": 12
+  },
+  "pieces_to_buy": {
+    "food_kiwi_01": 1,
+    "food_lime_01": 3,
+    "medical_tape": 1,
+    "multi_cleaner_bottle": 1,
+    "wooden_bowl_02": 1,
+    "yellow_onion": 1
+  },
+  "pieces_total": 8,
+  "objects_total": 39,
+  "per_scene": {
+    "scene_0001": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 3,
+      "assets": {
+        "yellow_onion": 1,
+        "medical_tape": 1,
+        "multi_cleaner_bottle": 1
+      }
+    },
+    "scene_0006": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 3,
+      "assets": {
+        "medical_tape": 1,
+        "yellow_onion": 1,
+        "food_kiwi_01": 1
+      }
+    },
+    "scene_0008": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 4,
+      "assets": {
+        "medical_tape": 1,
+        "food_lime_01": 2,
+        "multi_cleaner_bottle": 1
+      }
+    },
+    "scene_0012": {
+      "families": [
+        "containment",
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "occlusion",
+        "relation",
+        "support"
+      ],
+      "occluded": {
+        "front": [
+          [
+            "brown bowl",
+            0.835
+          ]
+        ],
+        "overhead": [
+          [
+            "white tape",
+            0.38
+          ],
+          [
+            "brown bowl",
+            0.656
+          ]
+        ]
+      },
+      "objects": 3,
+      "assets": {
+        "medical_tape": 1,
+        "wooden_bowl_02": 1,
+        "yellow_onion": 1
+      }
+    },
+    "scene_0015": {
+      "families": [
+        "containment",
+        "count",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "occlusion",
+        "relation",
+        "support"
+      ],
+      "occluded": {
+        "front": [
+          [
+            "brown bowl",
+            0.716
+          ]
+        ],
+        "overhead": [
+          [
+            "brown bowl",
+            0.775
+          ]
+        ]
+      },
+      "objects": 3,
+      "assets": {
+        "wooden_bowl_02": 1,
+        "food_lime_01": 1,
+        "multi_cleaner_bottle": 1
+      }
+    },
+    "scene_0019": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 3,
+      "assets": {
+        "food_lime_01": 3
+      }
+    },
+    "scene_0021": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 3,
+      "assets": {
+        "medical_tape": 1,
+        "yellow_onion": 1,
+        "multi_cleaner_bottle": 1
+      }
+    },
+    "scene_0027": {
+      "families": [
+        "containment",
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "occlusion",
+        "relation",
+        "support"
+      ],
+      "occluded": {
+        "front": [
+          [
+            "brown bowl",
+            0.833
+          ]
+        ],
+        "overhead": [
+          [
+            "brown bowl",
+            0.761
+          ]
+        ]
+      },
+      "objects": 3,
+      "assets": {
+        "wooden_bowl_02": 1,
+        "food_kiwi_01": 1,
+        "medical_tape": 1
+      }
+    },
+    "scene_0028": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 3,
+      "assets": {
+        "yellow_onion": 1,
+        "food_kiwi_01": 1,
+        "food_lime_01": 1
+      }
+    },
+    "scene_0030": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "occlusion",
+        "relation",
+        "support"
+      ],
+      "occluded": {
+        "overhead": [
+          [
+            "brown kiwi",
+            0.789
+          ]
+        ]
+      },
+      "objects": 3,
+      "assets": {
+        "medical_tape": 1,
+        "yellow_onion": 1,
+        "food_kiwi_01": 1
+      }
+    },
+    "scene_0034": {
+      "families": [
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "relation",
+        "support"
+      ],
+      "occluded": {},
+      "objects": 4,
+      "assets": {
+        "food_lime_01": 3,
+        "wooden_bowl_02": 1
+      }
+    },
+    "scene_0035": {
+      "families": [
+        "containment",
+        "count",
+        "count_attribute",
+        "distance",
+        "free_space",
+        "front_to_back",
+        "occlusion",
+        "relation",
+        "support"
+      ],
+      "occluded": {
+        "front": [
+          [
+            "brown bowl",
+            0.721
+          ]
+        ],
+        "overhead": [
+          [
+            "brown bowl",
+            0.776
+          ]
+        ]
+      },
+      "objects": 4,
+      "assets": {
+        "medical_tape": 1,
+        "multi_cleaner_bottle": 1,
+        "wooden_bowl_02": 1,
+        "food_lime_01": 1
+      }
+    }
+  },
+  "full_list_pieces": 23
+}

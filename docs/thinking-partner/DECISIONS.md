@@ -2,6 +2,18 @@
 
 A dated log, newest first. Each entry says what was decided and why. Reversals get a new entry rather than an edit.
 
+## 25 Nov 2026: Brief VTF-07 (unattended product completion)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Founder decisions recorded | Claude models only (Haiku 5.5 high, Sonnet 5.5 high, Opus 5.5 high and xhigh); never Fable or Mythos; findings speak only about the Claude models we tested. v1 stays canonical (300 scenes, 3,181 tasks); the three-scene fix is repeatability evidence, no v1.1. The last 200 scenes are not rendered. Cut: Dockerfile, multi-view consistency, vision gain per model, paired model tests, a separate findings HTML, the slide media pack (moves to the demo run). Physical twins shrink to 12 layouts | Founder and thinking partner, brief VTF-07. |
+| Audit without spoilers: which scenes | The 18 scenes in the deployed Explorer (17 base scenes plus scene_0167 through its twin); a G6 twin counts as its source scene, so 22 of the 150 audit tasks were replaced, not 18 (4 came from twins of seen scenes) | A twin shares its layout with the base scene; its answers are one move away from a seen answer. |
+| Audit without spoilers: how | `vtf audit refresh` swaps each of those tasks for a fresh task of the same family x rig x shortcut_conflict stratum from an unseen scene, preferring tasks the four Claude settings already answered (21 of 22; 1 needs answers). All 22 found a same-stratum task (no fallback). Still 150 tasks, 46 conflict | Same design as the first draw; scoring beside the models needs no new calls except for one task. |
+| Frozen audit/sample.json | Left untouched (its hash is in FROZEN.json); the new draw is out/v1/audit/sample_v2.json (copy in docs/reports/v1/audit_v2_sample.json); index.html and img/ rebuilt in place, so the founder's link is unchanged. `vtf audit score` finds the sample by the export's audit_id | Guardrail: never change frozen v1 files; the brief also says rebuild out/v1/audit/index.html. Both hold this way. New audit_id, so the browser starts a fresh answer sheet. |
+| Twin layouts regenerated | The committed 30-layout PDF no longer matches the documented command (the sampler changed after it was made); regenerated out/twins with the same command (45 scenes, seed 19) and picked from its first 30 buildable scenes | The digital twins (lane C) must render exactly the scenes on the sheets, so sheets and scene files must come from the same code. The founder had not built any layout yet. |
+| 12 twin layouts | scripts/pick_twin_layouts.py: per layout, families it can produce (count_attribute needs a shared colour or category, containment an item in the bowl, occlusion an object 10 to 90% hidden, measured with the exact mesh ray caster); search for the 12 that cover every family (count_attribute 11, containment 4, occlusion 5 layouts), with 3 layouts of four objects so count answers vary, then fewest pieces to buy. Result docs/twins/selection.json: 6 kinds of item, 8 pieces (was 15 kinds, 23 pieces) | The brief: most families with the fewest objects. The first pick (7 pieces) had three objects in every layout, so every count answer would be 3; one more piece fixes that. |
+| Shopping colours fixed | The blue aerosol can (leather_cleaner_can) was listed as black and the spray bottle as grey or clear; the manifest, and so every question, calls them blue and white. Hints now match the manifest | Questions name objects by the manifest colour; a black can would be "the blue can" in the questions. |
+
 ## 25 Nov 2026: API key rotated, commit signing restored
 
 | Decision | Choice | Why |
