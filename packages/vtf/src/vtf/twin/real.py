@@ -36,7 +36,7 @@ import cv2
 import numpy as np
 
 from vtf.core.hashing import sha256_json, short_id
-from vtf.core.io import read_jsonl, read_scene, read_task, write_jsonl, write_model
+from vtf.core.io import link_or_copy, read_jsonl, read_scene, read_task, write_jsonl, write_model
 from vtf.core.layout import RunLayout
 from vtf.core.scene import SceneSpec
 from vtf.core.task import GateResult, ManifestRow
@@ -218,6 +218,7 @@ def register_inbox(
         render_run(sim.root, device=device, gltf=False, keep_raw=False,
                    batch_size=max(1, len(accepted)))  # fmt: skip
         validate_run(sim.root, twins=False)
+    if accepted and sim.task_manifest.exists():  # --no-render re-packages earlier siblings
         summary.update(package_real_tasks(out, accepted, by_label))
     (out / SUMMARY).write_text(json.dumps(summary, indent=2) + "\n")
     print(f"vtf twin register: {summary['accepted']} of {summary['photos']} photos pass G8; "
@@ -259,7 +260,7 @@ def package_real_tasks(out: Path, accepted: dict, by_label: dict[str, Layout]) -
         })  # fmt: skip
         tdir = real.task_dir(twin.task_id)
         tdir.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(out / "images" / f"{tag}.png", tdir / "image.png")
+        link_or_copy(out / "images" / f"{tag}.png", tdir / "image.png")  # hard link: no disk
         write_model(tdir / "task.json", twin)
         rows.append(manifest_row(twin))
         pairs.append({
